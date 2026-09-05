@@ -6,6 +6,34 @@
   <title>NEXUS — High-Adrenaline Daily Quantum Circuit</title>
   <meta name="description" content="One 20-second daily logic rush. 25 quantum nodes. Global universal seed. Defend your streak.">
 
+  <!-- Mobile & PWA Web App Capable (Fullscreen / Standalone Mode) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nexus">
+  <meta name="application-name" content="Nexus">
+  <meta name="theme-color" content="#06070A">
+  <meta name="msapplication-navbutton-color" content="#06070A">
+  <meta name="msapplication-TileColor" content="#06070A">
+
+  <!-- Open Graph / WhatsApp / Instagram / Social Previews -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nexusgame-website.vercel.app">
+  <meta property="og:title" content="NEXUS // Cyber Circuit Runner — 20s Speedrun">
+  <meta property="og:description" content="One 20-second quantum logic rush. 25 procedural nodes, reverse protocols, zero-asset Web Audio synthesis, and real-time global leaderboard synchronization.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=80">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nexus Cyber Circuit Speedrun Preview">
+  <meta property="og:site_name" content="NEXUS">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://nexusgame-website.vercel.app">
+  <meta name="twitter:title" content="NEXUS // Cyber Circuit Runner — 20s Speedrun">
+  <meta name="twitter:description" content="One 20-second quantum logic rush. 25 procedural nodes, reverse protocols, zero-asset Web Audio synthesis, and real-time global leaderboard synchronization.">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=80">
+
   <!-- Tailwind CSS -->
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
 
@@ -36,6 +64,11 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html {
+      overscroll-behavior: none;
+      -webkit-overscroll-behavior: none;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
@@ -44,7 +77,12 @@
         linear-gradient(90deg, rgba(0, 240, 255, 0.025) 1px, transparent 1px);
       background-size: 32px 32px;
       color: #F1F5F9;
+      overscroll-behavior: none;
+      -webkit-overscroll-behavior: none;
       touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     .font-orbitron { font-family: 'Orbitron', sans-serif; }
@@ -510,6 +548,30 @@
 <body class="selection:bg-[#00F0FF] selection:text-black antialiased flex flex-col min-h-screen">
 
   <canvas id="confetti-canvas"></canvas>
+
+  <!-- ================= MOBILE PWA / HOME SCREEN TIP BANNER (FIRST 5 SECONDS) ================= -->
+  <div id="pwa-install-banner" class="fixed top-3 inset-x-3 sm:inset-x-auto sm:right-4 z-50 hidden transition-all duration-500 ease-out transform -translate-y-12 opacity-0 max-w-sm mx-auto pointer-events-auto">
+    <div class="px-3.5 py-2.5 rounded-2xl bg-[#090C16]/95 border border-[#00F0FF]/50 backdrop-blur-xl shadow-2xl shadow-[#00F0FF]/25 flex items-center justify-between gap-3 text-left">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#00F0FF]/20 to-[#8A2BE2]/20 border border-[#00F0FF]/40 flex items-center justify-center text-sm shrink-0">
+          📱
+        </div>
+        <div class="leading-tight">
+          <div class="text-[10px] font-orbitron font-bold text-[#00F0FF] uppercase tracking-wider flex items-center gap-1.5">
+            <span>FULLSCREEN APP MODE</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <div class="text-[11px] text-slate-200 font-mono mt-0.5">
+            Tap <span class="text-[#00F0FF] font-bold">⋮ / Share</span> &rarr; <span class="text-white font-bold">Add to Home Screen</span> for fullscreen app experience
+          </div>
+        </div>
+      </div>
+      <button onclick="dismissPwaBanner()" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-sm font-bold flex items-center justify-center leading-none shrink-0 cursor-pointer transition" aria-label="Dismiss Tip">
+        &times;
+      </button>
+    </div>
+  </div>
+
 
   <!-- ================= TOP NAVIGATION ================= -->
   <nav class="fixed top-0 left-0 right-0 z-40 border-b border-white/10 bg-[#06070A]/85 backdrop-blur-xl">
@@ -3962,7 +4024,7 @@ https://nexusgame-website.vercel.app`;
     }
 
     function copyUpiId() {
-      const upiId = "furkanfarooq1@ybi"; // Easy placeholder to update
+      const upiId = "yourname@upi"; // Easy placeholder to update
       const btn = document.getElementById('copy-upi-btn');
       const icon = document.getElementById('copy-upi-icon');
       const text = document.getElementById('copy-upi-text');
@@ -4020,6 +4082,45 @@ https://nexusgame-website.vercel.app`;
     window.pauseGameTimer = pauseGameTimer;
     window.resumeGameTimer = resumeGameTimer;
 
+    // --- 12. Native Mobile PWA Home Screen Banner ---
+    function initPwaBanner() {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        || (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
+        || ('ontouchstart' in window && window.innerWidth <= 768);
+      
+      const isStandalone = window.navigator.standalone === true 
+        || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+
+      if (isMobile && !isStandalone) {
+        const banner = document.getElementById('pwa-install-banner');
+        if (!banner) return;
+        banner.classList.remove('hidden');
+        // Smooth slide-in animation
+        requestAnimationFrame(() => {
+          banner.classList.remove('-translate-y-12', 'opacity-0');
+          banner.classList.add('translate-y-0', 'opacity-100');
+        });
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+          dismissPwaBanner();
+        }, 5000);
+      }
+    }
+
+    function dismissPwaBanner() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (!banner) return;
+      banner.classList.remove('translate-y-0', 'opacity-100');
+      banner.classList.add('-translate-y-12', 'opacity-0');
+      setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 500);
+    }
+
+    window.dismissPwaBanner = dismissPwaBanner;
+    window.initPwaBanner = initPwaBanner;
+
     // --- 10. Guaranteed Initialization Lifecycle ---
     function initGame() {
       cacheDOMElements();
@@ -4042,6 +4143,7 @@ https://nexusgame-website.vercel.app`;
       
       const storedStreak = localStorage.getItem('nexus_streak') || '1';
       safeSetText('nav-streak', storedStreak);
+      initPwaBanner();
     }
 
     if (document.readyState === 'loading') {
