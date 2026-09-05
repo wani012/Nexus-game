@@ -528,7 +528,7 @@
       color: #040810 !important;
     }
 
-    /* Fuel The Dev Pulsing Glowing Pill */
+    /* Fuel The Furu Pulsing Glowing Pill */
     .fuel-pill-badge {
       animation: fuelPulse 3s ease-in-out infinite;
       position: relative;
@@ -605,10 +605,10 @@
           <span id="nav-streak" class="font-mono text-[#00F0FF]">1</span>
         </div>
 
-        <!-- Fuel The Dev Trigger Pill Badge -->
-        <button id="nav-fuel-dev-btn" onclick="openSupportModal()" title="Support Developer / Fuel The Core" class="fuel-pill-badge flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-[#161220] to-[#00F0FF]/15 border border-amber-400/40 hover:border-amber-300 text-xs font-bold text-amber-300 hover:text-white transition font-orbitron shadow-sm shadow-amber-500/20 hover:-translate-y-0.5 cursor-pointer">
+        <!-- Fuel The Furu Trigger Pill Badge -->
+        <button id="nav-fuel-dev-btn" onclick="openSupportModal()" title="Support Furu / Fuel The Core" class="fuel-pill-badge flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-[#161220] to-[#00F0FF]/15 border border-amber-400/40 hover:border-amber-300 text-xs font-bold text-amber-300 hover:text-white transition font-orbitron shadow-sm shadow-amber-500/20 hover:-translate-y-0.5 cursor-pointer">
           <span class="text-amber-400 animate-pulse text-xs">⚡</span>
-          <span class="text-[10px] tracking-wider uppercase">FUEL THE DEV</span>
+          <span class="text-[10px] tracking-wider uppercase">FUEL THE FURU</span>
         </button>
 
         <!-- Play Button -->
@@ -710,9 +710,9 @@
             <span>⚔️</span>
             <span class="hidden sm:inline text-[10px]">DUEL</span>
           </button>
-          <button id="arena-fuel-btn" onclick="openSupportModal()" title="Support Developer / Fuel The Core" class="px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/15 to-[#8A2BE2]/15 border border-amber-400/40 hover:border-amber-300 text-xs font-bold text-amber-300 hover:text-white transition flex items-center gap-1 font-orbitron active:scale-95 cursor-pointer shadow-sm shadow-amber-500/10">
+          <button id="arena-fuel-btn" onclick="openSupportModal()" title="Support Furu / Fuel The Core" class="px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/15 to-[#8A2BE2]/15 border border-amber-400/40 hover:border-amber-300 text-xs font-bold text-amber-300 hover:text-white transition flex items-center gap-1 font-orbitron active:scale-95 cursor-pointer shadow-sm shadow-amber-500/10">
             <span>⚡</span>
-            <span class="hidden sm:inline text-[10px]">FUEL</span>
+            <span class="hidden sm:inline text-[10px]">FUEL FURU</span>
           </button>
           <button id="debug-reroll-btn" title="Next Level (Debug)" class="px-2 py-2 rounded-xl bg-purple-900/30 border border-[#8A2BE2]/50 hover:border-[#8A2BE2] hover:bg-[#8A2BE2]/30 text-[11px] font-black text-[#C084FC] hover:text-white transition flex items-center gap-1 font-orbitron shadow-md shadow-[#8A2BE2]/15">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
@@ -865,7 +865,7 @@
     </div>
   </div>
 
-  <!-- ================= SUPPORT DEVELOPER / FUEL THE DEV MODAL ================= -->
+  <!-- ================= SUPPORT FURU / FUEL THE FURU MODAL ================= -->
   <div id="support-modal" class="fixed inset-0 bg-black/85 backdrop-blur-[12px] hidden items-center justify-center p-4 z-50 transition-opacity duration-200">
     <div class="cyber-glass-card border-2 border-amber-400/50 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl shadow-amber-500/15 relative text-center">
       
@@ -876,7 +876,7 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
         <div class="flex items-center gap-2 text-left">
           <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-          <h3 class="font-orbitron font-black text-xs sm:text-sm text-amber-300 tracking-wider">NEURAL CORE // FUEL THE DEV</h3>
+          <h3 class="font-orbitron font-black text-xs sm:text-sm text-amber-300 tracking-wider">NEURAL CORE // FUEL THE FURU</h3>
         </div>
         <button id="close-support-btn" onclick="closeSupportModal()" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-red-500/20 border border-white/10 hover:border-red-400/60 text-slate-400 hover:text-red-300 flex items-center justify-center text-lg font-bold transition cursor-pointer" aria-label="Close Support Modal">
           &times;
@@ -885,7 +885,7 @@
 
       <!-- Subtext -->
       <p class="text-slate-300 text-xs sm:text-[13px] leading-relaxed mb-4 text-left font-sans">
-        Nexus is an open-source, zero-ad speedrun experiment. If you enjoyed hacking the circuit, fuel future development with a quick chai/coffee!
+        Nexus is an open-source, zero-ad speedrun experiment by Furu. If you enjoyed hacking the circuit, fuel Furu's development with a quick chai/coffee!
       </p>
 
       <!-- Central QR Code Frame (180x180 neon-bordered container) -->
@@ -896,9 +896,10 @@
         <div class="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-[#00F0FF]"></div>
         <div class="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-[#00F0FF]"></div>
 
-        <!-- Dynamic Cyber QR Code (SVG with fallback) -->
-        <div id="qr-display-container" class="w-full h-full flex items-center justify-center">
-          <svg id="svg-upi-qr" class="w-full h-full rounded-lg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <!-- Dynamic Cyber QR Code (Real scan-to-pay QR for furkanfarooq1@ybi with SVG fallback) -->
+        <div id="qr-display-container" class="w-full h-full flex items-center justify-center relative">
+          <img id="real-upi-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybi%26pn%3DFurkan%2520Farooq%26cu%3DINR&color=00F0FF&bgcolor=0A0E1A" alt="Scan to Pay furkanfarooq1@ybi" class="w-full h-full rounded-lg object-contain" onerror="this.style.display='none'; const fb = document.getElementById('svg-upi-qr'); if(fb) fb.style.display='block';" />
+          <svg id="svg-upi-qr" style="display:none;" class="w-full h-full rounded-lg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
             <rect width="160" height="160" fill="#0A0E1A"/>
             <defs>
               <linearGradient id="qrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -975,7 +976,7 @@
           <span id="tier-hint" class="text-[9px] font-mono text-amber-300 font-semibold hidden">Selected: ₹20 Chai</span>
         </div>
         <div class="flex items-center justify-between gap-2 bg-[#080B14] p-2 rounded-xl border border-white/5">
-          <span id="upi-id-display" class="font-mono text-xs sm:text-sm font-bold text-[#00F0FF] tracking-wider truncate">yourname@upi</span>
+          <span id="upi-id-display" class="font-mono text-xs sm:text-sm font-bold text-[#00F0FF] tracking-wider truncate">furkanfarooq1@ybi</span>
           <button id="copy-upi-btn" onclick="copyUpiId()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-black text-[10px] sm:text-xs font-orbitron tracking-wider transition flex items-center gap-1 cursor-pointer shrink-0 shadow-sm shadow-amber-400/20 active:scale-95">
             <span id="copy-upi-icon">📋</span>
             <span id="copy-upi-text">COPY UPI ID</span>
@@ -1064,7 +1065,7 @@
         </button>
 
         <button id="btn-support-creator" onclick="openSupportModal()" type="button" class="w-full py-2 bg-transparent hover:bg-amber-400/10 border border-amber-400/40 hover:border-amber-400 text-amber-300 hover:text-white font-bold tracking-wider rounded-xl transition flex items-center justify-center gap-2 text-xs uppercase shadow-sm font-orbitron cursor-pointer">
-          <span>☕ SUPPORT THE CREATOR</span>
+          <span>☕ SUPPORT FURU</span>
         </button>
       </div>
     </div>
@@ -3976,7 +3977,7 @@ https://nexusgame-website.vercel.app`;
       }
     }
 
-    // --- 11. Support Developer / Fuel The Dev Controller ---
+    // --- 11. Support Furu / Fuel The Furu Controller ---
     function openSupportModal() {
       const modal = document.getElementById('support-modal');
       if (!modal) return;
@@ -4024,7 +4025,7 @@ https://nexusgame-website.vercel.app`;
     }
 
     function copyUpiId() {
-      const upiId = "yourname@upi"; // Easy placeholder to update
+      const upiId = "furkanfarooq1@ybi"; // Direct UPI ID
       const btn = document.getElementById('copy-upi-btn');
       const icon = document.getElementById('copy-upi-icon');
       const text = document.getElementById('copy-upi-text');
