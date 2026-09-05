@@ -276,6 +276,21 @@
       filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
     }
 
+    /* Live Circuit Glitch & Transition Animation */
+    @keyframes circuitGlitchAnim {
+      0% { transform: translate(0); filter: hue-rotate(0deg) contrast(1); }
+      15% { transform: translate(-5px, 3px); filter: hue-rotate(90deg) contrast(2.2); }
+      30% { transform: translate(5px, -3px); filter: hue-rotate(180deg) invert(0.25); }
+      45% { transform: translate(-4px, -2px); filter: hue-rotate(270deg) contrast(1.8); }
+      60% { transform: translate(4px, 2px); filter: hue-rotate(360deg) contrast(1.4); }
+      75% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+      100% { transform: translate(0); filter: none; }
+    }
+
+    .circuit-transition-glitch {
+      animation: circuitGlitchAnim 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
     #confetti-canvas {
       position: fixed;
       inset: 0;
@@ -395,9 +410,13 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button id="sound-btn" title="Toggle Sound" class="p-2.5 rounded-xl bg-slate-800/60 border border-white/10 hover:border-[#00F0FF]/50 text-slate-300 hover:text-white transition">
-            <svg id="sound-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button id="sound-btn" title="Toggle Sound (Mute/Unmute)" class="p-2.5 rounded-xl border border-[#00F0FF]/40 bg-[#00F0FF]/10 text-[#00F0FF] hover:text-white transition flex items-center justify-center">
+            <svg id="sound-icon-on" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+            </svg>
+            <svg id="sound-icon-off" class="w-4 h-4 text-slate-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
             </svg>
           </button>
           <button id="clear-btn" title="Reset Circuit" class="px-3.5 py-2 rounded-xl bg-slate-800/60 border border-white/10 hover:border-white/30 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 font-orbitron">
@@ -413,9 +432,42 @@
       </div>
 
       <!-- Instruction Tip Pill -->
-      <div class="mb-4 bg-slate-900/80 rounded-xl px-3.5 py-2 border border-white/5 flex items-center justify-between text-xs">
+      <div class="mb-3 bg-slate-900/80 rounded-xl px-3.5 py-2 border border-white/5 flex items-center justify-between text-xs">
         <span class="text-slate-400">Drag from <strong class="text-[#8A2BE2] font-black font-orbitron">[1]</strong>! Drag backward to undo.</span>
         <span id="nodes-progress" class="font-mono font-bold text-[#00F0FF] ml-2 text-xs">0/25</span>
+      </div>
+
+      <!-- Live Circuit Transition Toast Alert -->
+      <div id="circuit-sync-toast" class="hidden mb-3 py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#FF2A6D]/20 via-[#00F0FF]/20 to-[#8A2BE2]/20 border border-[#00F0FF]/40 text-center font-orbitron text-xs text-white shadow-lg animate-pulse">
+        <span id="circuit-sync-toast-text">⚡ NEW CIRCUIT DEPLOYED GLOBALLY!</span>
+      </div>
+
+      <!-- TARGET APEX TIMES (Top 3 Benchmark Track) -->
+      <div class="mb-3.5 bg-[#090C15]/90 rounded-2xl p-3 border border-[#00F0FF]/30 shadow-lg shadow-[#00F0FF]/5 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs text-[#00F0FF] animate-pulse">🎯</span>
+            <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-300 font-orbitron">TARGET APEX TIMES</span>
+          </div>
+          <span class="text-[9px] font-mono text-[#00F0FF]/80 font-bold px-1.5 py-0.5 rounded bg-[#00F0FF]/10 border border-[#00F0FF]/20">MATCH ANY = RE-ROLL ⚡</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center font-orbitron">
+          <div class="bg-[#121624] border border-amber-400/50 rounded-xl p-2 relative shadow-inner">
+            <div class="text-[9px] font-black text-amber-400">#1 GOLD</div>
+            <div id="target-apex-1" class="font-mono text-xs sm:text-sm font-black text-amber-300 mt-0.5">--.--s</div>
+            <div id="target-apex-name-1" class="text-[8px] text-slate-400 font-mono truncate mt-0.5">EMPTY</div>
+          </div>
+          <div class="bg-[#121624] border border-slate-300/40 rounded-xl p-2 relative shadow-inner">
+            <div class="text-[9px] font-black text-slate-300">#2 SILVER</div>
+            <div id="target-apex-2" class="font-mono text-xs sm:text-sm font-black text-slate-200 mt-0.5">--.--s</div>
+            <div id="target-apex-name-2" class="text-[8px] text-slate-400 font-mono truncate mt-0.5">EMPTY</div>
+          </div>
+          <div class="bg-[#121624] border border-amber-600/40 rounded-xl p-2 relative shadow-inner">
+            <div class="text-[9px] font-black text-amber-500">#3 BRONZE</div>
+            <div id="target-apex-3" class="font-mono text-xs sm:text-sm font-black text-amber-400 mt-0.5">--.--s</div>
+            <div id="target-apex-name-3" class="text-[8px] text-slate-400 font-mono truncate mt-0.5">EMPTY</div>
+          </div>
+        </div>
       </div>
 
       <!-- Strict 1:1 Square Board Frame -->
@@ -507,10 +559,46 @@
             class="w-full px-4 py-3.5 bg-[#090B12] border border-[#00F0FF]/40 rounded-xl text-white font-mono font-bold text-sm tracking-widest uppercase focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition shadow-inner">
         </div>
 
-        <button id="cracked-submit-btn" type="submit" class="w-full py-4 bg-gradient-to-r from-[#00F0FF] to-[#00A3FF] hover:from-[#33F3FF] hover:to-[#00B4FF] text-black font-black tracking-wider rounded-xl transition shadow-lg shadow-[#00F0FF]/30 flex items-center justify-center gap-2 text-sm">
-          SUBMIT SCORE ⚡
-        </button>
+        <div class="flex flex-col gap-2.5 pt-1">
+          <button id="cracked-submit-btn" type="submit" class="w-full py-4 bg-gradient-to-r from-[#00F0FF] to-[#00A3FF] hover:from-[#33F3FF] hover:to-[#00B4FF] text-black font-black tracking-wider rounded-xl transition shadow-lg shadow-[#00F0FF]/30 flex items-center justify-center gap-2 text-sm">
+            SUBMIT RECORD ⚡
+          </button>
+
+          <button type="button" id="ig-story-btn" class="w-full py-3.5 bg-gradient-to-r from-[#8A2BE2] via-[#E066FF] to-[#FF2A6D] hover:opacity-95 text-white font-black tracking-wider rounded-xl transition shadow-lg shadow-[#FF2A6D]/25 flex items-center justify-center gap-2 text-xs uppercase font-orbitron border border-white/20">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            <span id="ig-story-btn-text">SHARE TO INSTAGRAM STORY</span>
+          </button>
+        </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ================= BENCHMARK MATCH / CIRCUIT TRANSITION OVERLAY ================= -->
+  <div id="benchmark-matched-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-6 z-[60]">
+    <div class="relative max-w-md w-full p-7 sm:p-9 rounded-3xl border-2 border-[#FF2A6D] bg-[#090B14] shadow-2xl shadow-[#FF2A6D]/40 text-center">
+      <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#FF2A6D] to-[#00F0FF] mx-auto flex items-center justify-center text-4xl mb-4 shadow-lg shadow-[#FF2A6D]/50 animate-bounce">
+        ⚡
+      </div>
+      <div class="inline-block px-3.5 py-1 rounded-full bg-[#FF2A6D]/20 border border-[#FF2A6D]/50 text-[10px] font-black text-[#FF2A6D] font-orbitron tracking-widest uppercase mb-3">
+        QUANTUM SINGULARITY DETECTED
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black text-white font-orbitron tracking-wider uppercase mb-2 drop-shadow-md">
+        BENCHMARK MATCHED!
+      </h2>
+      <p id="benchmark-match-detail" class="text-xs sm:text-sm text-cyan-300 font-mono mb-6 leading-relaxed">
+        Exact match with Apex Target [03.24s]!
+      </p>
+      <div class="p-4 bg-black/60 rounded-2xl border border-white/10 mb-6">
+        <div class="text-[10px] font-bold text-slate-400 font-orbitron uppercase mb-1">GLOBAL BROADCAST</div>
+        <div class="text-sm sm:text-base font-black text-[#00F0FF] font-orbitron tracking-wide animate-pulse">
+          GENERATING NEW CIRCUIT...
+        </div>
+      </div>
+      <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-white/10">
+        <div id="benchmark-loader-bar" class="h-full bg-gradient-to-r from-[#00F0FF] via-[#8A2BE2] to-[#FF2A6D] w-full animate-pulse"></div>
+      </div>
     </div>
   </div>
 
@@ -572,6 +660,26 @@
         </p>
       </div>
     </div>
+
+    <!-- Top 3 Benchmark Match Rule Highlight -->
+    <div class="mt-5 p-5 cyber-glass-card rounded-2xl border border-[#00F0FF]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-xl bg-[#00F0FF]/15 border border-[#00F0FF]/40 text-[#00F0FF] flex items-center justify-center font-black text-2xl font-orbitron shrink-0">
+          🎯
+        </div>
+        <div>
+          <h3 class="text-sm font-black text-white font-orbitron tracking-wide uppercase">
+            THE TOP 3 BENCHMARK MATCH RULE
+          </h3>
+          <p class="text-slate-400 text-xs mt-0.5 leading-relaxed font-mono">
+            Match any of the current <span class="text-[#00F0FF] font-bold">Top 3 Target Times</span> (within 0.05s) on completion to trigger a global quantum singularity! A brand new circuit layout is instantly generated and synchronized across all active players in real-time.
+          </p>
+        </div>
+      </div>
+      <div class="px-3.5 py-1.5 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 text-[10px] font-mono font-bold text-[#00F0FF] whitespace-nowrap">
+        GLOBAL RE-ROLL
+      </div>
+    </div>
   </section>
 
   <!-- ================= PRACTICE ARCHIVE ================= -->
@@ -626,6 +734,13 @@
         <a id="whatsapp-share-btn" target="_blank" class="w-full py-3 bg-[#25D366] hover:bg-[#20b858] text-white font-extrabold tracking-wide rounded-xl transition flex items-center justify-center gap-2 text-xs">
           <span>SHARE TO WHATSAPP</span>
         </a>
+
+        <button type="button" id="ig-story-victory-btn" class="w-full py-3 bg-gradient-to-r from-[#8A2BE2] via-[#E066FF] to-[#FF2A6D] hover:opacity-95 text-white font-black tracking-wide rounded-xl transition shadow-lg shadow-[#FF2A6D]/20 flex items-center justify-center gap-2 text-xs font-orbitron border border-white/20">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+          <span>EXPORT INSTAGRAM STORY CARD 📱</span>
+        </button>
 
         <button id="view-leaderboard-btn" class="w-full py-3 bg-[#141824] hover:bg-[#1c2233] border border-amber-500/40 text-amber-300 font-bold text-xs tracking-wide rounded-xl transition flex items-center justify-center gap-2 font-orbitron">
           <span>🏆 VIEW DAILY LEADERBOARD</span>
@@ -686,139 +801,298 @@
       return hash >>> 0;
     }
 
-    // --- 2. Cyberpunk Audio Synthesizer (Web Audio API) ---
+    // --- 2. Cyberpunk Audio Synthesizer & Haptic Engine (Zero External MP3s) ---
     class CyberAudioSynth {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
-        this.scale = [
-          261.63, 293.66, 329.63, 392.00, 440.00,
-          523.25, 587.33, 659.25, 783.99, 880.00,
-          1046.50, 1174.66, 1318.51, 1567.98, 1760.00,
-          2093.00, 2349.32, 2637.02, 3135.96, 3520.00,
-          4186.01, 4698.63, 5274.04, 6271.93, 7040.00
-        ];
+        this.enabled = localStorage.getItem('nexus_audio_muted') !== 'true';
+        // Continuous exponential scale from 220Hz (A3) to 1174Hz (D6) across 25 nodes
+        this.baseFrequencies = [];
+        for (let i = 0; i < 25; i++) {
+          this.baseFrequencies.push(220 * Math.pow(2, (i / 24) * 2.415));
+        }
       }
 
       init() {
         if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
         }
         if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume();
+          this.ctx.resume().catch(() => {});
         }
       }
 
+      toggleMute() {
+        this.enabled = !this.enabled;
+        localStorage.setItem('nexus_audio_muted', (!this.enabled).toString());
+        updateSoundBtnUI();
+        if (this.enabled) {
+          this.init();
+          this.playStep(0);
+        }
+        return this.enabled;
+      }
+
+      // 1. Crisp futuristic blip that pitches up with each successive node (0 to 24)
       playStep(stepIndex) {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        const freq = this.scale[Math.min(Math.max(0, stepIndex), this.scale.length - 1)];
 
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.14, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.16);
+        try {
+          const idx = Math.max(0, Math.min(24, stepIndex));
+          const targetFreq = this.baseFrequencies[idx] || 440;
+          const now = this.ctx.currentTime;
 
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.16);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(targetFreq * 1.35, now);
+          osc.frequency.exponentialRampToValueAtTime(targetFreq, now + 0.025);
+
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.12);
+
+          // Subtle bright harmonic shimmer
+          const harmonic = this.ctx.createOscillator();
+          const hGain = this.ctx.createGain();
+          harmonic.type = 'sine';
+          harmonic.frequency.setValueAtTime(targetFreq * 2, now);
+          hGain.gain.setValueAtTime(0.06, now);
+          hGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+          harmonic.connect(hGain);
+          hGain.connect(this.ctx.destination);
+          harmonic.start(now);
+          harmonic.stop(now + 0.08);
+        } catch (_) {}
       }
 
-      playErrorBuzz() {
-        if (!this.enabled) return;
-        this.init();
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.18);
-
-        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.18);
-
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.18);
-      }
-
+      // 2. Urgent, pulsating low-frequency heartbeat / alarm tick (last 5s warning)
       playUrgentTick() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.08);
+        try {
+          const now = this.ctx.currentTime;
 
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.08);
+          // Sub-bass thump (75Hz -> 38Hz)
+          const subOsc = this.ctx.createOscillator();
+          const subGain = this.ctx.createGain();
+          subOsc.type = 'sine';
+          subOsc.frequency.setValueAtTime(75, now);
+          subOsc.frequency.exponentialRampToValueAtTime(38, now + 0.09);
+
+          subGain.gain.setValueAtTime(0.35, now);
+          subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+          subOsc.connect(subGain);
+          subGain.connect(this.ctx.destination);
+          subOsc.start(now);
+          subOsc.stop(now + 0.09);
+
+          // Crisp metallic tick
+          const tickOsc = this.ctx.createOscillator();
+          const tickGain = this.ctx.createGain();
+          tickOsc.type = 'triangle';
+          tickOsc.frequency.setValueAtTime(1100, now);
+          tickGain.gain.setValueAtTime(0.09, now);
+          tickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+
+          tickOsc.connect(tickGain);
+          tickGain.connect(this.ctx.destination);
+          tickOsc.start(now);
+          tickOsc.stop(now + 0.04);
+
+          // Secondary lub-dub pulse 95ms later
+          setTimeout(() => {
+            if (!this.enabled || !this.ctx) return;
+            try {
+              const t2 = this.ctx.currentTime;
+              const sub2 = this.ctx.createOscillator();
+              const sub2Gain = this.ctx.createGain();
+              sub2.type = 'sine';
+              sub2.frequency.setValueAtTime(62, t2);
+              sub2.frequency.exponentialRampToValueAtTime(32, t2 + 0.07);
+
+              sub2Gain.gain.setValueAtTime(0.22, t2);
+              sub2Gain.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.07);
+
+              sub2.connect(sub2Gain);
+              sub2Gain.connect(this.ctx.destination);
+              sub2.start(t2);
+              sub2.stop(t2 + 0.07);
+            } catch (_) {}
+          }, 95);
+        } catch (_) {}
       }
 
+      // 3. Circuit Cracked (Win): Triumphant synth chime with a resonant bass swell
       playVictory() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-        notes.forEach((freq, idx) => {
-          setTimeout(() => {
-            if (!this.ctx) return;
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.9);
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start();
-            osc.stop(this.ctx.currentTime + 0.9);
-          }, idx * 75);
-        });
+
+        try {
+          const now = this.ctx.currentTime;
+
+          // Resonant Bass Swell
+          const bassOsc = this.ctx.createOscillator();
+          const bassFilter = this.ctx.createBiquadFilter();
+          const bassGain = this.ctx.createGain();
+
+          bassOsc.type = 'sawtooth';
+          bassOsc.frequency.setValueAtTime(55, now);
+          bassOsc.frequency.exponentialRampToValueAtTime(110, now + 0.45);
+
+          bassFilter.type = 'lowpass';
+          bassFilter.frequency.setValueAtTime(110, now);
+          bassFilter.frequency.exponentialRampToValueAtTime(460, now + 0.4);
+          bassFilter.Q.value = 5.0;
+
+          bassGain.gain.setValueAtTime(0.01, now);
+          bassGain.gain.linearRampToValueAtTime(0.26, now + 0.35);
+          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+          bassOsc.connect(bassFilter);
+          bassFilter.connect(bassGain);
+          bassGain.connect(this.ctx.destination);
+          bassOsc.start(now);
+          bassOsc.stop(now + 1.2);
+
+          // Triumphant Synth Chime Arpeggio
+          const chimeNotes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+          chimeNotes.forEach((freq, idx) => {
+            setTimeout(() => {
+              if (!this.enabled || !this.ctx) return;
+              try {
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.22, t);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.85);
+              } catch (_) {}
+            }, 60 + idx * 75);
+          });
+        } catch (_) {}
       }
 
-      playApexTrumpet() {
+      // 4. Failure / Timeout: Digital distorted glitch sound
+      playGlitchFailure() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-        const notes = [587.33, 739.99, 880.00, 1174.66, 1479.98];
-        notes.forEach((freq, idx) => {
-          setTimeout(() => {
-            if (!this.ctx) return;
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.6);
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start();
-            osc.stop(this.ctx.currentTime + 0.6);
-          }, idx * 100);
-        });
+
+        try {
+          const now = this.ctx.currentTime;
+
+          // Modulated FM synth for harsh digital cyber glitch
+          const carrier = this.ctx.createOscillator();
+          const modulator = this.ctx.createOscillator();
+          const modGain = this.ctx.createGain();
+          const masterGain = this.ctx.createGain();
+
+          carrier.type = 'sawtooth';
+          carrier.frequency.setValueAtTime(320, now);
+          carrier.frequency.exponentialRampToValueAtTime(38, now + 0.38);
+
+          modulator.type = 'square';
+          modulator.frequency.setValueAtTime(85, now);
+          modulator.frequency.linearRampToValueAtTime(22, now + 0.38);
+
+          modGain.gain.setValueAtTime(360, now);
+          modGain.gain.exponentialRampToValueAtTime(10, now + 0.38);
+
+          modulator.connect(carrier.frequency);
+
+          masterGain.gain.setValueAtTime(0.25, now);
+          masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+
+          carrier.connect(masterGain);
+          masterGain.connect(this.ctx.destination);
+
+          carrier.start(now);
+          modulator.start(now);
+          carrier.stop(now + 0.38);
+          modulator.stop(now + 0.38);
+        } catch (_) {}
+      }
+
+      // 5. Short error buzz for illegal drag
+      playErrorBuzz() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.16);
+
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } catch (_) {}
       }
     }
 
     const sound = new CyberAudioSynth();
-    const soundBtn = document.getElementById('sound-btn');
-    if (soundBtn) {
-      soundBtn.addEventListener('click', () => {
-        sound.enabled = !sound.enabled;
-        const soundIcon = document.getElementById('sound-icon');
-        if (soundIcon) soundIcon.classList.toggle('opacity-30', !sound.enabled);
-      });
+
+    function updateSoundBtnUI() {
+      const soundBtn = document.getElementById('sound-btn');
+      const iconOn = document.getElementById('sound-icon-on');
+      const iconOff = document.getElementById('sound-icon-off');
+      if (!soundBtn) return;
+
+      if (sound.enabled) {
+        if (iconOn) iconOn.classList.remove('hidden');
+        if (iconOff) iconOff.classList.add('hidden');
+        soundBtn.classList.remove('border-white/10', 'bg-slate-800/40', 'text-slate-500');
+        soundBtn.classList.add('border-[#00F0FF]/40', 'bg-[#00F0FF]/10', 'text-[#00F0FF]');
+        soundBtn.setAttribute('title', 'Mute Audio');
+      } else {
+        if (iconOn) iconOn.classList.add('hidden');
+        if (iconOff) iconOff.classList.remove('hidden');
+        soundBtn.classList.remove('border-[#00F0FF]/40', 'bg-[#00F0FF]/10', 'text-[#00F0FF]');
+        soundBtn.classList.add('border-white/10', 'bg-slate-800/40', 'text-slate-500');
+        soundBtn.setAttribute('title', 'Unmute Audio');
+      }
+    }
+
+    // Safe Mobile Haptic Vibration Helper
+    function triggerHaptic(pattern) {
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+          navigator.vibrate(pattern);
+        }
+      } catch (_) {}
     }
 
     // --- 3. Pure Canvas Confetti Explosion ---
@@ -920,16 +1194,21 @@
       }
     }
 
-    function generatePuzzleForDate(date) {
-      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      const epoch = new Date(Date.UTC(2026, 0, 1));
-      const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const puzzleNumber = Math.max(1, Math.floor((target - epoch) / (1000 * 60 * 60 * 24)) + 1);
+    function generatePuzzleFromSeed(seedStr, puzzleNumber, dateKey) {
+      if (!dateKey) {
+        const now = new Date();
+        dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      }
+      if (!puzzleNumber) {
+        const epoch = new Date(Date.UTC(2026, 0, 1));
+        const now = new Date();
+        puzzleNumber = Math.max(1, Math.floor((now - epoch) / (1000 * 60 * 60 * 24)) + 1);
+      }
 
       let solvedPath = null;
 
-      for (let attempt = 0; attempt < 20; attempt++) {
-        const rng = new Mulberry32(hashDate(dateKey + (attempt > 0 ? `_retry_${attempt}` : '')));
+      for (let attempt = 0; attempt < 35; attempt++) {
+        const rng = new Mulberry32(hashDate(String(seedStr) + (attempt > 0 ? `_retry_${attempt}` : '')));
         const startPt = EVEN_SQUARES[rng.nextInt(EVEN_SQUARES.length)];
         const visited = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
         const path = [{ x: startPt.x, y: startPt.y }];
@@ -944,7 +1223,7 @@
           return count;
         }
 
-        let searchBudget = 4000;
+        let searchBudget = 4500;
         function dfs(pt) {
           if (path.length === TOTAL_CELLS) return true;
           if (--searchBudget <= 0) return false;
@@ -992,7 +1271,15 @@
         if (pt) checkpoints[pt.y * GRID_SIZE + pt.x] = step + 1;
       });
 
-      return { dateKey, puzzleNumber, path: solvedPath, checkpoints };
+      return { seed: seedStr, dateKey, puzzleNumber, path: solvedPath, checkpoints };
+    }
+
+    function generatePuzzleForDate(date) {
+      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const epoch = new Date(Date.UTC(2026, 0, 1));
+      const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const puzzleNumber = Math.max(1, Math.floor((target - epoch) / (1000 * 60 * 60 * 24)) + 1);
+      return generatePuzzleFromSeed(dateKey, puzzleNumber, dateKey);
     }
 
     // --- 5. Firebase Initialization & Firestore Leaderboard ---
@@ -1008,6 +1295,8 @@
 
     let firestoreDb = null;
     let firestoreRecords = [];
+    let top3TargetTimes = [];
+    let currentCircuitSeed = null;
 
     try {
       if (typeof firebase !== 'undefined' && firebase.initializeApp) {
@@ -1018,6 +1307,35 @@
       }
     } catch (err) {
       console.warn("Firebase initialization warning:", err);
+    }
+
+    function updateTargetApexUI(records) {
+      const t1 = document.getElementById('target-apex-1');
+      const t2 = document.getElementById('target-apex-2');
+      const t3 = document.getElementById('target-apex-3');
+      const n1 = document.getElementById('target-apex-name-1');
+      const n2 = document.getElementById('target-apex-name-2');
+      const n3 = document.getElementById('target-apex-name-3');
+
+      top3TargetTimes = [];
+
+      const targets = [
+        { timeEl: t1, nameEl: n1, rank: 0 },
+        { timeEl: t2, nameEl: n2, rank: 1 },
+        { timeEl: t3, nameEl: n3, rank: 2 },
+      ];
+
+      targets.forEach(({ timeEl, nameEl, rank }) => {
+        const rec = records && records[rank];
+        if (rec && typeof rec.time === 'number') {
+          top3TargetTimes.push(rec.time);
+          if (timeEl) timeEl.innerText = `${rec.time.toFixed(2)}s`;
+          if (nameEl) nameEl.innerText = rec.name || 'OPERATOR';
+        } else {
+          if (timeEl) timeEl.innerText = '--.--s';
+          if (nameEl) nameEl.innerText = 'EMPTY';
+        }
+      });
     }
 
     class DailyLeaderboardManager {
@@ -1074,6 +1392,7 @@
         firestoreRecords = updated.slice(0, 5);
         this.saveEntries(firestoreRecords);
         syncApexBanner();
+        updateTargetApexUI(firestoreRecords);
         return record;
       }
     }
@@ -1099,6 +1418,7 @@
             firestoreRecords = records;
             lbManager.saveEntries(records);
             syncApexBanner();
+            updateTargetApexUI(records);
 
             const modal = document.getElementById('leaderboard-modal');
             if (modal && !modal.classList.contains('hidden')) {
@@ -1110,6 +1430,135 @@
       } catch (err) {
         console.warn("Firestore listener setup error:", err);
       }
+    }
+
+    // --- 5B. Real-Time Board Sync & Benchmark Transition Engine ---
+    function initActiveCircuitSync() {
+      if (!firestoreDb) return;
+      try {
+        firestoreDb.collection('game_state').doc('active_circuit')
+          .onSnapshot((doc) => {
+            if (!doc.exists) {
+              const initSeed = activePuzzle.seed || activePuzzle.dateKey;
+              firestoreDb.collection('game_state').doc('active_circuit').set({
+                seed: initSeed,
+                circuitNumber: activePuzzle.puzzleNumber,
+                dateKey: activePuzzle.dateKey,
+                timestamp: Date.now(),
+                triggeredBy: 'NEXUS_CORE'
+              }).catch(err => console.warn("Failed to create active_circuit doc:", err));
+              return;
+            }
+
+            const data = doc.data();
+            if (!data || !data.seed) return;
+
+            if (currentCircuitSeed === null) {
+              currentCircuitSeed = data.seed;
+              if (activePuzzle.seed !== data.seed) {
+                applyNewCircuitData(data, false);
+              }
+            } else if (currentCircuitSeed !== data.seed) {
+              currentCircuitSeed = data.seed;
+              triggerLiveBoardTransition(data);
+            }
+          }, (err) => {
+            console.warn("game_state/active_circuit listener error:", err);
+          });
+      } catch (err) {
+        console.warn("initActiveCircuitSync setup error:", err);
+      }
+    }
+
+    function applyNewCircuitData(data, isLiveTransition) {
+      activePuzzle = generatePuzzleFromSeed(
+        data.seed,
+        data.circuitNumber || (activePuzzle.puzzleNumber + 1),
+        data.dateKey || activePuzzle.dateKey
+      );
+      lbManager = new DailyLeaderboardManager(activePuzzle);
+      playerPath = [];
+      isCompleted = false;
+      resetTimerDisplay();
+      syncUIHeader();
+      renderDOMGrid();
+      updateActiveStates();
+    }
+
+    function triggerLiveBoardTransition(data) {
+      const boardEl = document.getElementById('interactive-board');
+      const toastEl = document.getElementById('circuit-sync-toast');
+      const toastText = document.getElementById('circuit-sync-toast-text');
+
+      if (boardEl) {
+        boardEl.classList.remove('circuit-transition-glitch');
+        void boardEl.offsetWidth;
+        boardEl.classList.add('circuit-transition-glitch');
+        setTimeout(() => boardEl.classList.remove('circuit-transition-glitch'), 800);
+      }
+
+      sound.playGlitchFailure();
+      triggerHaptic([60, 40, 100]);
+
+      if (toastEl && toastText) {
+        const runner = data.triggeredBy || 'AN OPERATOR';
+        toastText.innerText = `⚡ BENCHMARK MATCHED BY ${runner}! NEW CIRCUIT DEPLOYED! ⚡`;
+        toastEl.classList.remove('hidden');
+        setTimeout(() => {
+          toastEl.classList.add('hidden');
+        }, 4500);
+      }
+
+      const gameoverModal = document.getElementById('gameover-modal');
+      if (gameoverModal) {
+        gameoverModal.classList.add('hidden');
+        gameoverModal.classList.remove('flex');
+      }
+
+      applyNewCircuitData(data, true);
+    }
+
+    async function handleBenchmarkMatchTrigger(matchedTarget, playerTime, playerName) {
+      const overlay = document.getElementById('benchmark-matched-overlay');
+      const detail = document.getElementById('benchmark-match-detail');
+      if (detail) {
+        detail.innerText = `Call-Sign [${playerName}] matched Apex Target ${matchedTarget.toFixed(2)}s with solve ${playerTime.toFixed(2)}s!`;
+      }
+      if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      }
+
+      sound.playVictory();
+      triggerHaptic([100, 50, 100, 50, 200]);
+
+      const newSeed = `circuit_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      const nextCircuitNum = (activePuzzle.puzzleNumber || 42) + 1;
+
+      if (firestoreDb) {
+        try {
+          await firestoreDb.collection('game_state').doc('active_circuit').set({
+            seed: newSeed,
+            circuitNumber: nextCircuitNum,
+            dateKey: activePuzzle.dateKey,
+            timestamp: Date.now(),
+            triggeredBy: playerName,
+            targetMatched: matchedTarget,
+            playerTime: playerTime
+          });
+        } catch (err) {
+          console.error("Failed to update active_circuit in Firestore:", err);
+        }
+      }
+
+      setTimeout(() => {
+        if (overlay) {
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        }
+        const streak = parseInt(localStorage.getItem('nexus_streak') || '1', 10);
+        showVictoryModal(`${playerTime.toFixed(2)}s`, streak);
+      }, 2800);
     }
 
     // --- 6. Game Controller & Fast-Paced Timer Engine ---
@@ -1245,8 +1694,8 @@
       clearInterval(timerTimer);
       isTimeOver = true;
       isDragging = false;
-      sound.playErrorBuzz();
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      sound.playGlitchFailure();
+      triggerHaptic([80, 50, 80]);
 
       if (timerEl) timerEl.innerText = "00:00";
       if (timerBarEl) timerBarEl.style.width = "0%";
@@ -1266,6 +1715,7 @@
     }
 
     function restartCircuitAttempt() {
+      triggerHaptic([80, 50, 80]);
       const gameoverModal = document.getElementById('gameover-modal');
       if (gameoverModal) {
         gameoverModal.classList.add('hidden');
@@ -1341,7 +1791,7 @@
         setTimeout(() => node.classList.remove('shake-error'), 240);
       }
       sound.playErrorBuzz();
-      if (navigator.vibrate) navigator.vibrate(35);
+      triggerHaptic(35);
     }
 
     // --- 7. Smooth Drag, Relaxed Milestone Validation & Multi-Step Backtracking ---
@@ -1354,6 +1804,7 @@
           playerPath.push(cellIndex);
           start20sTimer();
           sound.playStep(0);
+          triggerHaptic(12);
           updateActiveStates();
         } else {
           triggerInvalidNodeFeedback(cellIndex);
@@ -1368,7 +1819,7 @@
         playerPath = playerPath.slice(0, existingIdx + 1);
         updateActiveStates();
         sound.playStep(playerPath.length - 1);
-        if (navigator.vibrate) navigator.vibrate(10);
+        triggerHaptic(12);
         return;
       }
 
@@ -1402,7 +1853,7 @@
       // 5. Valid Move
       playerPath.push(cellIndex);
       sound.playStep(playerPath.length - 1);
-      if (navigator.vibrate) navigator.vibrate(12);
+      triggerHaptic(12);
       updateActiveStates();
 
       // 6. Win Condition Check
@@ -1427,6 +1878,7 @@
     function attachEventListeners() {
       if (boardFrameEl) {
         boardFrameEl.addEventListener('pointerdown', (e) => {
+          sound.init();
           if (isCompleted || isTimeOver) return;
           isDragging = true;
           try { boardFrameEl.setPointerCapture(e.pointerId); } catch (_) {}
@@ -1449,6 +1901,23 @@
 
         boardFrameEl.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
         boardFrameEl.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+      }
+
+      const soundBtn = document.getElementById('sound-btn');
+      if (soundBtn) {
+        soundBtn.addEventListener('click', () => {
+          sound.toggleMute();
+        });
+      }
+
+      const igStoryBtn = document.getElementById('ig-story-btn');
+      if (igStoryBtn) {
+        igStoryBtn.addEventListener('click', generateInstagramStoryCard);
+      }
+
+      const igVictoryBtn = document.getElementById('ig-story-victory-btn');
+      if (igVictoryBtn) {
+        igVictoryBtn.addEventListener('click', generateInstagramStoryCard);
       }
 
       const clearBtn = document.getElementById('clear-btn');
@@ -1491,6 +1960,17 @@
           const elapsedSeconds = parseFloat(Number(lastSolvedTimeSec).toFixed(2));
           const formattedTime = `${elapsedSeconds.toFixed(2)}s`;
 
+          // Check if player's time matches ANY of the current Top 3 recorded times (within 0.05s tolerance or exact 2 decimals)
+          let matchedBenchmarkTime = null;
+          if (Array.isArray(top3TargetTimes) && top3TargetTimes.length > 0) {
+            for (const target of top3TargetTimes) {
+              if (typeof target === 'number' && (Math.abs(elapsedSeconds - target) <= 0.05 || elapsedSeconds.toFixed(2) === target.toFixed(2))) {
+                matchedBenchmarkTime = target;
+                break;
+              }
+            }
+          }
+
           try {
             await lbManager.submitScore(name, elapsedSeconds);
           } catch (err) {
@@ -1508,8 +1988,14 @@
             crackedModal.classList.remove('flex');
           }
 
-          const streak = parseInt(localStorage.getItem('nexus_streak') || '1', 10);
-          showVictoryModal(formattedTime, streak);
+          if (matchedBenchmarkTime !== null) {
+            // IF MATCH FOUND: full-screen cyberpunk alert & generate brand new circuit
+            await handleBenchmarkMatchTrigger(matchedBenchmarkTime, elapsedSeconds, name);
+          } else {
+            // IF NO MATCH: current circuit stays the same, show normal victory modal
+            const streak = parseInt(localStorage.getItem('nexus_streak') || '1', 10);
+            showVictoryModal(formattedTime, streak);
+          }
         });
       }
 
@@ -1557,7 +2043,7 @@
       // Immediately stop the round timer
       clearInterval(timerTimer);
       confetti.burst();
-      if (navigator.vibrate) navigator.vibrate([40, 60, 120]);
+      triggerHaptic([40, 60, 100]);
 
       const elapsedMs = Math.min(ROUND_DURATION_SEC * 1000, Date.now() - timerStart);
       lastSolvedTimeSec = (elapsedMs / 1000).toFixed(2);
@@ -1600,7 +2086,7 @@ Streak: ${streak} 🔥 (APEX SPEED)
 🟩🟩🟩🟩⚡
 
 Can you beat my daily speed?
-https://nexusgame.app/play?d=${activePuzzle.puzzleNumber}`;
+https://nexusgame-website.vercel.app`;
 
       safeSetText('share-card-text', shareText);
       const waBtn = document.getElementById('whatsapp-share-btn');
@@ -1621,6 +2107,412 @@ https://nexusgame.app/play?d=${activePuzzle.puzzleNumber}`;
             safeSetText('copy-btn-label', "COPY VIRAL SCORE CARD");
           }, 2500);
         };
+      }
+    }
+
+    // --- 8B. 9:16 Instagram Story "Flex Card" Generator (1080 x 1920 px) ---
+    async function generateInstagramStoryCard() {
+      const btn1Text = document.getElementById('ig-story-btn-text');
+      const btn2 = document.getElementById('ig-story-victory-btn');
+
+      const origText1 = btn1Text ? btn1Text.innerText : 'SHARE TO INSTAGRAM STORY';
+      const origText2 = btn2 ? btn2.innerHTML : '';
+
+      if (btn1Text) btn1Text.innerText = 'GENERATING CARD... ⏳';
+      if (btn2) btn2.innerText = 'GENERATING CARD... ⏳';
+
+      try {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1920;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Deep Cyberpunk Background (#080b10)
+        ctx.fillStyle = '#080b10';
+        ctx.fillRect(0, 0, 1080, 1920);
+
+        // Subtle Ambient Radial Glows (Cyan top, Purple bottom)
+        const topGlow = ctx.createRadialGradient(540, 480, 40, 540, 480, 550);
+        topGlow.addColorStop(0, 'rgba(0, 240, 255, 0.12)');
+        topGlow.addColorStop(1, 'rgba(8, 11, 16, 0)');
+        ctx.fillStyle = topGlow;
+        ctx.fillRect(0, 0, 1080, 1100);
+
+        const bottomGlow = ctx.createRadialGradient(540, 1300, 40, 540, 1300, 550);
+        bottomGlow.addColorStop(0, 'rgba(138, 43, 226, 0.11)');
+        bottomGlow.addColorStop(1, 'rgba(8, 11, 16, 0)');
+        ctx.fillStyle = bottomGlow;
+        ctx.fillRect(0, 700, 1080, 1220);
+
+        // 2. Subtle Cyber Grid Lines
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.035)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= 1080; x += 60) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, 1920);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= 1920; y += 60) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(1080, y);
+          ctx.stroke();
+        }
+
+        // 3. Cyber Outer Frame & Tech Corner Brackets
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(40, 40, 1000, 1840);
+
+        // 4 Corner Brackets
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 4;
+        // Top-Left
+        ctx.beginPath();
+        ctx.moveTo(40, 95); ctx.lineTo(40, 40); ctx.lineTo(95, 40);
+        ctx.stroke();
+        // Top-Right
+        ctx.beginPath();
+        ctx.moveTo(985, 40); ctx.lineTo(1040, 40); ctx.lineTo(1040, 95);
+        ctx.stroke();
+        // Bottom-Left
+        ctx.beginPath();
+        ctx.moveTo(40, 1825); ctx.lineTo(40, 1880); ctx.lineTo(95, 1880);
+        ctx.stroke();
+        // Bottom-Right
+        ctx.beginPath();
+        ctx.moveTo(985, 1880); ctx.lineTo(1040, 1880); ctx.lineTo(1040, 1825);
+        ctx.stroke();
+
+        // Helper: Draw Crosshairs
+        function drawCrosshair(cx, cy) {
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 8, cy);
+          ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8);
+          ctx.stroke();
+        }
+        drawCrosshair(65, 65);
+        drawCrosshair(1015, 65);
+        drawCrosshair(65, 1855);
+        drawCrosshair(1015, 1855);
+
+        // Helper: Rounded Rectangle
+        function roundRect(x, y, w, h, r, fillStyle, strokeStyle, strokeW = 1) {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.lineTo(x + w - r, y);
+          ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+          ctx.lineTo(x + w, y + h - r);
+          ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          ctx.lineTo(x + r, y + h);
+          ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+          ctx.lineTo(x, y + r);
+          ctx.quadraticCurveTo(x, y, x + r, y);
+          ctx.closePath();
+          if (fillStyle) {
+            ctx.fillStyle = fillStyle;
+            ctx.fill();
+          }
+          if (strokeStyle) {
+            ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = strokeW;
+            ctx.stroke();
+          }
+        }
+
+        // 4. Header Section
+        // Top Protocol Badge
+        roundRect(330, 95, 420, 44, 22, 'rgba(0, 240, 255, 0.08)', 'rgba(0, 240, 255, 0.4)', 1.5);
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = "bold 15px 'Orbitron', monospace";
+        ctx.textAlign = 'center';
+        ctx.fillText('NEXUS // QUANTUM PROTOCOL', 540, 123);
+
+        // Sub-label
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
+        ctx.font = "bold 13px 'Orbitron', sans-serif";
+        ctx.fillText('ORGANIZED BY FURU', 540, 175);
+
+        // Header Title
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = "900 46px 'Orbitron', sans-serif";
+        ctx.shadowColor = 'rgba(0, 240, 255, 0.6)';
+        ctx.shadowBlur = 20;
+        ctx.fillText('DAILY CIRCUIT SOLVED', 540, 240);
+        ctx.shadowBlur = 0;
+
+        // Date & Seed
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = "bold 18px 'JetBrains Mono', monospace";
+        ctx.fillText(`CIRCUIT #${activePuzzle.puzzleNumber}  •  ${activePuzzle.dateKey}`, 540, 280);
+
+        // 5. Large Completion Time Box
+        roundRect(90, 320, 900, 250, 32, 'rgba(15, 18, 28, 0.92)', 'rgba(0, 240, 255, 0.35)', 2);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = "bold 15px 'Orbitron', sans-serif";
+        ctx.fillText('RECORD CLEAR TIME', 540, 365);
+
+        const timeFormatted = lastSolvedTimeSec ? `${parseFloat(lastSolvedTimeSec).toFixed(2)}s` : '00:14.28';
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = "900 100px 'Orbitron', monospace";
+        ctx.shadowColor = '#00F0FF';
+        ctx.shadowBlur = 35;
+        ctx.fillText(timeFormatted, 540, 465);
+        ctx.shadowBlur = 0;
+
+        // Player Name & Apex/Rank Badge
+        const entries = lbManager.getEntries();
+        const inputName = document.getElementById('cracked-name-input')?.value?.trim()?.toUpperCase();
+        const playerName = inputName || localStorage.getItem('nexus_player_callsign') || 'OPERATOR';
+        const isApex = entries.length > 0 && entries[0].name === playerName;
+        const rankLabel = isApex ? "👑 RANK #1 APEX RUNNER" : "⚡ TOP 5% SPEEDRUNNER";
+
+        roundRect(310, 495, 460, 46, 23, isApex ? 'rgba(255, 215, 0, 0.15)' : 'rgba(0, 240, 255, 0.12)', isApex ? '#FFD700' : '#00F0FF', 1.5);
+        ctx.fillStyle = isApex ? '#FFD700' : '#00F0FF';
+        ctx.font = "bold 17px 'Orbitron', sans-serif";
+        ctx.fillText(rankLabel, 540, 525);
+
+        // 6. Solved 5x5 Grid Circuit Visualizer
+        roundRect(90, 595, 900, 770, 32, 'rgba(10, 14, 23, 0.95)', 'rgba(138, 43, 226, 0.45)', 2);
+
+        ctx.fillStyle = '#A78BFA';
+        ctx.font = "bold 15px 'Orbitron', sans-serif";
+        ctx.fillText('25 / 25 NODES SYNCHRONIZED  •  EXACT PATH', 540, 642);
+
+        // Board Plate
+        roundRect(230, 675, 620, 620, 24, '#05070D', 'rgba(255, 255, 255, 0.08)', 1.5);
+
+        const originX = 265;
+        const originY = 710;
+        const stepSize = 137.5;
+
+        // Inactive / Base Nodes
+        for (let r = 0; r < 5; r++) {
+          for (let c = 0; c < 5; c++) {
+            const cx = originX + c * stepSize;
+            const cy = originY + r * stepSize;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+            ctx.fillStyle = '#101524';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+
+        // Solved Path Coordinates
+        const pathToDraw = (playerPath && playerPath.length >= 2)
+          ? playerPath
+          : activePuzzle.path.map(pt => pt.y * 5 + pt.x);
+
+        if (pathToDraw.length > 1) {
+          // Glow Beam Layer
+          ctx.save();
+          ctx.shadowColor = '#00F0FF';
+          ctx.shadowBlur = 24;
+          ctx.strokeStyle = '#00F0FF';
+          ctx.lineWidth = 14;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          for (let i = 0; i < pathToDraw.length; i++) {
+            const idx = pathToDraw[i];
+            const px = originX + (idx % 5) * stepSize;
+            const py = originY + Math.floor(idx / 5) * stepSize;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+          ctx.restore();
+
+          // Neon Cyan Mid Beam
+          ctx.save();
+          ctx.strokeStyle = '#38BDF8';
+          ctx.lineWidth = 8;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          for (let i = 0; i < pathToDraw.length; i++) {
+            const idx = pathToDraw[i];
+            const px = originX + (idx % 5) * stepSize;
+            const py = originY + Math.floor(idx / 5) * stepSize;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+          ctx.restore();
+
+          // Laser White Core
+          ctx.save();
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 3.5;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          for (let i = 0; i < pathToDraw.length; i++) {
+            const idx = pathToDraw[i];
+            const px = originX + (idx % 5) * stepSize;
+            const py = originY + Math.floor(idx / 5) * stepSize;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Draw Nodes (Milestones + Regular Visited)
+        for (let i = 0; i < 25; i++) {
+          const cx = originX + (i % 5) * stepSize;
+          const cy = originY + Math.floor(i / 5) * stepSize;
+          const cp = activePuzzle.checkpoints[i];
+
+          if (cp !== undefined) {
+            // Milestone Badge (1, 5, 10, 15, 20, 25)
+            ctx.save();
+            ctx.shadowColor = (cp === 25) ? '#FF2A6D' : '#8A2BE2';
+            ctx.shadowBlur = 18;
+
+            const radGrad = ctx.createRadialGradient(cx, cy - 6, 2, cx, cy, 28);
+            if (cp === 25) {
+              radGrad.addColorStop(0, '#FF5388');
+              radGrad.addColorStop(1, '#D91448');
+            } else {
+              radGrad.addColorStop(0, '#A855F7');
+              radGrad.addColorStop(1, '#6B21A8');
+            }
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 27, 0, Math.PI * 2);
+            ctx.fillStyle = radGrad;
+            ctx.fill();
+
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = "900 21px 'Orbitron', sans-serif";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(cp), cx, cy);
+          } else if (pathToDraw.includes(i)) {
+            // Regular Visited Node
+            ctx.save();
+            ctx.shadowColor = '#00F0FF';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+            ctx.fillStyle = '#00F0FF';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        ctx.textBaseline = 'alphabetic';
+
+        // 7. Player Identity & Streak Section
+        roundRect(90, 1390, 900, 140, 26, 'rgba(15, 18, 28, 0.92)', 'rgba(255, 255, 255, 0.12)', 1.5);
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = "bold 13px 'Orbitron', sans-serif";
+        ctx.fillText('OPERATOR CALL-SIGN', 140, 1435);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = "900 32px 'Orbitron', monospace";
+        ctx.fillText(playerName, 140, 1485);
+
+        const streak = localStorage.getItem('nexus_streak') || '1';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = "bold 13px 'Orbitron', sans-serif";
+        ctx.fillText('DAILY STREAK', 680, 1435);
+
+        ctx.fillStyle = '#FB923C';
+        ctx.font = "900 32px 'Orbitron', sans-serif";
+        ctx.fillText(`${streak} DAYS 🔥`, 680, 1485);
+
+        // 8. Footer Call To Action
+        roundRect(90, 1555, 900, 205, 30, 'rgba(7, 10, 18, 0.96)', 'rgba(255, 42, 109, 0.45)', 2);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FF2A6D';
+        ctx.font = "900 36px 'Orbitron', sans-serif";
+        ctx.shadowColor = '#FF2A6D';
+        ctx.shadowBlur = 22;
+        ctx.fillText('CAN YOU BEAT MY TIME?', 540, 1622);
+        ctx.shadowBlur = 0;
+
+        // URL Pill
+        roundRect(180, 1650, 720, 68, 34, 'rgba(0, 240, 255, 0.12)', 'rgba(0, 240, 255, 0.65)', 2);
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = "bold 26px 'Orbitron', monospace";
+        ctx.fillText('🌐 nexusgame-website.vercel.app', 540, 1694);
+
+        // Bottom Watermark
+        ctx.fillStyle = '#64748B';
+        ctx.font = "bold 14px 'Orbitron', sans-serif";
+        ctx.fillText('NEXUS DAILY PROTOCOL  •  TAP LINK IN BIO TO CHALLENGE', 540, 1820);
+
+        // 9. Export PNG & Trigger Download / Web Share
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            alert("Failed to export image.");
+            return;
+          }
+
+          // Automatic Download
+          const fileUrl = URL.createObjectURL(blob);
+          const downloadLink = document.createElement('a');
+          downloadLink.href = fileUrl;
+          downloadLink.download = 'nexus-daily-record.png';
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+
+          // Web Share API (Mobile Instagram / Stories share sheet)
+          try {
+            const file = new File([blob], 'nexus-daily-record.png', { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: 'NEXUS Daily Circuit Record',
+                text: `I solved today's NEXUS circuit in ${timeFormatted}! Can you beat my daily speed?`
+              });
+            }
+          } catch (_) {}
+
+          if (btn1Text) btn1Text.innerText = 'STORY CARD EXPORTED! 🚀';
+          if (btn2) btn2.innerText = 'STORY CARD EXPORTED! 🚀';
+
+          setTimeout(() => {
+            if (btn1Text) btn1Text.innerText = origText1;
+            if (btn2) btn2.innerHTML = origText2;
+          }, 3500);
+        }, 'image/png');
+
+      } catch (err) {
+        console.error("Story card generation error:", err);
+        if (btn1Text) btn1Text.innerText = 'ERROR GENERATING';
+        if (btn2) btn2.innerText = 'ERROR GENERATING';
+        setTimeout(() => {
+          if (btn1Text) btn1Text.innerText = origText1;
+          if (btn2) btn2.innerHTML = origText2;
+        }, 2500);
       }
     }
 
@@ -1755,7 +2647,9 @@ https://nexusgame.app/play?d=${activePuzzle.puzzleNumber}`;
       resetTimerDisplay();
       populateArchive();
       attachEventListeners();
+      updateSoundBtnUI();
       initFirestoreLeaderboard();
+      initActiveCircuitSync();
       
       const storedStreak = localStorage.getItem('nexus_streak') || '0';
       safeSetText('nav-streak', storedStreak);
