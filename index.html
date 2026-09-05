@@ -419,6 +419,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
             </svg>
           </button>
+          <button id="debug-reroll-btn" title="Reroll Circuit (Debug Mode)" class="px-2.5 py-2 rounded-xl bg-purple-900/30 border border-[#8A2BE2]/50 hover:border-[#8A2BE2] hover:bg-[#8A2BE2]/30 text-[11px] font-black text-[#C084FC] hover:text-white transition flex items-center gap-1 font-orbitron shadow-md shadow-[#8A2BE2]/15">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span id="debug-reroll-text">REROLL 🎲</span>
+          </button>
           <button id="clear-btn" title="Reset Circuit" class="px-3.5 py-2 rounded-xl bg-slate-800/60 border border-white/10 hover:border-white/30 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5 font-orbitron">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             RESET
@@ -1207,42 +1211,44 @@
 
       let solvedPath = null;
 
-      for (let attempt = 0; attempt < 35; attempt++) {
-        const rng = new Mulberry32(hashDate(String(seedStr) + (attempt > 0 ? `_retry_${attempt}` : '')));
+      for (let attempt = 0; attempt < 60; attempt++) {
+        const rng = new Mulberry32(hashDate(String(seedStr) + (attempt > 0 ? `_att_${attempt}` : '')));
         const startPt = EVEN_SQUARES[rng.nextInt(EVEN_SQUARES.length)];
         const visited = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
         const path = [{ x: startPt.x, y: startPt.y }];
         visited[startPt.y][startPt.x] = true;
 
-        function countUnvisited(pt) {
-          let count = 0;
+        function getDegree(x, y) {
+          let deg = 0;
           [[1,0], [-1,0], [0,1], [0,-1]].forEach(([dx, dy]) => {
-            const nx = pt.x + dx, ny = pt.y + dy;
-            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE && !visited[ny][nx]) count++;
+            const nx = x + dx, ny = y + dy;
+            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE && !visited[ny][nx]) deg++;
           });
-          return count;
+          return deg;
         }
 
-        let searchBudget = 4500;
+        let searchBudget = 3000;
         function dfs(pt) {
           if (path.length === TOTAL_CELLS) return true;
           if (--searchBudget <= 0) return false;
+
           let neighbors = [[1,0], [-1,0], [0,1], [0,-1]]
             .map(([dx, dy]) => ({ x: pt.x + dx, y: pt.y + dy }))
             .filter(n => n.x >= 0 && n.x < GRID_SIZE && n.y >= 0 && n.y < GRID_SIZE && !visited[n.y][n.x]);
 
+          // Warnsdorff: shuffle ties, sort by degree ascending
           for (let i = neighbors.length - 1; i > 0; i--) {
-            let j = rng.nextInt(i + 1);
+            const j = rng.nextInt(i + 1);
             [neighbors[i], neighbors[j]] = [neighbors[j], neighbors[i]];
           }
-          neighbors.sort((a, b) => countUnvisited(a) - countUnvisited(b));
+          neighbors.sort((a, b) => getDegree(a.x, a.y) - getDegree(b.x, b.y));
 
-          for (const next of neighbors) {
-            visited[next.y][next.x] = true;
-            path.push(next);
-            if (dfs(next)) return true;
+          for (const n of neighbors) {
+            visited[n.y][n.x] = true;
+            path.push(n);
+            if (dfs(n)) return true;
             path.pop();
-            visited[next.y][next.x] = false;
+            visited[n.y][n.x] = false;
           }
           return false;
         }
@@ -1253,7 +1259,7 @@
         }
       }
 
-      // Guaranteed deterministic serpentine fallback
+      // Guaranteed fallback if ever needed
       if (!solvedPath || solvedPath.length !== TOTAL_CELLS) {
         solvedPath = [];
         for (let r = 0; r < GRID_SIZE; r++) {
@@ -1432,7 +1438,59 @@
       }
     }
 
-    // --- 5B. Real-Time Board Sync & Benchmark Transition Engine ---
+    // --- 5B. Dynamic Random Circuit Generator & Real-Time Sync ---
+    function generateRandomCircuit(customSeed = null, broadcastToFirestore = false, triggeredBy = 'OPERATOR') {
+      const seed = customSeed || `circuit_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+      const nextCircuitNum = (activePuzzle && activePuzzle.puzzleNumber ? activePuzzle.puzzleNumber : 42) + 1;
+      const todayKey = activePuzzle ? activePuzzle.dateKey : new Date().toISOString().slice(0, 10);
+
+      // 1. Recalculate completely new sequence and positions of all 25 nodes
+      const newPuzzle = generatePuzzleFromSeed(seed, nextCircuitNum, todayKey);
+      activePuzzle = newPuzzle;
+      currentCircuitSeed = seed;
+      lbManager = new DailyLeaderboardManager(activePuzzle);
+
+      // 2. Reset player state
+      playerPath = [];
+      isCompleted = false;
+      isDragging = false;
+      resetTimerDisplay();
+
+      // 3. Clear SVG laser lines completely
+      if (svgGlowBeam) svgGlowBeam.setAttribute('d', '');
+      if (svgCoreBeam) svgCoreBeam.setAttribute('d', '');
+
+      // 4. Physically clear and re-render the 25 DOM nodes with new milestone locations!
+      renderDOMGrid();
+      updateActiveStates();
+      syncUIHeader();
+
+      // 5. Trigger full-screen/board cyberpunk neon glitch effect
+      const boardEl = document.getElementById('interactive-board');
+      if (boardEl) {
+        boardEl.classList.remove('circuit-transition-glitch');
+        void boardEl.offsetWidth;
+        boardEl.classList.add('circuit-transition-glitch');
+        setTimeout(() => boardEl.classList.remove('circuit-transition-glitch'), 750);
+      }
+
+      sound.playStep(5);
+      triggerHaptic([40, 50, 80]);
+
+      // 6. Broadcast to Firestore game_state/active_circuit if requested
+      if (broadcastToFirestore && firestoreDb) {
+        firestoreDb.collection('game_state').doc('active_circuit').set({
+          seed: seed,
+          circuitNumber: nextCircuitNum,
+          dateKey: todayKey,
+          timestamp: Date.now(),
+          triggeredBy: triggeredBy
+        }).catch(err => console.error("Firestore active_circuit update error:", err));
+      }
+
+      return newPuzzle;
+    }
+
     function initActiveCircuitSync() {
       if (!firestoreDb) return;
       try {
@@ -1456,11 +1514,26 @@
             if (currentCircuitSeed === null) {
               currentCircuitSeed = data.seed;
               if (activePuzzle.seed !== data.seed) {
-                applyNewCircuitData(data, false);
+                generateRandomCircuit(data.seed, false, data.triggeredBy || 'SYNC');
               }
             } else if (currentCircuitSeed !== data.seed) {
               currentCircuitSeed = data.seed;
-              triggerLiveBoardTransition(data);
+              generateRandomCircuit(data.seed, false, data.triggeredBy || 'OPERATOR');
+
+              const toastEl = document.getElementById('circuit-sync-toast');
+              const toastText = document.getElementById('circuit-sync-toast-text');
+              if (toastEl && toastText) {
+                const runner = data.triggeredBy || 'AN OPERATOR';
+                toastText.innerText = `⚡ MATRIX BREACHED BY ${runner}! NEW CIRCUIT DEPLOYED! ⚡`;
+                toastEl.classList.remove('hidden');
+                setTimeout(() => toastEl.classList.add('hidden'), 5000);
+              }
+
+              const gameoverModal = document.getElementById('gameover-modal');
+              if (gameoverModal) {
+                gameoverModal.classList.add('hidden');
+                gameoverModal.classList.remove('flex');
+              }
             }
           }, (err) => {
             console.warn("game_state/active_circuit listener error:", err);
@@ -1468,97 +1541,6 @@
       } catch (err) {
         console.warn("initActiveCircuitSync setup error:", err);
       }
-    }
-
-    function applyNewCircuitData(data, isLiveTransition) {
-      activePuzzle = generatePuzzleFromSeed(
-        data.seed,
-        data.circuitNumber || (activePuzzle.puzzleNumber + 1),
-        data.dateKey || activePuzzle.dateKey
-      );
-      lbManager = new DailyLeaderboardManager(activePuzzle);
-      playerPath = [];
-      isCompleted = false;
-      resetTimerDisplay();
-      syncUIHeader();
-      renderDOMGrid();
-      updateActiveStates();
-    }
-
-    function triggerLiveBoardTransition(data) {
-      const boardEl = document.getElementById('interactive-board');
-      const toastEl = document.getElementById('circuit-sync-toast');
-      const toastText = document.getElementById('circuit-sync-toast-text');
-
-      if (boardEl) {
-        boardEl.classList.remove('circuit-transition-glitch');
-        void boardEl.offsetWidth;
-        boardEl.classList.add('circuit-transition-glitch');
-        setTimeout(() => boardEl.classList.remove('circuit-transition-glitch'), 800);
-      }
-
-      sound.playGlitchFailure();
-      triggerHaptic([60, 40, 100]);
-
-      if (toastEl && toastText) {
-        const runner = data.triggeredBy || 'AN OPERATOR';
-        toastText.innerText = `⚡ BENCHMARK MATCHED BY ${runner}! NEW CIRCUIT DEPLOYED! ⚡`;
-        toastEl.classList.remove('hidden');
-        setTimeout(() => {
-          toastEl.classList.add('hidden');
-        }, 4500);
-      }
-
-      const gameoverModal = document.getElementById('gameover-modal');
-      if (gameoverModal) {
-        gameoverModal.classList.add('hidden');
-        gameoverModal.classList.remove('flex');
-      }
-
-      applyNewCircuitData(data, true);
-    }
-
-    async function handleBenchmarkMatchTrigger(matchedTarget, playerTime, playerName) {
-      const overlay = document.getElementById('benchmark-matched-overlay');
-      const detail = document.getElementById('benchmark-match-detail');
-      if (detail) {
-        detail.innerText = `Call-Sign [${playerName}] matched Apex Target ${matchedTarget.toFixed(2)}s with solve ${playerTime.toFixed(2)}s!`;
-      }
-      if (overlay) {
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-      }
-
-      sound.playVictory();
-      triggerHaptic([100, 50, 100, 50, 200]);
-
-      const newSeed = `circuit_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-      const nextCircuitNum = (activePuzzle.puzzleNumber || 42) + 1;
-
-      if (firestoreDb) {
-        try {
-          await firestoreDb.collection('game_state').doc('active_circuit').set({
-            seed: newSeed,
-            circuitNumber: nextCircuitNum,
-            dateKey: activePuzzle.dateKey,
-            timestamp: Date.now(),
-            triggeredBy: playerName,
-            targetMatched: matchedTarget,
-            playerTime: playerTime
-          });
-        } catch (err) {
-          console.error("Failed to update active_circuit in Firestore:", err);
-        }
-      }
-
-      setTimeout(() => {
-        if (overlay) {
-          overlay.classList.add('hidden');
-          overlay.classList.remove('flex');
-        }
-        const streak = parseInt(localStorage.getItem('nexus_streak') || '1', 10);
-        showVictoryModal(`${playerTime.toFixed(2)}s`, streak);
-      }, 2800);
     }
 
     // --- 6. Game Controller & Fast-Paced Timer Engine ---
@@ -1910,6 +1892,18 @@
         });
       }
 
+      const debugRerollBtn = document.getElementById('debug-reroll-btn');
+      if (debugRerollBtn) {
+        debugRerollBtn.addEventListener('click', () => {
+          generateRandomCircuit(null, true, 'OPERATOR_DEBUG');
+          const lbl = document.getElementById('debug-reroll-text');
+          if (lbl) {
+            lbl.innerText = 'REROLLED! ⚡';
+            setTimeout(() => { lbl.innerText = 'REROLL 🎲'; }, 1500);
+          }
+        });
+      }
+
       const igStoryBtn = document.getElementById('ig-story-btn');
       if (igStoryBtn) {
         igStoryBtn.addEventListener('click', generateInstagramStoryCard);
@@ -1960,17 +1954,7 @@
           const elapsedSeconds = parseFloat(Number(lastSolvedTimeSec).toFixed(2));
           const formattedTime = `${elapsedSeconds.toFixed(2)}s`;
 
-          // Check if player's time matches ANY of the current Top 3 recorded times (within 0.05s tolerance or exact 2 decimals)
-          let matchedBenchmarkTime = null;
-          if (Array.isArray(top3TargetTimes) && top3TargetTimes.length > 0) {
-            for (const target of top3TargetTimes) {
-              if (typeof target === 'number' && (Math.abs(elapsedSeconds - target) <= 0.05 || elapsedSeconds.toFixed(2) === target.toFixed(2))) {
-                matchedBenchmarkTime = target;
-                break;
-              }
-            }
-          }
-
+          // Submit record to Firestore & local leaderboard
           try {
             await lbManager.submitScore(name, elapsedSeconds);
           } catch (err) {
@@ -1988,11 +1972,68 @@
             crackedModal.classList.remove('flex');
           }
 
-          if (matchedBenchmarkTime !== null) {
-            // IF MATCH FOUND: full-screen cyberpunk alert & generate brand new circuit
-            await handleBenchmarkMatchTrigger(matchedBenchmarkTime, elapsedSeconds, name);
+          // Evaluate Top 3 / Win trigger:
+          // Check if player entered Top 3, took #1, or matched benchmark time
+          const entries = lbManager.getEntries();
+          const isTop3 = entries.slice(0, 3).some(e => e.name === name && Math.abs(e.time - elapsedSeconds) < 0.01) ||
+                         entries.length <= 3 ||
+                         (entries.length > 3 && elapsedSeconds <= entries[2].time);
+
+          const isApex = entries.length === 0 || 
+                         (entries[0].name === name && Math.abs(entries[0].time - elapsedSeconds) < 0.01) || 
+                         (elapsedSeconds <= entries[0].time);
+
+          let isBenchmarkMatch = false;
+          let matchedTime = null;
+          if (Array.isArray(top3TargetTimes)) {
+            for (const target of top3TargetTimes) {
+              if (typeof target === 'number' && (Math.abs(elapsedSeconds - target) <= 0.05 || elapsedSeconds.toFixed(2) === target.toFixed(2))) {
+                isBenchmarkMatch = true;
+                matchedTime = target;
+                break;
+              }
+            }
+          }
+
+          const shouldReroll = isTop3 || isApex || isBenchmarkMatch;
+
+          if (shouldReroll) {
+            // a) Show full-screen neon glitch alert: "MATRIX BREACHED! NEW CIRCUIT GENERATING..."
+            const overlay = document.getElementById('benchmark-matched-overlay');
+            const title = document.getElementById('benchmark-match-title');
+            const detail = document.getElementById('benchmark-match-detail');
+            if (title) title.innerText = 'MATRIX BREACHED!';
+            if (detail) {
+              if (isApex) {
+                detail.innerText = `NEW #1 APEX RECORD (${formattedTime}) BY ${name}! NEW CIRCUIT GENERATING...`;
+              } else if (isTop3) {
+                detail.innerText = `TOP 3 BENCHMARK BROKEN (${formattedTime}) BY ${name}! NEW CIRCUIT GENERATING...`;
+              } else {
+                detail.innerText = `BENCHMARK MATCHED (${matchedTime ? matchedTime.toFixed(2) + 's' : formattedTime}) BY ${name}! NEW CIRCUIT GENERATING...`;
+              }
+            }
+            if (overlay) {
+              overlay.classList.remove('hidden');
+              overlay.classList.add('flex');
+            }
+
+            sound.playVictory();
+            triggerHaptic([100, 50, 100, 50, 200]);
+
+            // b) Call generateRandomCircuit immediately to visibly & physically change the board
+            // c) Broadcast new layout to Firestore game_state/active_circuit for all players
+            generateRandomCircuit(null, true, name);
+
+            // d) After 2.4s, close overlay and show victory modal
+            setTimeout(() => {
+              if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+              }
+              const streak = parseInt(localStorage.getItem('nexus_streak') || '1', 10);
+              showVictoryModal(formattedTime, streak);
+            }, 2400);
           } else {
-            // IF NO MATCH: current circuit stays the same, show normal victory modal
             const streak = parseInt(localStorage.getItem('nexus_streak') || '1', 10);
             showVictoryModal(formattedTime, streak);
           }
