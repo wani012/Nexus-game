@@ -463,6 +463,14 @@
 
   <canvas id="confetti-canvas"></canvas>
 
+  <!-- ================= CHALLENGE LINK COPIED TOAST NOTIFICATION ================= -->
+  <div id="challenge-toast" class="fixed top-5 inset-x-4 max-w-sm mx-auto z-[9999] pointer-events-none hidden transition-all duration-300 transform -translate-y-4 opacity-0">
+    <div class="px-4 py-3 rounded-2xl bg-[#111726]/95 border border-blue-500/40 backdrop-blur-xl shadow-2xl flex items-center justify-center gap-2 text-center text-xs font-semibold text-white">
+      <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+      <span id="challenge-toast-text">Challenge link copied to clipboard!</span>
+    </div>
+  </div>
+
   <!-- ================= MOBILE ADD-TO-HOME-SCREEN BANNER ================= -->
   <div id="pwa-install-banner" class="fixed top-3 inset-x-3 sm:inset-x-auto sm:right-4 z-50 hidden transition-all duration-500 ease-out transform -translate-y-12 opacity-0 max-w-sm mx-auto pointer-events-auto">
     <div class="px-4 py-3 rounded-2xl bg-[#111726]/95 border border-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-between gap-3 text-left">
@@ -2089,6 +2097,16 @@
             const data = doc.data();
             if (!data || !data.seed) return;
 
+            // Guard: Do not reload circuit if player is actively playing or viewing level-cleared / score modal
+            const levelClearedModal = document.getElementById('level-cleared-modal');
+            const isLevelModalOpen = levelClearedModal && !levelClearedModal.classList.contains('hidden');
+            const crackedModal = document.getElementById('circuit-cracked-modal');
+            const isCrackedModalOpen = crackedModal && !crackedModal.classList.contains('hidden');
+
+            if (isCompleted || isLevelModalOpen || isCrackedModalOpen || playerPath.length > 0) {
+              return;
+            }
+
             if (currentCircuitSeed === null) {
               currentCircuitSeed = data.seed;
             } else if (currentCircuitSeed !== data.seed && currentLevel === 1) {
@@ -2313,30 +2331,87 @@
       } catch (_) {}
     }
 
-    function generateDuelChallengeLink() {
-      const myName = (localStorage.getItem('nexus_player_callsign') || 'CHALLENGER').toUpperCase();
-      const myTime = lastSolvedTimeSec || (ROUND_DURATION_SEC - (Math.random() * 8 + 3)).toFixed(2);
-      const seedToShare = currentCircuitSeed || `duel_seed_${Date.now()}`;
-      const url = `${window.location.origin}${window.location.pathname}?duelSeed=${encodeURIComponent(seedToShare)}&challengerTime=${encodeURIComponent(myTime)}&challengerName=${encodeURIComponent(myName)}`;
+    function showChallengeToast(message = 'Challenge link copied to clipboard!') {
+      const toast = document.getElementById('challenge-toast');
+      const toastText = document.getElementById('challenge-toast-text');
+      if (!toast) return;
+      if (toastText) toastText.innerText = message;
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          const toast = document.getElementById('circuit-sync-toast');
-          const toastText = document.getElementById('circuit-sync-toast-text');
-          if (toast && toastText) {
-            toastText.innerText = `Challenge link copied (${myTime}s). Share with a friend.`;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3500);
-          } else {
-            alert(`Challenge link copied to clipboard:\n\n${url}`);
+      toast.classList.remove('hidden');
+      void toast.offsetWidth;
+      toast.classList.remove('-translate-y-4', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (window._challengeToastTimer) clearTimeout(window._challengeToastTimer);
+      window._challengeToastTimer = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-4', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 300);
+      }, 3500);
+    }
+    window.showChallengeToast = showChallengeToast;
+
+    async function generateDuelChallengeLink() {
+      const myName = (localStorage.getItem('nexus_player_callsign') || 'CHALLENGER').toUpperCase();
+      const myTime = lastSolvedTimeSec || (ROUND_DURATION_SEC - 5.00).toFixed(2);
+      const circuitLvl = currentLevel || 1;
+      const seedToShare = currentCircuitSeed || `circuit_${circuitLvl}_${Date.now()}`;
+      const url = `${window.location.origin}${window.location.pathname}?duelSeed=${encodeURIComponent(seedToShare)}&challengerTime=${encodeURIComponent(myTime)}&challengerName=${encodeURIComponent(myName)}&circuitLevel=${encodeURIComponent(circuitLvl)}`;
+      const inviteMsg = `I reached Circuit #${circuitLvl}! Can you beat my time? Play here: ${url}`;
+
+      const giveButtonFeedback = () => {
+        const btnDuelShare = document.getElementById('btn-duel-share');
+        if (btnDuelShare) {
+          const origHtml = btnDuelShare.innerHTML;
+          btnDuelShare.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-400 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Challenge link copied!</span>`;
+          btnDuelShare.classList.add('border-emerald-500/50', 'text-emerald-300');
+          setTimeout(() => {
+            btnDuelShare.innerHTML = origHtml;
+            btnDuelShare.classList.remove('border-emerald-500/50', 'text-emerald-300');
+          }, 2500);
+        }
+      };
+
+      const copyToClipboard = async () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(inviteMsg);
+            showChallengeToast('Challenge link copied to clipboard!');
+            giveButtonFeedback();
+            return true;
+          } catch (err) {
+            console.warn('Clipboard writeText failed:', err);
           }
-        }).catch(() => {
-          prompt("Copy your 1v1 Duel Challenge Link:", url);
+        }
+        fallbackCopyText(inviteMsg, () => {
+          showChallengeToast('Challenge link copied to clipboard!');
+          giveButtonFeedback();
         });
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'NEXUS Circuit Challenge',
+            text: `I reached Circuit #${circuitLvl}! Can you beat my time?`,
+            url: url
+          });
+          showChallengeToast('Challenge shared successfully!');
+          giveButtonFeedback();
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') {
+            return;
+          }
+          await copyToClipboard();
+        }
       } else {
-        prompt("Copy your 1v1 Duel Challenge Link:", url);
+        await copyToClipboard();
       }
     }
+    window.generateDuelChallengeLink = generateDuelChallengeLink;
 
     // 5. Fog of War / Dynamic Spotlight Tracker
     function updateFogOfWar(clientX, clientY) {
@@ -2931,7 +3006,11 @@
 
       const btnNextLevel = document.getElementById('btn-next-level');
       if (btnNextLevel) {
-        btnNextLevel.addEventListener('click', () => {
+        btnNextLevel.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          // Explicit click only: ignore accidental touch bleed-through within 300ms of modal appearance
+          if (Date.now() - levelModalOpenedAt < 300) return;
+
           const modal = document.getElementById('level-cleared-modal');
           if (modal) {
             modal.classList.add('hidden');
@@ -3238,7 +3317,10 @@
       });
     }
 
+    let levelModalOpenedAt = 0;
+
     function showLevelClearedModal(levelTimeSec, cumulativeTimeSec, clearedLvl) {
+      levelModalOpenedAt = Date.now();
       safeSetText('cleared-level-title', `LEVEL ${clearedLvl} CLEARED!`);
       const isReverse = isReverseProtocol(clearedLvl);
       safeSetText('cleared-level-subtitle', isReverse 
