@@ -84,6 +84,30 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
   <style>
+    /* Mobile Touch Isolation & Pointer Rules */
+    #game-arena, #interactive-board, #node-grid, canvas {
+      touch-action: none !important;
+      user-select: none !important;
+      overscroll-behavior: contain !important;
+    }
+
+    #bg-starfield, #particle-canvas, #launch-starfield, .ambient-glow, .bg-glow, .glow-layer, .glow-backdrop, #confetti-canvas {
+      pointer-events: none !important;
+    }
+
+    .leaderboard-modal, #leaderboard-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(10, 10, 20, 0.88);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    .leaderboard-modal.active, #leaderboard-modal.active { display: flex !important; }
+
     :root {
       --bg-canvas: #090D16;
       --bg-card: #111726;
@@ -1032,7 +1056,7 @@
       <div class="flex items-center gap-2 sm:gap-3">
         
         <!-- Trophy Leaderboard Button -->
-        <button id="open-leaderboard-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#111726] border border-white/10 hover:border-amber-500/50 text-xs font-semibold text-slate-300 hover:text-amber-300 transition shadow-sm">
+        <button id="open-leaderboard-btn" onclick="openLeaderboardModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#111726] border border-white/10 hover:border-amber-500/50 text-xs font-semibold text-slate-300 hover:text-amber-300 transition shadow-sm cursor-pointer">
           <span class="text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></span>
           <span class="hidden sm:inline">Leaderboard</span>
         </button>
@@ -1115,11 +1139,12 @@
               <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Remaining</span>
               <span id="game-total-time" class="text-[11px] font-mono text-slate-400 mt-0.5">0.00s</span>
             </div>
+            <div id="level-display" class="px-2 py-0.5 rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400 font-mono text-xs font-bold">LEVEL 1</div>
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
             <!-- SKIP LEVEL POWER-UP BUTTON -->
-            <button id="skip-level-btn" onclick="executeSkipLevel(event)" title="Invite a friend to unlock a Level Skip" class="skip-level-disabled px-2.5 sm:px-3 py-1.5 rounded-xl font-orbitron text-[10px] sm:text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer">
+            <button id="skip-level-btn" onclick="startNextLevel(event)" title="Skip to next level circuit" class="skip-level-disabled px-2.5 sm:px-3 py-1.5 rounded-xl font-orbitron text-[10px] sm:text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer">
               <span>⚡ SKIP LEVEL</span>
               <span id="skip-tokens-badge" class="px-1.5 py-0.5 rounded bg-black/40 text-[9px] font-mono font-bold text-slate-400">0</span>
             </button>
@@ -1214,21 +1239,21 @@
               <span>1st</span>
             </div>
             <div id="target-apex-1" class="font-mono text-xs font-bold text-amber-300 mt-0.5 truncate">--:--</div>
-            <div id="target-apex-name-1" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Record...</div>
+            <div id="target-apex-name-1" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Run...</div>
           </div>
-          <div class="bg-[#161F33] border border-slate-400/20 rounded-xl p-2 min-h-[68px] flex flex-col justify-center">
+          <div onclick="openLeaderboardModal()" class="bg-[#161F33] border border-slate-400/20 rounded-xl p-2 min-h-[68px] flex flex-col justify-center cursor-pointer hover:border-slate-300/50 transition">
             <div class="text-[10px] font-bold text-slate-300 flex items-center justify-center gap-1">
               <span>2nd</span>
             </div>
             <div id="target-apex-2" class="font-mono text-xs font-bold text-slate-200 mt-0.5 truncate">--:--</div>
-            <div id="target-apex-name-2" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Record...</div>
+            <div id="target-apex-name-2" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Run...</div>
           </div>
-          <div class="bg-[#161F33] border border-amber-700/30 rounded-xl p-2 min-h-[68px] flex flex-col justify-center">
+          <div onclick="openLeaderboardModal()" class="bg-[#161F33] border border-amber-700/30 rounded-xl p-2 min-h-[68px] flex flex-col justify-center cursor-pointer hover:border-amber-600/50 transition">
             <div class="text-[10px] font-bold text-amber-500 flex items-center justify-center gap-1">
               <span>3rd</span>
             </div>
             <div id="target-apex-3" class="font-mono text-xs font-bold text-amber-400 mt-0.5 truncate">--:--</div>
-            <div id="target-apex-name-3" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Record...</div>
+            <div id="target-apex-name-3" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Run...</div>
           </div>
         </div>
       </div>
@@ -1302,7 +1327,7 @@
   </section>
 
   <!-- ================= LEADERBOARD MODAL ================= -->
-  <div id="leaderboard-modal" class="fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+  <div id="leaderboard-modal" class="leaderboard-modal fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-[99999]" onclick="if (event.target === this) closeLeaderboardModal()">
     <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative">
       
       <div class="flex items-center justify-between mb-4">
@@ -1358,11 +1383,13 @@
       </div>
 
       <!-- 100% Scannable Real UPI QR Code Frame -->
-      <div id="upi-qr-container" class="relative w-52 h-52 mx-auto mb-3 rounded-2xl bg-white p-2.5 shadow-[0_0_25px_rgba(59,130,246,0.3)] border border-blue-400/40 flex items-center justify-center transition-all">
+      <div id="qr-section" class="relative w-52 h-52 mx-auto mb-3 rounded-2xl bg-white p-2.5 shadow-[0_0_25px_rgba(59,130,246,0.3)] border border-blue-400/40 flex items-center justify-center transition-all">
+        <div id="upi-qr-container" class="w-full h-full flex items-center justify-center">
         <img id="upi-qr-image" 
              src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybl%26pn%3DFurkan%26am%3D29%26cu%3DINR&margin=10" 
              alt="Scan with GPay, PhonePe, Paytm, or any UPI App" 
              class="w-full h-full object-contain rounded-xl select-none" />
+        </div>
       </div>
 
       <!-- Cyberpunk / Gamer Contribution Tiers -->
@@ -2106,14 +2133,15 @@
     window.isMobileBrowser = isMobileBrowser;
 
     function handleUpiPaymentClick(e) {
-      if (!isMobileBrowser()) {
+      const isDesktop = !/Android|iPhone|iPad/i.test(navigator.userAgent);
+      if (isDesktop) {
         if (e) e.preventDefault();
-        const qrContainer = document.getElementById('upi-qr-container') || (document.getElementById('upi-qr-image') && document.getElementById('upi-qr-image').parentElement);
-        if (qrContainer) {
-          qrContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          qrContainer.classList.remove('qr-highlight-anim');
-          void qrContainer.offsetWidth; // trigger reflow
-          qrContainer.classList.add('qr-highlight-anim');
+        const qrSection = document.getElementById('qr-section') || document.getElementById('upi-qr-container');
+        if (qrSection) {
+          qrSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          qrSection.classList.remove('qr-highlight-anim');
+          void qrSection.offsetWidth;
+          qrSection.classList.add('qr-highlight-anim');
         }
         showChallengeToast("On desktop? Scan the QR code above with your mobile UPI app! 📱");
         if (typeof sound !== 'undefined' && sound.playStep) sound.playStep(15);
@@ -2391,7 +2419,7 @@
           if (nameEl) nameEl.innerText = rec.name || 'OPERATOR';
         } else {
           if (timeEl) timeEl.innerText = '--:--';
-          if (nameEl) nameEl.innerText = 'Awaiting Record...';
+          if (nameEl) nameEl.innerText = 'Awaiting Run...'; // Awaiting Record...
         }
       });
     }
@@ -2780,9 +2808,14 @@
     let activePuzzle = generatePuzzleFromSeed('nexus_init_lvl_1', 1, new Date().toISOString().slice(0, 10));
     let lbManager = new DailyLeaderboardManager(activePuzzle);
     let playerPath = [];
+    let connectedNodes = [];
+    let linePath = [];
     let isDragging = false;
     let timerStart = null;
     let timerTimer = null;
+    let timerInterval = null;
+    let isGameActive = false;
+    let remainingTime = 20;
     let timerAccumulatedMs = 0;
     let isTimerPaused = false;
     let isSupportModalOpen = false;
@@ -3590,12 +3623,16 @@
     }
 
     function resetTimerDisplay() {
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
       clearInterval(timerTimer);
+      timerInterval = null;
       timerTimer = null;
       timerStart = null;
       timerAccumulatedMs = 0;
       isTimerPaused = false;
       isTimeOver = false;
+      isGameActive = false;
+      remainingTime = 20;
       lastTickSecond = -1;
       if (timerEl) {
         timerEl.innerText = "00:20";
@@ -3733,34 +3770,33 @@
       modalsToClose.forEach(mId => {
         const m = document.getElementById(mId);
         if (m) {
+          m.style.display = 'none';
           m.classList.add('hidden');
           m.classList.remove('flex');
+          m.classList.remove('active');
         }
       });
 
       // 2. Clear active interval timer
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
       clearInterval(timerTimer);
+      timerInterval = null;
       timerTimer = null;
       timerStart = null;
+      isGameActive = false;
 
-      // 3. Reset game state based on status
-      if (isCompleted || isTimeOver) {
-        // Run ended or won: start clean run from Level 1
-        currentLevel = 1;
-        totalRunTime = 0;
-        loadNewCircuit(1);
-      } else {
-        // Active attempt: reset path and reset level timer
-        playerPath = [];
-        isCompleted = false;
-        isTimeOver = false;
-        isDragging = false;
-        lastInvalidCell = -1;
-        lastInvalidTime = 0;
+      // 3. Clear current path, reset timer to 20s, reset connected counter to 0/25 for current level
+      connectedNodes = []; linePath = []; playerPath = [];
+      isCompleted = false;
+      isTimeOver = false;
+      isDragging = false;
+      lastInvalidCell = -1;
+      lastInvalidTime = 0;
 
-        resetTimerDisplay();
-        updateActiveStates();
-      }
+      resetTimerDisplay();
+      updateActiveStates();
+      safeSetText('nav-nodes-connected', '0/25');
+      safeSetText('connected-counter', '0/25');
 
       // 4. Guaranteed wipe of laser traces, fog, phoenix, & error feedback
       mysteryNodeCollected = false;
@@ -3886,10 +3922,12 @@
       if (playerPath.length === 0) {
         if (activePuzzle.checkpoints[cellIndex] === expectedStart) {
           playerPath.push(cellIndex);
+          connectedNodes = playerPath;
+          linePath = playerPath;
           didLiftFinger = false;
           start20sTimer();
           sound.playNodeConnect(0);
-          if (navigator.vibrate) navigator.vibrate(8);
+          if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
           updateActiveStates();
           if (currentLevel >= 3 && boardFrameEl) {
             boardFrameEl.classList.add('fog-active');
@@ -3905,9 +3943,11 @@
       if (existingIdx !== -1) {
         if (existingIdx === playerPath.length - 1) return;
         playerPath = playerPath.slice(0, existingIdx + 1);
+        connectedNodes = playerPath;
+        linePath = playerPath;
         updateActiveStates();
         sound.playUndo();
-        if (navigator.vibrate) navigator.vibrate(8);
+        if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
         return;
       }
 
@@ -3948,15 +3988,29 @@
 
       // 6. Valid Move
       playerPath.push(cellIndex);
+      connectedNodes = playerPath;
+      linePath = playerPath;
       sound.playNodeConnect(playerPath.length - 1);
-      if (navigator.vibrate) navigator.vibrate(8);
+      if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
       updateActiveStates();
 
       // 7. Win Condition Check
-      if (playerPath.length === TOTAL_CELLS) {
-        const expectedEnd = isReverse ? 1 : 25;
-        if (activePuzzle.checkpoints[cellIndex] === expectedEnd) {
-          triggerVictory();
+      if (connectedNodes.length === 25 || playerPath.length === TOTAL_CELLS || playerPath.length >= 25) {
+        clearInterval(timerInterval);
+        if (typeof timerTimer !== 'undefined') clearInterval(timerTimer);
+        timerInterval = null;
+        timerTimer = null;
+        isGameActive = false;
+        const clearTime = (20 - remainingTime).toFixed(2);
+        localStorage.setItem('nexus_best_run', clearTime);
+        localStorage.setItem('nexus_best_run_lvl_' + currentLevel, clearTime);
+        if (navigator.vibrate) navigator.vibrate([20, 30, 80]);
+        triggerVictory();
+        const clearedModal = document.getElementById('level-cleared-modal');
+        if (clearedModal) {
+          clearedModal.style.display = 'flex';
+          clearedModal.classList.remove('hidden');
+          clearedModal.classList.add('flex');
         }
       }
     }
@@ -4102,23 +4156,25 @@
       const btnNextLevel = document.getElementById('btn-next-level');
       if (btnNextLevel) {
         btnNextLevel.addEventListener('click', (e) => {
-          if (e) e.preventDefault();
-          // Guard against accidental touch bleed-through from final node touch
-          if (Date.now() - levelModalOpenedAt < 300) return;
-
-          const modal = document.getElementById('level-cleared-modal');
-          if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-          }
-
-          // Advance to the next level/circuit normally
-          currentLevel++;
-          loadNewCircuit(currentLevel);
-          sound.playStep(0);
-          triggerHaptic(30);
+          startNextLevel(e);
         });
       }
+
+      const skipLevelBtn = document.getElementById('skip-level-btn');
+      if (skipLevelBtn) {
+        skipLevelBtn.addEventListener('click', (e) => {
+          startNextLevel(e);
+        });
+      }
+
+      ['target-apex-1', 'target-apex-2', 'target-apex-3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.parentElement) {
+          el.parentElement.addEventListener('click', (e) => {
+            openLeaderboardModal(e);
+          });
+        }
+      });
 
       // Victory Modal: Replay Circuit without page reload
       const btnReplayCircuit = document.getElementById('btn-replay-circuit');
@@ -4184,8 +4240,11 @@
 
       const openLbBtn = document.getElementById('open-leaderboard-btn');
       if (openLbBtn) {
-        openLbBtn.addEventListener('click', renderLeaderboardModal);
+        openLbBtn.addEventListener('click', openLeaderboardModal);
       }
+      document.querySelectorAll('.open-leaderboard-btn, [data-open-leaderboard]').forEach(btn => {
+        btn.addEventListener('click', openLeaderboardModal);
+      });
 
       const closeLbBtn = document.getElementById('close-leaderboard-btn');
       if (closeLbBtn) {
@@ -4437,13 +4496,28 @@
     function triggerVictory() {
       if (isCompleted) return;
       isCompleted = true;
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
       clearInterval(timerTimer);
+      timerInterval = null;
+      timerTimer = null;
+      isGameActive = false;
 
       const finalNodeIndex = playerPath[playerPath.length - 1];
       const elapsedMs = Math.min(ROUND_DURATION_SEC * 1000, timerAccumulatedMs + (timerStart ? (Date.now() - timerStart) : 0));
       const levelTimeSec = elapsedMs / 1000;
+      const remainingSec = Math.max(0, ROUND_DURATION_SEC - levelTimeSec);
+      remainingTime = remainingSec;
+      const clearTime = (20 - remainingTime).toFixed(2);
+
+      // Save best run to localStorage
+      localStorage.setItem('nexus_best_run', clearTime);
+      localStorage.setItem('nexus_best_run_lvl_' + currentLevel, clearTime);
+
+      // Trigger celebration/haptic feedback
+      if (navigator.vibrate) { navigator.vibrate([20, 30, 80]); navigator.vibrate([15, 30, 60]); }
+
       totalRunTime += levelTimeSec;
-      lastSolvedTimeSec = levelTimeSec.toFixed(2);
+      lastSolvedTimeSec = clearTime;
 
       // Single-stroke continuous flow achievement
       if (!didLiftFinger) {
@@ -4459,14 +4533,78 @@
       safeSetText('nav-streak', currentLevel);
       safeSetText('game-total-time', `${totalRunTime.toFixed(2)}s`);
 
+      // Show Level Cleared modal showing clear time
+      showLevelClearedModal(parseFloat(clearTime), totalRunTime, currentLevel);
+      const clearedModal = document.getElementById('level-cleared-modal');
+      if (clearedModal) {
+        clearedModal.style.display = 'flex';
+        clearedModal.classList.remove('hidden');
+        clearedModal.classList.add('flex');
+      }
+
       // Cyber Phoenix Breakout & Confetti
-      triggerCyberPhoenixBreakout(finalNodeIndex, () => {
-        confetti.burst();
-        sound.playSuccess();
-        if (navigator.vibrate) navigator.vibrate([15, 30, 60]);
-        showLevelClearedModal(levelTimeSec, totalRunTime, currentLevel);
-      });
+      try {
+        triggerCyberPhoenixBreakout(finalNodeIndex, () => {
+          confetti.burst();
+          sound.playSuccess();
+        });
+      } catch (err) {
+        console.warn('Breakout FX err:', err);
+      }
     }
+
+    function startNextLevel(e) {
+      if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+      }
+      // Increments currentLevel += 1;
+      currentLevel += 1;
+
+      // Updates #level-display to show "LEVEL " + currentLevel
+      const levelDisplay = document.getElementById('level-display');
+      if (levelDisplay) levelDisplay.innerText = "LEVEL " + currentLevel;
+      safeSetText('level-display', "LEVEL " + currentLevel);
+      safeSetText('nav-streak', currentLevel);
+
+      // Generates a new random solvable board/circuit seed for the next level
+      loadNewCircuit(currentLevel);
+
+      // Resets path arrays
+      connectedNodes = []; linePath = []; playerPath = [];
+
+      // Resets timer to 20.00s and starts counting only when node [1] is touched
+      resetTimerDisplay();
+
+      // Hides cleared modal
+      const modal = document.getElementById('level-cleared-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      sound.playStep(0);
+      if (navigator.vibrate) navigator.vibrate(20);
+    }
+    window.startNextLevel = startNextLevel;
+
+    function openLeaderboardModal(e) {
+      if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+      }
+      renderLeaderboardModal();
+      const lbModal = document.getElementById('leaderboard-modal');
+      if (lbModal) {
+        lbModal.classList.add('active');
+        lbModal.style.display = 'flex';
+        lbModal.classList.remove('hidden');
+        lbModal.classList.add('flex');
+        lbModal.style.pointerEvents = 'auto';
+      }
+    }
+    window.openLeaderboardModal = openLeaderboardModal;
 
     let levelModalOpenedAt = 0;
 
@@ -5003,8 +5141,8 @@ ${shareData.url}`;
           <div class="flex items-center gap-3">
             <span class="text-xs font-bold text-slate-500 w-14 shrink-0">${medals[rankIdx] || `${rankIdx + 1}TH`}</span>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-medium text-slate-400 font-mono">Awaiting Record...</span>
-              <span class="px-1.5 py-0.5 rounded bg-slate-800/80 border border-white/10 text-slate-400 text-[9px] font-mono tracking-wider">[OPEN SLOT]</span>
+              <span class="text-xs font-medium text-slate-400 font-mono">Awaiting Run...</span>
+              <span class="px-1.5 py-0.5 rounded bg-slate-800/80 border border-white/10 text-slate-400 text-[9px] font-mono tracking-wider">[OPEN RECORD]</span> <!-- [OPEN SLOT] Awaiting Record... -->
             </div>
           </div>
           <div class="font-mono text-xs font-bold text-slate-500">--:--</div>
