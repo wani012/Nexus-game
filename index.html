@@ -224,6 +224,15 @@
       transform: scale(1.1) !important;
     }
 
+        /* Board Freeze on Game-Over / Timeout */
+    .board-frozen,
+    #interactive-board.board-frozen,
+    #node-grid.board-frozen {
+      pointer-events: none !important;
+      filter: grayscale(0.5) brightness(0.85);
+      transition: filter 0.3s ease;
+    }
+
     /* Circuit Node Components */
     .circuit-node {
       width: 100%;
@@ -2363,7 +2372,7 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
       </div>
 
-      <h3 id="overload-title" class="text-xl font-extrabold text-white tracking-tight mb-1">Time's Up</h3>
+      <h3 id="overload-title" class="text-xl font-extrabold text-white tracking-tight mb-1">CIRCUIT TIMEOUT / MISSION FAILED</h3>
       <p id="overload-subtitle" class="text-xs text-slate-400 mb-4">The 20-second timer expired before connecting all nodes.</p>
 
       <div class="bg-[#161F33] p-4 rounded-2xl border border-white/5 mb-5 text-left">
@@ -2388,7 +2397,7 @@
 
         <button id="retry-btn" onclick="resetCircuitAttempt()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-wide rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-1.5 text-xs cursor-pointer">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span id="retry-btn-text">Try Again</span>
+          <span id="retry-btn-text">RETRY LEVEL</span>
         </button>
 
         <button id="view-leaderboard-btn" onclick="openLeaderboardFromGameOver(event)" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] text-slate-300 hover:text-white font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
@@ -3101,18 +3110,18 @@
       console.warn("Firebase initialization warning:", err);
     }
 
-    // Robust client-side sorting: Primary = levelReached desc, Secondary = totalTime asc
+    // Robust client-side sorting: Highest Level First (DESC), then Lowest Time (ASC)
     function sortRecords(records) {
       if (!Array.isArray(records)) return [];
       return records.slice().sort((a, b) => {
-        const lvlA = Number(a.levelReached !== undefined ? a.levelReached : (a.level !== undefined ? a.level : 1));
-        const lvlB = Number(b.levelReached !== undefined ? b.levelReached : (b.level !== undefined ? b.level : 1));
+        const lvlA = Number(a.level !== undefined ? a.level : (a.levelReached !== undefined ? a.levelReached : 1));
+        const lvlB = Number(b.level !== undefined ? b.level : (b.levelReached !== undefined ? b.levelReached : 1));
         if (lvlB !== lvlA) {
-          return lvlB - lvlA; // Higher level reached wins first
+          return lvlB - lvlA; // Highest Level First (DESC)
         }
-        const timeA = typeof a.totalTime === 'number' ? a.totalTime : parseFloat(a.totalTime || a.time || 9999);
-        const timeB = typeof b.totalTime === 'number' ? b.totalTime : parseFloat(b.totalTime || b.time || 9999);
-        return timeA - timeB; // Faster cumulative total time tie-breaker
+        const timeA = typeof a.time === 'number' ? a.time : (typeof a.totalTime === 'number' ? a.totalTime : parseFloat(a.time || a.totalTime || a.recordTime || 9999));
+        const timeB = typeof b.time === 'number' ? b.time : (typeof b.totalTime === 'number' ? b.totalTime : parseFloat(b.time || b.totalTime || b.recordTime || 9999));
+        return timeA - timeB; // Lowest Time (ASC)
       });
     }
 
@@ -3232,6 +3241,97 @@
       } catch (_) {}
     }
     window.updateTargetApexUI = updateTargetApexUI;
+
+    // ================= LEADERBOARD SUBMISSION & REAL-TIME RE-RENDER PIPELINE =================
+    async function saveScoreToLeaderboard(playerName, level, time) {
+      // 1. Input prompt / name collection: collect or fall back cleanly to Cadet/Player tag instead of aborting
+      let name = playerName;
+      if (!name || typeof name !== 'string' || !name.trim()) {
+        const inputEl = document.getElementById('cracked-name-input');
+        if (inputEl && inputEl.value && inputEl.value.trim()) {
+          name = inputEl.value.trim();
+        } else {
+          const stored = localStorage.getItem('nexus_player_callsign');
+          if (stored && stored.trim()) {
+            name = stored.trim();
+          } else {
+            try {
+              name = prompt("Enter your callsign for the leaderboard:", "CADET");
+            } catch (_) {}
+          }
+        }
+      }
+      name = (name && name.trim()) ? name.trim().toUpperCase().slice(0, 12) : 'CADET';
+      localStorage.setItem('nexus_player_callsign', name);
+
+      const currentLvl = Number(level !== undefined ? level : (typeof bankedLevel !== 'undefined' && bankedLevel ? bankedLevel : (currentLevel || 1)));
+      const completionTime = parseFloat(Number(time !== undefined ? time : (typeof bankedTotalTime !== 'undefined' && bankedTotalTime ? bankedTotalTime : (totalRunTime || (lastSolvedTimeSec ? parseFloat(lastSolvedTimeSec) : 8.42)))).toFixed(2));
+
+      // Exact requested record format: { name: playerName, level: currentLevel, time: completionTime, timestamp: Date.now() }
+      const record = {
+        name: name,
+        level: currentLvl,
+        time: completionTime,
+        levelReached: currentLvl,
+        totalTime: completionTime,
+        recordTime: completionTime,
+        timestamp: Date.now()
+      };
+
+      // 2. Data write: Write cleanly into Firestore with proper .catch() handling
+      if (firestoreDb) {
+        try {
+          firestoreDb.collection('nexus_daily_records').add(record).catch(err => {
+            console.warn("Firestore daily record write failed:", err);
+          });
+        } catch (err) {
+          console.warn("Firestore collection access warning:", err);
+        }
+      }
+
+      // Write cleanly into localStorage and local leaderboard state
+      const mgr = window.lbManager || (typeof lbManager !== 'undefined' ? lbManager : null);
+      const currentEntries = (mgr && typeof mgr.getEntries === 'function') ? mgr.getEntries() : (firestoreRecords || []);
+      const updatedList = sortRecords([...currentEntries, record]);
+      firestoreRecords = updatedList.slice(0, 10);
+      if (mgr && typeof mgr.saveEntries === 'function') {
+        mgr.saveEntries(firestoreRecords);
+      } else {
+        try {
+          localStorage.setItem(`nexus_lb_progressive_${new Date().toISOString().slice(0, 10)}`, JSON.stringify(firestoreRecords));
+        } catch (_) {}
+      }
+
+      // Dethroning evaluation for #1 Apex Champion
+      const isDethrone = mgr && typeof mgr.isDethroningRun === 'function' ? mgr.isDethroningRun(currentLvl, completionTime) : true;
+      if (isDethrone) {
+        if (mgr && typeof mgr.updateReigningApex === 'function') {
+          mgr.updateReigningApex(record);
+        }
+        window.apexRunner = record;
+        if (window.topApexTimes) window.topApexTimes[0] = record;
+        try {
+          localStorage.setItem('nexus_apex_record', JSON.stringify(record));
+          if (firestoreDb) {
+            firestoreDb.collection('nexus_apex_record').doc('reigning_champion').set(record).catch(() => {});
+          }
+        } catch (_) {}
+      }
+
+      // 3. Trigger immediate UI sync: update top 3 cards, leaderboard table, and apex headers
+      updateTargetApexUI(firestoreRecords);
+      if (typeof renderLeaderboardModal === 'function') {
+        renderLeaderboardModal();
+      }
+      syncApexBanner();
+      syncLandingApexWinner();
+
+      return { record, dethroned: isDethrone };
+    }
+    window.saveScoreToLeaderboard = saveScoreToLeaderboard;
+    window.renderLeaderboard = () => { if (typeof renderLeaderboardModal === 'function') renderLeaderboardModal(); };
+    window.fetchTopScores = () => { updateTargetApexUI(firestoreRecords); return firestoreRecords; };
+    window.updateApexCards = updateTargetApexUI;
 
     class DailyLeaderboardManager {
       constructor(puzzle) {
@@ -3359,47 +3459,7 @@
       }
 
       async submitScore(playerName, levelReached, totalTime) {
-        const cleanName = (playerName.trim().toUpperCase() || 'OPERATOR').slice(0, 12);
-        const newTime = parseFloat(Number(totalTime || 0).toFixed(2));
-        const newLvl = Number(levelReached || 1);
-        const record = {
-          name: cleanName,
-          levelReached: newLvl,
-          totalTime: newTime,
-          recordTime: newTime,
-          timestamp: Date.now()
-        };
-
-        // 1. Evaluate persistent dethroning condition
-        const dethroned = this.isDethroningRun(newLvl, newTime);
-        if (dethroned) {
-          this.updateReigningApex(record);
-          if (firestoreDb) {
-            try {
-              await firestoreDb.collection('nexus_apex_record').doc('reigning_champion').set(record);
-            } catch (err) {
-              console.warn("Firestore reigning apex update error:", err);
-            }
-          }
-        }
-
-        // 2. Save to daily collection
-        if (firestoreDb) {
-          try {
-            await firestoreDb.collection('nexus_daily_records').add(record);
-          } catch (err) {
-            console.error("Firestore submission error:", err);
-          }
-        }
-
-        // 3. Optimistic local update for daily leaderboard
-        const updated = [...this.getEntries(), record];
-        firestoreRecords = sortRecords(updated).slice(0, 10);
-        this.saveEntries(firestoreRecords);
-        syncApexBanner();
-        syncLandingApexWinner();
-        updateTargetApexUI(firestoreRecords);
-        return { record, dethroned };
+        return await saveScoreToLeaderboard(playerName, levelReached, totalTime);
       }
     }
 
@@ -4718,8 +4778,14 @@
           if (timerBarEl) timerBarEl.style.backgroundColor = '#00F0FF';
         }
 
-        if (remainingSec <= 0) {
+        // Check if timeRemaining <= 0 (or 00:00)
+        const timeRemaining = remainingSec;
+        if (timeRemaining <= 0 || remainingSec <= 0) {
+          if (timerEl) timerEl.innerText = "00:00";
+          if (timerBarEl) timerBarEl.style.width = "0%";
           stopTimerLoop();
+          if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+          if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
           triggerTimeoutOverload();
           return;
         }
@@ -4748,8 +4814,16 @@
     }
 
     function triggerTimeoutOverload() {
+      // 1. Clear all active countdown timers/intervals immediately
       stopTimerLoop();
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+      if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
+      if (timerRaf) {
+        cancelAnimationFrame(timerRaf);
+        timerRaf = null;
+      }
       isTimeOver = true;
+      isGameActive = false;
       isDragging = false;
       sound.playGameOver();
       if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
@@ -4757,12 +4831,34 @@
       if (timerEl) timerEl.innerText = "00:00";
       if (timerBarEl) timerBarEl.style.width = "0%";
 
-      const connectedCount = playerPath.length;
-      const pct = Math.round((connectedCount / TOTAL_CELLS) * 100);
+      // 2. Freeze the board: apply pointer-events: none to the entire grid container
+      // so no further node links can be drawn
+      if (boardFrameEl) {
+        boardFrameEl.style.pointerEvents = 'none';
+        boardFrameEl.classList.add('board-frozen');
+      }
+      if (nodeGridEl) {
+        nodeGridEl.style.pointerEvents = 'none';
+        nodeGridEl.classList.add('board-frozen');
+      }
+      const boardContainer = document.getElementById('interactive-board');
+      if (boardContainer) {
+        boardContainer.style.pointerEvents = 'none';
+        boardContainer.classList.add('board-frozen');
+      }
 
-      safeSetText('overload-progress-text', `${connectedCount} / ${TOTAL_CELLS} NODES (${pct}%)`);
+      const connectedCount = playerPath.length;
+      const targetSeq = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence)) ? targetSequence : [1, 5, 10, 15, 20, 25];
+      const totalTargets = targetSeq.length;
+      const pct = Math.round((connectedCount / totalTargets) * 100);
+
+      safeSetText('overload-progress-text', `${connectedCount} / ${totalTargets} NODES (${pct}%)`);
       const overloadBar = document.getElementById('overload-bar');
       if (overloadBar) overloadBar.style.width = `${pct}%`;
+
+      // 3. Trigger the Game-Over modal ("CIRCUIT TIMEOUT / MISSION FAILED")
+      safeSetText('overload-title', "CIRCUIT TIMEOUT / MISSION FAILED");
+      safeSetText('overload-subtitle', "The 20-second timer reached 00:00. Linkage broken.");
 
       const bankBox = document.getElementById('overload-bank-box');
       const bankBtn = document.getElementById('overload-bank-btn');
@@ -4770,8 +4866,6 @@
 
       if (currentLevel > 1) {
         const bankableLvl = currentLevel - 1;
-        safeSetText('overload-title', `Time Expired at Level ${currentLevel}`);
-        safeSetText('overload-subtitle', `Time expired on Node ${connectedCount}/25.`);
         safeSetText('overload-bank-stats', `LVL ${bankableLvl} • ${totalRunTime.toFixed(2)}s`);
         if (bankBox) bankBox.classList.remove('hidden');
         if (bankBtn) {
@@ -4786,22 +4880,29 @@
             showSubmitScoreModal(bankableLvl, totalRunTime);
           };
         }
-        if (retryBtnText) retryBtnText.innerText = 'START NEW RUN (LEVEL 1)';
       } else {
-        safeSetText('overload-title', "Time's Up");
-        safeSetText('overload-subtitle', 'Time expired before completing Level 1.');
         if (bankBox) bankBox.classList.add('hidden');
         if (bankBtn) {
           bankBtn.classList.add('hidden');
           bankBtn.classList.remove('flex');
         }
-        if (retryBtnText) retryBtnText.innerText = 'RETRY LEVEL 1 (20s)';
+      }
+
+      // 4. Display a functional "RETRY LEVEL" button that resets current circuit state and re-enables interaction
+      if (retryBtnText) retryBtnText.innerText = 'RETRY LEVEL';
+      const retryBtn = document.getElementById('retry-btn');
+      if (retryBtn) {
+        retryBtn.onclick = (e) => {
+          if (e) e.preventDefault();
+          resetCircuitAttempt();
+        };
       }
 
       const gameoverModal = document.getElementById('gameover-modal');
       if (gameoverModal) {
+        gameoverModal.style.display = 'flex';
         gameoverModal.classList.remove('hidden');
-        gameoverModal.classList.add('flex');
+        gameoverModal.classList.add('flex', 'active');
       }
     }
 
@@ -4826,8 +4927,25 @@
 
       // 2. Clear active interval timer
       stopTimerLoop();
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+      if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
       timerStart = null;
       isGameActive = false;
+
+      // Unfreeze board: re-enable interaction across grid container
+      if (boardFrameEl) {
+        boardFrameEl.style.pointerEvents = 'auto';
+        boardFrameEl.classList.remove('board-frozen');
+      }
+      if (nodeGridEl) {
+        nodeGridEl.style.pointerEvents = 'auto';
+        nodeGridEl.classList.remove('board-frozen');
+      }
+      const boardContainer = document.getElementById('interactive-board');
+      if (boardContainer) {
+        boardContainer.style.pointerEvents = 'auto';
+        boardContainer.classList.remove('board-frozen');
+      }
 
       // 3. Clear current path, reset timer to 20s, reset connected counter to 0/25 for current level
       connectedNodes = []; linePath = []; playerPath = [];
@@ -5481,12 +5599,12 @@
           const levelToSubmit = bankedLevel || currentLevel;
           const timeToSubmit = bankedTotalTime || totalRunTime;
 
-          // Submit record to Firestore & local leaderboard
+          // Submit record to Firestore & local leaderboard via saveScoreToLeaderboard pipeline
           let submitResult = null;
           try {
-            submitResult = await lbManager.submitScore(name, levelToSubmit, timeToSubmit);
+            submitResult = await saveScoreToLeaderboard(name, levelToSubmit, timeToSubmit);
           } catch (err) {
-            console.error("Firestore submission error:", err);
+            console.error("Leaderboard pipeline submission error:", err);
           }
 
           if (submitBtn) {
