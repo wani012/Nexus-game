@@ -199,6 +199,31 @@
       z-index: 10;
     }
 
+        /* Unnumbered background dots ignore pointer events; direct sequential target jumps */
+    .circuit-node.empty,
+    .circuit-node:not([data-checkpoint]) {
+      pointer-events: none !important;
+    }
+    .circuit-node.anchor,
+    .circuit-node.milestone-node,
+    .circuit-node[data-checkpoint] {
+      pointer-events: auto !important;
+      cursor: pointer;
+    }
+    /* Completed / active target milestone nodes (green glow) */
+    .circuit-node.active,
+    .circuit-node.completed,
+    .circuit-node.anchor.active,
+    .circuit-node.anchor.completed,
+    .circuit-node.milestone-node.active,
+    .circuit-node.milestone-node.completed {
+      background: #10B981 !important;
+      border-color: #34D399 !important;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.45) !important;
+      color: #FFFFFF !important;
+      transform: scale(1.1) !important;
+    }
+
     /* Circuit Node Components */
     .circuit-node {
       width: 100%;
@@ -1950,7 +1975,7 @@
         <span id="instruction-tip-text">Touch <strong class="text-blue-400 font-bold">[1]</strong> to begin. Drag backward to undo.</span>
         <div class="flex items-center gap-1 font-mono font-bold text-white shrink-0 ml-2">
           <span>Connected:</span>
-          <span id="nodes-progress" class="text-blue-400">0/25</span>
+          <span id="nodes-progress" class="text-blue-400">0/6</span>
         </div>
       </div>
 
@@ -3461,6 +3486,9 @@
     // --- 5B. Procedural Circuit Generator for Every Level & Real-Time Sync ---
     function loadNewCircuit(level = 1, customSeed = null, broadcastToFirestore = false, triggeredBy = 'OPERATOR') {
       currentLevel = level;
+            targetSequence = getTargetSequence(level);
+      window.targetSequence = targetSequence;
+      window.activeLevelSequence = targetSequence;
       currentMaxLevel = Math.max(currentMaxLevel, level);
       localStorage.setItem('nexus_max_level', currentMaxLevel);
 
@@ -3661,9 +3689,18 @@
       return (Number(level) % 2 === 0);
     }
 
-    function getExpectedMilestones(level) {
+    // 1. Target Sequence Definition & Forward / Reverse Leap Protocols
+    let targetSequence = [1, 5, 10, 15, 20, 25];
+    function getTargetSequence(level = currentLevel) {
       return isReverseProtocol(level) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25];
     }
+    window.targetSequence = targetSequence;
+    window.getTargetSequence = getTargetSequence;
+
+    function getExpectedMilestones(level) {
+      return getTargetSequence(level);
+    }
+    window.getExpectedMilestones = getExpectedMilestones;
 
     // 2. Secret Mystery Node & Neural Hacker Single-Stroke Tracking
     let mysteryNodeIndex = -1;
@@ -4571,17 +4608,20 @@
         node.style.gridColumn = `${(i % GRID_SIZE) + 1}`;
         node.style.gridRow = `${Math.floor(i / GRID_SIZE) + 1}`;
 
-        if (isMystery) {
-          node.className = 'circuit-node milestone-node mystery-node grid-cell';
-          node.setAttribute('data-mystery', 'true');
-          node.innerHTML = `<span class="mystery-glyph">?</span>`;
-        } else if (cp !== undefined) {
+        if (cp !== undefined) {
           const isStartAnchor = (cp === startMilestone);
           node.className = `circuit-node anchor milestone-node grid-cell ${isReverse && isStartAnchor ? 'reverse-start-anchor' : ''}`;
           node.setAttribute('data-checkpoint', cp);
+          node.style.pointerEvents = 'auto';
           node.innerHTML = `<span>${cp}</span>`;
+        } else if (isMystery) {
+          node.className = 'circuit-node milestone-node mystery-node grid-cell';
+          node.setAttribute('data-mystery', 'true');
+          node.style.pointerEvents = 'auto';
+          node.innerHTML = `<span class="mystery-glyph">?</span>`;
         } else {
           node.className = 'circuit-node empty grid-cell';
+          node.style.pointerEvents = 'none';
         }
         nodeGridEl.appendChild(node);
       }
@@ -4855,12 +4895,17 @@
       const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
       nodes.forEach((node, idx) => {
         if (playerPath.includes(idx)) {
-          node.classList.add('active');
+          node.classList.add('active', 'completed');
         } else {
-          node.classList.remove('active');
+          node.classList.remove('active', 'completed');
         }
       });
-      safeSetText('nodes-progress', `${playerPath.length}/25`);
+      const activeLevelSequence = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence) && targetSequence.length > 0)
+        ? targetSequence
+        : (typeof getExpectedMilestones === 'function' ? getExpectedMilestones(currentLevel) : [1, 5, 10, 15, 20, 25]);
+      const totalTargets = activeLevelSequence.length;
+      const currentIndex = playerPath.length;
+      safeSetText('nodes-progress', `${currentIndex}/${totalTargets}`);
       renderSVGLine();
     }
 
@@ -4917,13 +4962,13 @@
       if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
     }
 
-        // --- 7. Strict Step-by-Step Sequence Validation & Multi-Step Backtracking ---
+        // --- 7. Strict Target Sequence Validation & Sequential Direct Jumps ---
     function handlePointerOnIndex(cellIndex) {
       if (isCompleted || isTimeOver || cellIndex === null || cellIndex === undefined) return;
 
-      const activeLevelSequence = (typeof getExpectedMilestones === 'function')
-        ? getExpectedMilestones(currentLevel)
-        : (isReverseProtocol(currentLevel) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25]);
+      const activeLevelSequence = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence))
+        ? targetSequence
+        : ((typeof getExpectedMilestones === 'function') ? getExpectedMilestones(currentLevel) : (isReverseProtocol(currentLevel) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25]));
 
       const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
       const nodeEl = nodes[cellIndex] || null;
@@ -4949,7 +4994,7 @@
         return;
       }
 
-      // 2. Strict Sequence Enforcement (No Random Drag Filling):
+      // 2. Strict Sequence Enforcement (No Random Drag Filling / Direct Jumps Only):
       // Nodes must ONLY be activated if they match the exact current step of the level's sequence array
       const currentStepIndex = playerPath.length;
       if (currentStepIndex >= activeLevelSequence.length) return;
@@ -4973,7 +5018,9 @@
         return;
       }
 
-      // 4. Consecutive Milestone Activation
+      // 4. Consecutive Sequential Target Activation (Direct Jumps between targets):
+      // As soon as touch/pointer hits the EXACT next target node ([20]), immediately draw the laser wire
+      // from [15] to [20], mark [20] as completed/green, and advance sequence index to [25].
       playerPath.push(cellIndex);
       connectedNodes = playerPath;
       linePath = playerPath;
@@ -4981,23 +5028,50 @@
       if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
       updateActiveStates();
 
-      // 5. Sequence Completion: Strictly terminate at designated final target (Node [25] in this protocol)
+      // 5. Strict Final Completion at [25]:
+      // When sequence reaches the final target (e.g. [20] connects to [25] => 6/6):
       const finalTarget = activeLevelSequence[activeLevelSequence.length - 1];
-      if (touchedNode.value === finalTarget && playerPath.length === activeLevelSequence.length) {
+      if ((touchedNode.value === finalTarget && playerPath.length === activeLevelSequence.length) || playerPath.length === activeLevelSequence.length || connectedNodes.length === 25) {
         triggerVictory();
       }
     }
 
     function getNodeIndexFromPoint(x, y) {
+      if (typeof x !== 'number' || typeof y !== 'number') return null;
       const elem = document.elementFromPoint(x, y);
-      if (!elem) return null;
-      const node = elem.closest('.circuit-node, .milestone-node, .grid-cell, [data-index]');
-      if (node) {
-        const idxAttr = node.getAttribute('data-index') || node.dataset.index;
-        if (idxAttr !== null && idxAttr !== undefined) {
-          return parseInt(idxAttr, 10);
+      if (elem) {
+        const node = elem.closest('.circuit-node[data-checkpoint], .milestone-node[data-checkpoint], [data-checkpoint]');
+        if (node) {
+          const idxAttr = node.getAttribute('data-index') || node.dataset.index;
+          if (idxAttr !== null && idxAttr !== undefined) {
+            return parseInt(idxAttr, 10);
+          }
         }
       }
+
+      // Proximity detection for direct target jumps across empty grid slots on mobile & desktop
+      const activeSeq = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence))
+        ? targetSequence
+        : ((typeof getExpectedMilestones === 'function') ? getExpectedMilestones(currentLevel) : [1, 5, 10, 15, 20, 25]);
+      
+      const nextStepIdx = playerPath.length;
+      if (nextStepIdx < activeSeq.length && nodeGridEl) {
+        const expectedVal = activeSeq[nextStepIdx];
+        const targetNodeEl = nodeGridEl.querySelector(`[data-checkpoint="${expectedVal}"]`);
+        if (targetNodeEl) {
+          const rect = targetNodeEl.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const radius = Math.max(rect.width / 2 + 14, 34);
+          if (Math.hypot(x - cx, y - cy) <= radius) {
+            const idxAttr = targetNodeEl.getAttribute('data-index') || targetNodeEl.dataset.index;
+            if (idxAttr !== null && idxAttr !== undefined) {
+              return parseInt(idxAttr, 10);
+            }
+          }
+        }
+      }
+
       return null;
     }
 
@@ -5069,8 +5143,51 @@
           }
         });
 
-        boardFrameEl.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
-        boardFrameEl.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+        boardFrameEl.addEventListener('touchstart', (e) => {
+          sound.init();
+          if (isCompleted || isTimeOver) return;
+          if (e.cancelable) e.preventDefault();
+          isDragging = true;
+          setMobileAnimationsPaused(true);
+          if (e.touches && e.touches[0]) {
+            const touch = e.touches[0];
+            const idx = getNodeIndexFromPoint(touch.clientX, touch.clientY);
+            if (idx !== null && idx !== undefined) {
+              handlePointerOnIndex(idx);
+            }
+            if (currentLevel >= 3) {
+              boardFrameEl.classList.add('fog-active');
+              updateFogOfWar(touch.clientX, touch.clientY);
+            }
+          }
+        }, { passive: false });
+
+        // Direct mobile touchmove across empty grid slots
+        boardFrameEl.addEventListener('touchmove', (e) => {
+          if (e.cancelable) e.preventDefault();
+          if (!isDragging || isCompleted || isTimeOver) return;
+          if (e.touches && e.touches[0]) {
+            const touch = e.touches[0];
+            const idx = getNodeIndexFromPoint(touch.clientX, touch.clientY);
+            if (idx !== null && idx !== undefined) {
+              handlePointerOnIndex(idx);
+            }
+            if (currentLevel >= 3) {
+              updateFogOfWar(touch.clientX, touch.clientY);
+            }
+          }
+        }, { passive: false });
+
+        boardFrameEl.addEventListener('touchend', () => {
+          isDragging = false;
+          if (playerPath.length > 0 && playerPath.length < targetSequence.length) {
+            didLiftFinger = true;
+          }
+          if (boardFrameEl) {
+            boardFrameEl.classList.remove('fog-active');
+            boardFrameEl.querySelectorAll('.circuit-node').forEach(n => n.classList.remove('in-spotlight'));
+          }
+        });
       }
 
       const skinPickerBtn = document.getElementById('skin-picker-btn');
