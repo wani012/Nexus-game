@@ -456,6 +456,170 @@
       25% { left: 140%; }
       100% { left: 140%; }
     }
+  
+    /* ================= CYBERPUNK ENTRANCE ANIMATION ================= */
+    .cyber-rocket-trail {
+      position: absolute;
+      top: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 110px;
+      background: linear-gradient(to bottom, #ffffff, #38bdf8 25%, #8b5cf6 65%, transparent);
+      border-radius: 9999px;
+      filter: drop-shadow(0 0 6px #38bdf8) drop-shadow(0 0 14px #8b5cf6);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .cyber-shockwave-ring-1 {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      margin-left: -24px;
+      margin-top: -24px;
+      border-radius: 50%;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 16px #38bdf8, inset 0 0 12px #38bdf8;
+      animation: cyberShockwaveAnim 0.45s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+      pointer-events: none;
+    }
+
+    .cyber-shockwave-ring-2 {
+      position: absolute;
+      width: 68px;
+      height: 68px;
+      margin-left: -34px;
+      margin-top: -34px;
+      border-radius: 50%;
+      border: 1.5px solid #a855f7;
+      box-shadow: 0 0 20px #8b5cf6, inset 0 0 10px #8b5cf6;
+      animation: cyberShockwaveAnim 0.55s cubic-bezier(0.15, 0.85, 0.35, 1) 0.04s forwards;
+      pointer-events: none;
+    }
+
+    .cyber-electric-glitch {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      margin-left: -9px;
+      margin-top: -9px;
+      border-radius: 50%;
+      background: #ffffff;
+      animation: cyberGlitchFlashAnim 0.35s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes cyberShockwaveAnim {
+      0% {
+        transform: scale(0.2);
+        opacity: 1;
+      }
+      70% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(2.6);
+        opacity: 0;
+      }
+    }
+
+    @keyframes cyberGlitchFlashAnim {
+      0% {
+        transform: scale(0.4);
+        opacity: 1;
+        filter: brightness(2.5) drop-shadow(0 0 12px #ffffff);
+      }
+      30% {
+        transform: translate(2px, -2px) scale(1.1);
+        opacity: 0.9;
+        filter: brightness(2) drop-shadow(0 0 20px #38bdf8);
+      }
+      60% {
+        transform: translate(-2px, 1px) scale(1);
+        opacity: 0.7;
+        filter: brightness(1.6) drop-shadow(0 0 16px #c084fc);
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+        filter: brightness(1);
+      }
+    }
+
+    @keyframes apexSpotlightPulseAnim {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      20% {
+        transform: scale(1.04);
+        box-shadow: 0 0 24px rgba(56, 189, 248, 0.75), 0 0 45px rgba(168, 85, 247, 0.45);
+        border-color: rgba(56, 189, 248, 0.85);
+      }
+      45% {
+        transform: scale(1.02);
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.5), 0 0 30px rgba(168, 85, 247, 0.3);
+        border-color: rgba(168, 85, 247, 0.7);
+      }
+      70% {
+        transform: scale(1.03);
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.65), 0 0 36px rgba(245, 158, 11, 0.4);
+        border-color: rgba(56, 189, 248, 0.75);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .apex-spotlight-active {
+      animation: apexSpotlightPulseAnim 1.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+    }
+
+    .cyber-leader-tag {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.8);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.65), 0 0 24px rgba(139, 92, 246, 0.35);
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      animation: cyberLeaderTagAnim 1.4s ease-in-out forwards;
+    }
+
+    @keyframes cyberLeaderTagAnim {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 8px) scale(0.85);
+      }
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -4px) scale(1.05);
+      }
+      30% {
+        opacity: 1;
+        transform: translate(-50%, 0px) scale(1);
+      }
+      80% {
+        opacity: 1;
+        transform: translate(-50%, 0px) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -10px) scale(0.95);
+      }
+    }
   </style>
 </head>
 
@@ -560,7 +724,7 @@
       <div id="apex-runner-banner" class="inline-flex flex-wrap items-center justify-center gap-2.5 px-4 py-2 rounded-2xl bg-[#111726] border border-white/10 shadow-lg mb-3">
         <span class="text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></span>
         <div class="text-left">
-          <span id="apex-runner-title" class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">Today's Fastest Run</span>
+          <span id="apex-runner-title" class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">TODAY\'S APEX RUNNER</span>
           <div class="flex items-center gap-1.5">
             <span id="apex-runner-name" class="text-xs font-bold text-white">No records yet</span>
             <span class="text-slate-600 text-xs">•</span>
@@ -4120,6 +4284,132 @@ https://nexusgame-website.vercel.app`;
     }
 
     window.dismissPwaBanner = dismissPwaBanner;
+    // --- 11. Interactive Cyberpunk Entrance Animation ---
+    let hasTriggeredEntranceAnim = false;
+    function triggerCyberEntranceAnimation() {
+      if (hasTriggeredEntranceAnim) return;
+      hasTriggeredEntranceAnim = true;
+
+      // Ensure DOM has settled
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const targetEl = document.getElementById('apex-runner-banner');
+          if (!targetEl) return;
+
+          const targetRect = targetEl.getBoundingClientRect();
+          // Target impact center
+          const targetX = targetRect.left + targetRect.width / 2;
+          const targetY = targetRect.top + targetRect.height / 2;
+
+          // Start position at bottom of viewport
+          const startX = window.innerWidth * 0.5;
+          const startY = window.innerHeight + 30;
+
+          const deltaX = targetX - startX;
+          const deltaY = targetY - startY;
+          const angleDeg = (Math.atan2(deltaY, deltaX) * 180 / Math.PI) + 90;
+
+          // Container for animation nodes (pointer-events: none guaranteed)
+          const animContainer = document.createElement('div');
+          animContainer.id = 'cyber-entrance-container';
+          animContainer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+          document.body.appendChild(animContainer);
+
+          // Rocket element
+          const missile = document.createElement('div');
+          missile.className = 'cyber-missile-actor';
+          missile.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;will-change:transform,opacity;';
+          missile.innerHTML = `
+            <div style="position:relative;width:24px;height:48px;margin-left:-12px;margin-top:-24px;pointer-events:none;">
+              <!-- Cyan/Violet Glowing Trail -->
+              <div class="cyber-rocket-trail"></div>
+              <!-- Sleek Cyber Missile SVG -->
+              <svg width="24" height="48" viewBox="0 0 24 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 0 6px rgba(56,189,248,0.8)) drop-shadow(0 0 12px rgba(168,85,247,0.5));pointer-events:none;">
+                <defs>
+                  <linearGradient id="missileExhaust" x1="12" y1="26" x2="12" y2="48" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#ffffff" />
+                    <stop offset="20%" stop-color="#38bdf8" />
+                    <stop offset="65%" stop-color="#8b5cf6" />
+                    <stop offset="100%" stop-color="transparent" />
+                  </linearGradient>
+                </defs>
+                <!-- Exhaust Jet -->
+                <polygon points="9,26 15,26 12,48" fill="url(#missileExhaust)" />
+                <polygon points="10,26 14,26 12,38" fill="#ffffff" />
+                <!-- Stabilizer Wings -->
+                <polygon points="3,26 8,22 8,28 2,32" fill="#8b5cf6" stroke="#38bdf8" stroke-width="0.8" />
+                <polygon points="21,26 16,22 16,28 22,32" fill="#8b5cf6" stroke="#38bdf8" stroke-width="0.8" />
+                <!-- Missile Chassis -->
+                <path d="M12 2 C8 8 7 16 7 28 L17 28 C17 16 16 8 12 2 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2" />
+                <!-- Core Laser Line -->
+                <line x1="12" y1="6" x2="12" y2="25" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="12" cy="7" r="1.5" fill="#ffffff" />
+                <!-- Lateral Neon Trim -->
+                <line x1="9" y1="18" x2="15" y2="18" stroke="#c084fc" stroke-width="1" />
+              </svg>
+            </div>
+          `;
+          animContainer.appendChild(missile);
+
+          // Flight animation using Web Animations API (hardware accelerated compositor)
+          const flightAnim = missile.animate([
+            {
+              transform: `translate3d(${startX}px, ${startY}px, 0) rotate(${angleDeg}deg) scale(0.6)`,
+              opacity: 0
+            },
+            {
+              transform: `translate3d(${startX + deltaX * 0.12}px, ${startY + deltaY * 0.12}px, 0) rotate(${angleDeg}deg) scale(1)`,
+              opacity: 1,
+              offset: 0.12
+            },
+            {
+              transform: `translate3d(${targetX}px, ${targetY}px, 0) rotate(${angleDeg}deg) scale(1)`,
+              opacity: 1
+            }
+          ], {
+            duration: 650,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            fill: 'forwards'
+          });
+
+          flightAnim.onfinish = () => {
+            // Remove missile actor cleanly
+            missile.remove();
+
+            // 1. Trigger shockwave & electric glitch effect at impact
+            const impactEl = document.createElement('div');
+            impactEl.style.cssText = `position:absolute;top:${targetY}px;left:${targetX}px;pointer-events:none;`;
+            impactEl.innerHTML = `
+              <div class="cyber-shockwave-ring-1"></div>
+              <div class="cyber-shockwave-ring-2"></div>
+              <div class="cyber-electric-glitch"></div>
+            `;
+            animContainer.appendChild(impactEl);
+
+            // 2. Trigger Apex Runner banner spotlight & neon shimmer
+            targetEl.classList.add('apex-spotlight-active');
+
+            // 3. Display floating cyber-tag "CURRENT LEADER TO BEAT"
+            const tagEl = document.createElement('div');
+            tagEl.className = 'cyber-leader-tag';
+            const tagY = targetRect.top > 36 ? (targetRect.top - 24) : (targetRect.bottom + 8);
+            tagEl.style.cssText = `top:${tagY}px;left:${targetX}px;`;
+            tagEl.innerHTML = `<span style="color:#38bdf8;margin-right:3px;">▲</span> CURRENT LEADER TO BEAT`;
+            animContainer.appendChild(tagEl);
+
+            // 4. Automatic cleanup after animation finishes (~1.3s after impact)
+            setTimeout(() => {
+              targetEl.classList.remove('apex-spotlight-active');
+              if (animContainer && animContainer.parentNode) {
+                animContainer.remove();
+              }
+            }, 1400);
+          };
+        }, 120);
+      });
+    }
+    window.triggerCyberEntranceAnimation = triggerCyberEntranceAnimation;
+
     window.initPwaBanner = initPwaBanner;
 
     // --- 10. Guaranteed Initialization Lifecycle ---
@@ -4145,6 +4435,7 @@ https://nexusgame-website.vercel.app`;
       const storedStreak = localStorage.getItem('nexus_streak') || '1';
       safeSetText('nav-streak', storedStreak);
       initPwaBanner();
+      triggerCyberEntranceAnimation();
     }
 
     if (document.readyState === 'loading') {
