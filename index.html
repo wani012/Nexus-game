@@ -968,101 +968,62 @@
 
   <!-- ================= SUPPORT CREATOR MODAL ================= -->
   <div id="support-modal" class="fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
+    <div class="bg-[#111726] border border-blue-500/30 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
       
+      <!-- Close Button -->
       <div class="flex items-center justify-between mb-3 text-left">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center shadow-sm">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
           </div>
           <div>
-            <h3 class="text-base font-bold text-white">Support Development</h3>
+            <h3 class="text-base font-bold text-white uppercase tracking-tight">Support Development</h3>
             <span class="text-xs text-slate-400">Independent, ad-free puzzle game</span>
           </div>
         </div>
-        <button id="close-support-btn" onclick="closeSupportModal()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition" aria-label="Close modal">
+        <button id="close-support-btn" onclick="closeSupportModal()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer" aria-label="Close modal">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <p class="text-xs text-slate-400 mb-4 text-left leading-relaxed">
-        Nexus is an open-source logic puzzle project with zero ads. If you enjoyed playing, support future updates with a small contribution.
+      <p class="text-xs text-slate-400 mb-3.5 text-left leading-relaxed">
+        Nexus is an open-source logic puzzle project with zero ads. If you enjoyed hacking the circuits, fuel future updates with a quick boost!
       </p>
 
-      <!-- QR Code Frame -->
-      <div class="relative w-48 h-48 mx-auto mb-4 rounded-2xl bg-[#090D16] border border-white/10 p-3 shadow-inner flex items-center justify-center">
-        <div id="qr-display-container" class="w-full h-full flex items-center justify-center">
-          <img id="real-upi-qr" src="assets/upi-qr.png" alt="UPI QR Code" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; const s=document.getElementById('svg-upi-qr'); if(s) s.style.display='block';">
-          <svg id="svg-upi-qr" style="display:none;" class="w-full h-full rounded-lg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-            <rect width="160" height="160" fill="#0A0E1A"/>
-            <defs>
-              <linearGradient id="qrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#3B82F6"/>
-                <stop offset="50%" stop-color="#10B981"/>
-                <stop offset="100%" stop-color="#F59E0B"/>
-              </linearGradient>
-            </defs>
-            <rect x="14" y="14" width="36" height="36" fill="none" stroke="url(#qrGrad)" stroke-width="4" rx="4"/>
-            <rect x="22" y="22" width="20" height="20" fill="#3B82F6"/>
-            <rect x="110" y="14" width="36" height="36" fill="none" stroke="url(#qrGrad)" stroke-width="4" rx="4"/>
-            <rect x="118" y="22" width="20" height="20" fill="#10B981"/>
-            <rect x="14" y="110" width="36" height="36" fill="none" stroke="url(#qrGrad)" stroke-width="4" rx="4"/>
-            <rect x="22" y="118" width="20" height="20" fill="#F59E0B"/>
-            <g fill="url(#qrGrad)" opacity="0.85">
-              <rect x="60" y="18" width="8" height="8" rx="1"/>
-              <rect x="76" y="18" width="8" height="8" rx="1"/>
-              <rect x="92" y="18" width="8" height="8" rx="1"/>
-              <rect x="68" y="30" width="8" height="8" rx="1"/>
-              <rect x="84" y="30" width="8" height="8" rx="1"/>
-              <rect x="18" y="60" width="8" height="8" rx="1"/>
-              <rect x="34" y="60" width="8" height="8" rx="1"/>
-              <rect x="50" y="60" width="8" height="8" rx="1"/>
-              <rect x="66" y="60" width="8" height="8" rx="1"/>
-              <rect x="86" y="60" width="8" height="8" rx="1"/>
-              <rect x="106" y="60" width="8" height="8" rx="1"/>
-              <rect x="126" y="60" width="8" height="8" rx="1"/>
-              <rect x="26" y="76" width="8" height="8" rx="1"/>
-              <rect x="42" y="76" width="8" height="8" rx="1"/>
-              <rect x="114" y="76" width="8" height="8" rx="1"/>
-              <rect x="134" y="76" width="8" height="8" rx="1"/>
-              <rect x="18" y="92" width="8" height="8" rx="1"/>
-              <rect x="58" y="92" width="8" height="8" rx="1"/>
-              <rect x="98" y="92" width="8" height="8" rx="1"/>
-              <rect x="60" y="110" width="8" height="8" rx="1"/>
-              <rect x="76" y="110" width="8" height="8" rx="1"/>
-              <rect x="92" y="110" width="8" height="8" rx="1"/>
-              <rect x="68" y="126" width="8" height="8" rx="1"/>
-              <rect x="84" y="126" width="8" height="8" rx="1"/>
-              <rect x="110" y="126" width="8" height="8" rx="1"/>
-              <rect x="126" y="126" width="8" height="8" rx="1"/>
-            </g>
-            <rect x="62" y="62" width="36" height="36" fill="#0A0E1A" stroke="#3B82F6" stroke-width="2" rx="8"/>
-            <text x="80" y="85" fill="#3B82F6" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">UPI</text>
-          </svg>
-        </div>
+      <!-- 100% Scannable Real UPI QR Code Frame -->
+      <div class="relative w-52 h-52 mx-auto mb-3 rounded-2xl bg-white p-2.5 shadow-[0_0_25px_rgba(59,130,246,0.3)] border border-blue-400/40 flex items-center justify-center">
+        <img id="upi-qr-image" 
+             src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybl%26pn%3DFurkan%26cu%3DINR&margin=10" 
+             alt="Scan with GPay, PhonePe, Paytm, or any UPI App" 
+             class="w-full h-full object-contain rounded-xl select-none" />
       </div>
 
-      <!-- Quick Contribution Chips -->
-      <div class="flex items-center justify-center gap-2 mb-3">
-        <button type="button" onclick="selectMicroTier(20, 'Chai', this)" class="tier-chip px-3 py-1.5 rounded-xl bg-[#161F33] border border-white/10 hover:border-blue-400 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
-          ₹20 Chai
+      <!-- Cyberpunk / Gamer Contribution Tiers -->
+      <div class="flex items-center justify-center gap-1.5 sm:gap-2 mb-3">
+        <button type="button" onclick="selectMicroTier(29, 'Energy Boost', this)" class="tier-chip flex-1 py-2 px-1 rounded-xl bg-[#161F33] border border-white/10 hover:border-amber-400 text-slate-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
+          <span>⚡ ₹29 Energy Boost</span>
         </button>
-        <button type="button" onclick="selectMicroTier(50, 'Coffee', this)" class="tier-chip px-3 py-1.5 rounded-xl bg-[#161F33] border border-white/10 hover:border-blue-400 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
-          ₹50 Coffee
+        <button type="button" onclick="selectMicroTier(59, 'Cyber Core', this)" class="tier-chip flex-1 py-2 px-1 rounded-xl bg-[#161F33] border border-white/10 hover:border-sky-400 text-slate-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
+          <span>💠 ₹59 Cyber Core</span>
         </button>
-        <button type="button" onclick="selectMicroTier(100, 'Developer Fuel', this)" class="tier-chip px-3 py-1.5 rounded-xl bg-[#161F33] border border-white/10 hover:border-blue-400 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
-          ₹100 Support
+        <button type="button" onclick="selectMicroTier(99, 'Apex Supporter', this)" class="tier-chip flex-1 py-2 px-1 rounded-xl bg-[#161F33] border border-white/10 hover:border-purple-400 text-slate-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
+          <span>👑 ₹99 Apex Supporter</span>
         </button>
       </div>
 
-      <!-- UPI ID Display & Copy Button -->
+      <!-- Mobile Deep-Link Option ("Pay via UPI App") -->
+      <a id="mobile-upi-deeplink" href="upi://pay?pa=furkanfarooq1@ybl&pn=Furkan&cu=INR" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mb-3 cursor-pointer transition active:scale-[0.98]">
+        <span>🚀 Pay via Any UPI App (GPay / PhonePe / Paytm)</span>
+      </a>
+
+      <!-- Direct UPI ID Display & Copy Button -->
       <div class="bg-[#161F33] rounded-2xl p-3 border border-white/10 mb-2 text-left">
         <div class="flex justify-between items-center mb-1.5">
-          <span class="text-[10px] font-semibold uppercase text-slate-400">Direct UPI ID</span>
-          <span id="tier-hint" class="text-[10px] text-blue-400 font-medium hidden">Selected: ₹20</span>
+          <span class="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Direct UPI ID</span>
+          <span id="tier-hint" class="text-[10px] text-blue-400 font-mono font-medium hidden">Selected: Any</span>
         </div>
         <div class="flex items-center justify-between gap-2 bg-[#090D16] p-2 rounded-xl border border-white/5">
-          <span id="upi-id-display" class="font-mono text-xs sm:text-sm font-bold text-white tracking-wider truncate">furkanfarooq1@ybi</span>
+          <span id="upi-id-display" class="font-mono text-xs sm:text-sm font-bold text-white tracking-wider truncate">furkanfarooq1@ybl</span>
           <button id="copy-upi-btn" onclick="copyUpiId()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shrink-0">
             <span id="copy-upi-icon"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
             <span id="copy-upi-text">Copy UPI</span>
@@ -1071,7 +1032,7 @@
       </div>
 
       <div class="text-[11px] text-slate-500">
-        Supports GPay, PhonePe, Paytm, and all UPI applications
+        Supports GPay, PhonePe, Paytm, BHIM, and all UPI applications
       </div>
 
     </div>
@@ -3333,6 +3294,15 @@ ${url}`);
         btnDuelShare.addEventListener('click', openSocialShareModal);
       }
 
+      const supportModal = document.getElementById('support-modal');
+      if (supportModal) {
+        supportModal.addEventListener('click', (e) => {
+          if (e.target === supportModal) {
+            closeSupportModal();
+          }
+        });
+      }
+
       const socialShareModal = document.getElementById('social-share-modal');
       if (socialShareModal) {
         socialShareModal.addEventListener('click', (e) => {
@@ -4358,43 +4328,67 @@ https://nexusgame-website.vercel.app`;
       }
     }
 
+    let selectedSupportAmount = null;
+
     function selectMicroTier(amount, label, btnEl) {
+      selectedSupportAmount = amount;
       sound.playStep(12);
       triggerHaptic(15);
+
+      // 1. Dynamically update QR code source with exact amount
+      const qrImg = document.getElementById('upi-qr-image');
+      const upiUri = `upi://pay?pa=furkanfarooq1@ybl&pn=Furkan&am=${amount}&cu=INR`;
+      if (qrImg) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUri)}&margin=10`;
+      }
+
+      // 2. Dynamically update Mobile Deep-Link href
+      const deeplink = document.getElementById('mobile-upi-deeplink');
+      if (deeplink) {
+        deeplink.href = upiUri;
+      }
+
+      // 3. Update hint text
       const hint = document.getElementById('tier-hint');
       if (hint) {
-        hint.innerText = `Selected: ₹${amount} ${label}`;
+        hint.innerText = `Selected: ₹${amount} (${label})`;
         hint.classList.remove('hidden');
       }
+
+      // 4. Highlight selected tier button with active neon glow border
       document.querySelectorAll('.tier-chip').forEach(btn => {
-        btn.classList.remove('ring-2', 'ring-amber-400', 'bg-amber-500/20');
+        btn.classList.remove('border-blue-400', 'bg-blue-500/20', 'shadow-[0_0_15px_rgba(59,130,246,0.5)]', 'text-white');
+        btn.classList.add('border-white/10', 'bg-[#161F33]', 'text-slate-300');
       });
       if (btnEl) {
-        btnEl.classList.add('ring-2', 'ring-amber-400', 'bg-amber-500/20');
+        btnEl.classList.remove('border-white/10', 'bg-[#161F33]', 'text-slate-300');
+        btnEl.classList.add('border-blue-400', 'bg-blue-500/20', 'shadow-[0_0_15px_rgba(59,130,246,0.5)]', 'text-white');
       }
     }
+    window.selectMicroTier = selectMicroTier;
 
     function copyUpiId() {
-      const upiId = "furkanfarooq1@ybi"; // Direct UPI ID
+      const upiId = "furkanfarooq1@ybl";
       const btn = document.getElementById('copy-upi-btn');
       const icon = document.getElementById('copy-upi-icon');
       const text = document.getElementById('copy-upi-text');
 
       const performCopyFeedback = () => {
+        showChallengeToast("UPI ID copied!");
         sound.playStep(18);
         triggerHaptic([30, 50]);
         if (icon) icon.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
         if (text) text.innerText = 'COPIED!';
         if (btn) {
-          btn.classList.remove('bg-amber-400', 'hover:bg-amber-300', 'text-black');
-          btn.classList.add('bg-emerald-400', 'text-black', 'shadow-[0_0_15px_rgba(52,211,153,0.7)]');
+          btn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+          btn.classList.add('bg-emerald-500', 'hover:bg-emerald-400');
         }
         setTimeout(() => {
           if (icon) icon.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
-          if (text) text.innerText = 'COPY UPI ID';
+          if (text) text.innerText = 'Copy UPI';
           if (btn) {
-            btn.classList.remove('bg-emerald-400', 'shadow-[0_0_15px_rgba(52,211,153,0.7)]');
-            btn.classList.add('bg-amber-400', 'hover:bg-amber-300', 'text-black');
+            btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-400');
+            btn.classList.add('bg-blue-600', 'hover:bg-blue-500');
           }
         }, 2000);
       };
@@ -4407,6 +4401,7 @@ https://nexusgame-website.vercel.app`;
         fallbackCopyText(upiId, performCopyFeedback);
       }
     }
+    window.copyUpiId = copyUpiId;
 
     function fallbackCopyText(textToCopy, cb) {
       const ta = document.createElement('textarea');
