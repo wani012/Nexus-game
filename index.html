@@ -1369,6 +1369,63 @@
     #support-modal.show {
       display: flex !important;
     }
+    /* ================= ELECTRIC THUNDER CLIMAX VFX AT NODE [25] ================= */
+    .node-thunder-pulse {
+      transform: scale(1.35) !important;
+      filter: drop-shadow(0 0 25px #00f3ff) drop-shadow(0 0 45px #38bdf8) !important;
+      z-index: 100 !important;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease !important;
+      animation: thunderShockwavePulse 0.6s ease-out infinite alternate !important;
+    }
+    @keyframes thunderShockwavePulse {
+      0% {
+        transform: scale(1.25);
+        filter: drop-shadow(0 0 20px #00f3ff) drop-shadow(0 0 35px #38bdf8);
+      }
+      100% {
+        transform: scale(1.38);
+        filter: drop-shadow(0 0 30px #00f3ff) drop-shadow(0 0 60px #38bdf8) drop-shadow(0 0 90px #ffffff);
+      }
+    }
+    .board-thunder-flash {
+      animation: boardThunderStrobe 0.6s ease-out !important;
+    }
+    @keyframes boardThunderStrobe {
+      0% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+      15% { box-shadow: 0 0 50px rgba(0, 243, 255, 0.95), inset 0 0 30px rgba(0, 243, 255, 0.6); }
+      30% { box-shadow: 0 0 25px rgba(0, 243, 255, 0.5); }
+      50% { box-shadow: 0 0 70px rgba(56, 189, 248, 1), inset 0 0 45px rgba(56, 189, 248, 0.7); }
+      75% { box-shadow: 0 0 40px rgba(0, 243, 255, 0.7); }
+      100% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+    }
+    .lightning-strobe-flash {
+      animation: lightningStrobeAnim 0.6s linear infinite !important;
+    }
+    @keyframes lightningStrobeAnim {
+      0% { opacity: 0.3; transform: scale(0.96); }
+      20% { opacity: 1; transform: scale(1.04); }
+      40% { opacity: 0.4; transform: scale(0.98); }
+      60% { opacity: 1; transform: scale(1.08); }
+      80% { opacity: 0.6; transform: scale(1.02); }
+      100% { opacity: 0.9; transform: scale(1.05); }
+    }
+    .thunder-shock-ring {
+      animation: thunderRingExpand 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) infinite !important;
+      transform-origin: center;
+    }
+    @keyframes thunderRingExpand {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+    .thunder-shock-ring-outer {
+      animation: thunderRingExpandOuter 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) 0.1s infinite !important;
+      transform-origin: center;
+    }
+    @keyframes thunderRingExpandOuter {
+      0% { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
 
   
     /* ================= HARDWARE ACCELERATION FOR NODES & SVG CIRCUITS ================= */
@@ -1842,6 +1899,7 @@
 
         <!-- Celebration Breakout Layer -->
         <div id="phoenix-layer" class="pointer-events-none absolute inset-0 overflow-visible z-30"></div>
+        <div id="thunder-vfx-layer" class="pointer-events-none absolute inset-0 overflow-visible z-40"></div>
 
         <!-- Laser Wire SVG Layer -->
         <svg id="circuit-svg" class="circuit-svg-layer">
@@ -2518,6 +2576,64 @@
 
       // Short, crisp high-frequency sine pulse (520Hz ramping to 780Hz for 0.06s).
       // Pitch scales up slightly with each consecutive node (node 1 = base, node 25 = high chime).
+            // Electric Thunder / Lightning Zap climax sound frequency for Node [25]
+      playElectricThunder() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+
+          // 1. High-frequency lightning crack / zap
+          const zapOsc = this.ctx.createOscillator();
+          const zapGain = this.ctx.createGain();
+          zapOsc.type = 'sawtooth';
+          zapOsc.frequency.setValueAtTime(1600, now);
+          zapOsc.frequency.exponentialRampToValueAtTime(140, now + 0.3);
+
+          zapGain.gain.setValueAtTime(0.35, now);
+          zapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+          zapOsc.connect(zapGain);
+          zapGain.connect(this.ctx.destination);
+          zapOsc.start(now);
+          zapOsc.stop(now + 0.31);
+
+          // 2. Deep sub-bass thunder roll / explosion
+          const bassOsc = this.ctx.createOscillator();
+          const bassGain = this.ctx.createGain();
+          bassOsc.type = 'triangle';
+          bassOsc.frequency.setValueAtTime(110, now + 0.04);
+          bassOsc.frequency.exponentialRampToValueAtTime(32, now + 0.58);
+
+          bassGain.gain.setValueAtTime(0.4, now + 0.04);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.58);
+
+          bassOsc.connect(bassGain);
+          bassGain.connect(this.ctx.destination);
+          bassOsc.start(now + 0.04);
+          bassOsc.stop(now + 0.6);
+
+          // 3. Staccato electric static crackles
+          [0.06, 0.14, 0.22, 0.32].forEach((delay, idx) => {
+            const crackle = this.ctx.createOscillator();
+            const crackleGain = this.ctx.createGain();
+            crackle.type = 'sawtooth';
+            crackle.frequency.setValueAtTime(900 + idx * 200, now + delay);
+            crackle.frequency.exponentialRampToValueAtTime(180, now + delay + 0.06);
+
+            crackleGain.gain.setValueAtTime(0.18, now + delay);
+            crackleGain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.06);
+
+            crackle.connect(crackleGain);
+            crackleGain.connect(this.ctx.destination);
+            crackle.start(now + delay);
+            crackle.stop(now + delay + 0.065);
+          });
+        } catch (_) {}
+      }
+      playZap() { this.playElectricThunder(); }
+
       playNodeConnect(nodeIndex = 0) {
         if (!this.enabled) return;
         this.init();
@@ -4703,6 +4819,7 @@
 
       const phoenixLayer = document.getElementById('phoenix-layer');
       if (phoenixLayer) phoenixLayer.innerHTML = '';
+      const thunderLayer = document.getElementById('thunder-vfx-layer'); if (thunderLayer) thunderLayer.innerHTML = '';
 
       if (boardFrameEl) {
         boardFrameEl.classList.remove('fog-active');
@@ -4800,37 +4917,29 @@
       if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
     }
 
-    // --- 7. Smooth Drag, Relaxed Milestone Validation & Multi-Step Backtracking ---
+        // --- 7. Strict Step-by-Step Sequence Validation & Multi-Step Backtracking ---
     function handlePointerOnIndex(cellIndex) {
       if (isCompleted || isTimeOver || cellIndex === null || cellIndex === undefined) return;
 
-      const isReverse = isReverseProtocol(currentLevel);
-      const expectedStart = isReverse ? 25 : 1;
+      const activeLevelSequence = (typeof getExpectedMilestones === 'function')
+        ? getExpectedMilestones(currentLevel)
+        : (isReverseProtocol(currentLevel) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25]);
 
-      // 1. Initial Step: Must start on milestone [1] (or [25] on reverse)
-      if (playerPath.length === 0) {
-        if (activePuzzle.checkpoints[cellIndex] === expectedStart) {
-          playerPath.push(cellIndex);
-          connectedNodes = playerPath;
-          linePath = playerPath;
-          didLiftFinger = false;
-          start20sTimer();
-          sound.playNodeConnect(0);
-          if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
-          updateActiveStates();
-          if (currentLevel >= 3 && boardFrameEl) {
-            boardFrameEl.classList.add('fog-active');
-          }
-        } else {
-          triggerInvalidNodeFeedback(cellIndex);
-        }
-        return;
+      const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
+      const nodeEl = nodes[cellIndex] || null;
+      let touchedVal = null;
+      if (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[cellIndex] !== undefined) {
+        touchedVal = activePuzzle.checkpoints[cellIndex];
+      } else if (nodeEl && (nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'))) {
+        touchedVal = parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10);
       }
+      const touchedNode = { index: cellIndex, value: touchedVal, el: nodeEl };
 
-      // 2. Multi-Step Backtracking / Undo
+      // 1. Multi-Step Backtracking / Undo:
+      // If user drags backwards onto an already connected milestone in playerPath
       const existingIdx = playerPath.indexOf(cellIndex);
       if (existingIdx !== -1) {
-        if (existingIdx === playerPath.length - 1) return;
+        if (existingIdx === playerPath.length - 1) return; // Already on current head node
         playerPath = playerPath.slice(0, existingIdx + 1);
         connectedNodes = playerPath;
         linePath = playerPath;
@@ -4840,42 +4949,31 @@
         return;
       }
 
-      // 3. Adjacency Validation: Direct neighbor
-      const last = playerPath[playerPath.length - 1];
-      const gx = cellIndex % GRID_SIZE, gy = Math.floor(cellIndex / GRID_SIZE);
-      const lx = last % GRID_SIZE, ly = Math.floor(last / GRID_SIZE);
-      const isAdj = Math.abs(gx - lx) + Math.abs(gy - ly) === 1;
+      // 2. Strict Sequence Enforcement (No Random Drag Filling):
+      // Nodes must ONLY be activated if they match the exact current step of the level's sequence array
+      const currentStepIndex = playerPath.length;
+      if (currentStepIndex >= activeLevelSequence.length) return;
 
-      if (!isAdj) {
-        triggerInvalidNodeFeedback(cellIndex);
+      const expectedNodeValue = activeLevelSequence[currentStepIndex];
+      if (touchedNode.value !== expectedNodeValue) return; // Ignore any other node completely
+
+      // 3. Initial Step: Must start on initial sequence milestone (e.g. [1])
+      if (currentStepIndex === 0) {
+        playerPath.push(cellIndex);
+        connectedNodes = playerPath;
+        linePath = playerPath;
+        didLiftFinger = false;
+        start20sTimer();
+        sound.playNodeConnect(0);
+        if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
+        updateActiveStates();
+        if (currentLevel >= 3 && boardFrameEl) {
+          boardFrameEl.classList.add('fog-active');
+        }
         return;
       }
 
-      // 4. Relaxed & Responsive Milestone Sequence Validation:
-      // Sequential order: 1 -> 5 -> 10 -> 15 -> 20 -> 25 (or reverse 25 -> 20 -> 15 -> 10 -> 5 -> 1)
-      const cp = activePuzzle.checkpoints[cellIndex];
-      if (cp !== undefined) {
-        const visitedMilestones = playerPath
-          .map(idx => activePuzzle.checkpoints[idx])
-          .filter(v => v !== undefined);
-
-        const expectedSequence = getExpectedMilestones(currentLevel);
-        const nextExpectedMilestone = expectedSequence[visitedMilestones.length];
-
-        if (cp !== nextExpectedMilestone) {
-          triggerInvalidNodeFeedback(cellIndex);
-          return;
-        }
-      }
-
-      // 5. Secret Mystery Node Pickup
-      if (cellIndex === mysteryNodeIndex && !mysteryNodeCollected) {
-        mysteryNodeCollected = true;
-        sound.playMysteryNode();
-        triggerHaptic([30, 40]);
-      }
-
-      // 6. Valid Move
+      // 4. Consecutive Milestone Activation
       playerPath.push(cellIndex);
       connectedNodes = playerPath;
       linePath = playerPath;
@@ -4883,24 +4981,10 @@
       if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
       updateActiveStates();
 
-      // 7. Win Condition Check
-      if (connectedNodes.length === 25 || playerPath.length === TOTAL_CELLS || playerPath.length >= 25) {
-        clearInterval(timerInterval);
-        if (typeof timerTimer !== 'undefined') clearInterval(timerTimer);
-        timerInterval = null;
-        timerTimer = null;
-        isGameActive = false;
-        const clearTime = (20 - remainingTime).toFixed(2);
-        localStorage.setItem('nexus_best_run', clearTime);
-        localStorage.setItem('nexus_best_run_lvl_' + currentLevel, clearTime);
-        if (navigator.vibrate) navigator.vibrate([20, 30, 80]);
+      // 5. Sequence Completion: Strictly terminate at designated final target (Node [25] in this protocol)
+      const finalTarget = activeLevelSequence[activeLevelSequence.length - 1];
+      if ((touchedNode.value === finalTarget && playerPath.length === activeLevelSequence.length) || connectedNodes.length === 25) {
         triggerVictory();
-        const clearedModal = document.getElementById('level-cleared-modal');
-        if (clearedModal) {
-          clearedModal.style.display = 'flex';
-          clearedModal.classList.remove('hidden');
-          clearedModal.classList.add('flex');
-        }
       }
     }
 
@@ -5504,9 +5588,84 @@
         if (svgGlowBeam) svgGlowBeam.classList.remove('wire-surge');
         if (svgCoreBeam) svgCoreBeam.classList.remove('wire-surge');
         if (phoenixLayer) phoenixLayer.innerHTML = '';
+      const thunderLayer = document.getElementById('thunder-vfx-layer'); if (thunderLayer) thunderLayer.innerHTML = '';
         if (typeof callback === 'function') callback();
       }, 760);
     }
+
+        // 8. Electric Thunder / Lightning Climax VFX at Node [25]
+    function triggerElectricThunderClimax(finalNodeIndex) {
+      // High-impact audio & haptic electric surge
+      sound.playElectricThunder();
+      if (navigator.vibrate) {
+        navigator.vibrate([40, 60, 120, 80]);
+      }
+
+      // Wire surge pulse
+      if (svgGlowBeam) svgGlowBeam.classList.add('wire-surge');
+      if (svgCoreBeam) svgCoreBeam.classList.add('wire-surge');
+
+      // Screen rumble vibration
+      document.body.classList.add('screen-rumble');
+      setTimeout(() => document.body.classList.remove('screen-rumble'), 280);
+
+      const board = document.getElementById('interactive-board');
+      const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
+      const node25 = nodes[finalNodeIndex] || document.querySelector('[data-checkpoint="25"]') || (nodes.length > 0 ? nodes[nodes.length - 1] : null);
+
+      if (node25) {
+        node25.classList.add('node-thunder-pulse');
+        node25.style.transform = 'scale(1.35)';
+        node25.style.filter = 'drop-shadow(0 0 25px #00f3ff) drop-shadow(0 0 45px #38bdf8)';
+      }
+
+      if (board && node25) {
+        board.classList.add('board-thunder-flash');
+        const bRect = board.getBoundingClientRect();
+        const nRect = node25.getBoundingClientRect();
+        const cx = (nRect.left + nRect.width / 2) - bRect.left;
+        const cy = (nRect.top + nRect.height / 2) - bRect.top;
+
+        let thunderLayer = document.getElementById('thunder-vfx-layer');
+        if (!thunderLayer) {
+          thunderLayer = document.createElement('div');
+          thunderLayer.id = 'thunder-vfx-layer';
+          thunderLayer.className = 'pointer-events-none absolute inset-0 overflow-visible z-40';
+          board.appendChild(thunderLayer);
+        }
+
+        // Rapid CSS/SVG lightning flash (strobe cyan/blue electric arcs radiating outwards)
+        let svgPaths = '';
+        const numArcs = 12;
+        for (let i = 0; i < numArcs; i++) {
+          const angle = (i * (2 * Math.PI / numArcs)) + ((Math.random() - 0.5) * 0.35);
+          const length = 60 + Math.random() * 85;
+          const segs = 4;
+          let d = `M ${cx} ${cy}`;
+          for (let s = 1; s <= segs; s++) {
+            const dist = (length / segs) * s;
+            const perpOffset = (s < segs) ? (Math.random() - 0.5) * 24 : 0;
+            const px = cx + Math.cos(angle) * dist - Math.sin(angle) * perpOffset;
+            const py = cy + Math.sin(angle) * dist + Math.cos(angle) * perpOffset;
+            d += ` L ${px.toFixed(1)} ${py.toFixed(1)}`;
+          }
+          const strokeColor = i % 2 === 0 ? '#00f3ff' : '#38bdf8';
+          const strokeWidth = i % 3 === 0 ? '3.5' : '2.2';
+          svgPaths += `<path d="${d}" stroke="${strokeColor}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 10px #00f3ff) drop-shadow(0 0 20px #38bdf8);" />`;
+        }
+
+        // Shockwave electric rings radiating outward
+        svgPaths += `<circle cx="${cx}" cy="${cy}" r="32" stroke="#ffffff" stroke-width="3" fill="none" class="thunder-shock-ring" style="filter: drop-shadow(0 0 15px #00f3ff);" />`;
+        svgPaths += `<circle cx="${cx}" cy="${cy}" r="55" stroke="#00f3ff" stroke-width="2" stroke-dasharray="6 4" fill="none" class="thunder-shock-ring-outer" style="filter: drop-shadow(0 0 20px #38bdf8);" />`;
+
+        thunderLayer.innerHTML = `
+          <svg viewBox="0 0 ${bRect.width || 380} ${bRect.height || 380}" class="w-full h-full lightning-strobe-flash overflow-visible">
+            ${svgPaths}
+          </svg>
+        `;
+      }
+    }
+    window.triggerElectricThunderClimax = triggerElectricThunderClimax;
 
     function triggerVictory() {
       if (isCompleted) return;
@@ -5514,21 +5673,32 @@
       unlockNextLevelBtn();
       stopTimerLoop();
       if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+      if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
       isGameActive = false;
 
-      const finalNodeIndex = playerPath[playerPath.length - 1];
+      const finalNodeIndex = (playerPath && playerPath.length > 0)
+        ? playerPath[playerPath.length - 1]
+        : 24;
+
       const elapsedMs = Math.min(ROUND_DURATION_SEC * 1000, timerAccumulatedMs + (timerStart ? (Date.now() - timerStart) : 0));
       const levelTimeSec = elapsedMs / 1000;
       const remainingSec = Math.max(0, ROUND_DURATION_SEC - levelTimeSec);
       remainingTime = remainingSec;
       const clearTime = (20 - remainingTime).toFixed(2);
 
+      // Freeze displayed countdown immediately
+      safeSetText('countdown-text', `${clearTime}s`);
+      safeSetText('countdown-unit', 'Remaining');
+
       // Save best run to localStorage
       localStorage.setItem('nexus_best_run', clearTime);
       localStorage.setItem('nexus_best_run_lvl_' + currentLevel, clearTime);
 
-      // Trigger celebration/haptic feedback
-      if (navigator.vibrate) { navigator.vibrate([20, 30, 80]); navigator.vibrate([15, 30, 60]); }
+      // Trigger celebration / electric shockwave haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([20, 30, 80]);
+        navigator.vibrate([15, 30, 60]);
+      }
 
       totalRunTime += levelTimeSec;
       lastSolvedTimeSec = clearTime;
@@ -5547,24 +5717,43 @@
       safeSetText('nav-streak', currentLevel);
       safeSetText('game-total-time', `${totalRunTime.toFixed(2)}s`);
 
-      // Show Level Cleared modal showing clear time
-      showLevelClearedModal(parseFloat(clearTime), totalRunTime, currentLevel);
-      const clearedModal = document.getElementById('level-cleared-modal');
-      if (clearedModal) {
-        clearedModal.style.display = 'flex';
-        clearedModal.classList.remove('hidden');
-        clearedModal.classList.add('flex');
-      }
+      // 1. High-impact 600ms electric surge/thunder effect around Node [25]
+      triggerElectricThunderClimax(finalNodeIndex);
 
-      // Cyber Phoenix Breakout & Confetti
-      try {
-        triggerCyberPhoenixBreakout(finalNodeIndex, () => {
-          confetti.burst();
-          sound.playSuccess();
-        });
-      } catch (err) {
-        console.warn('Breakout FX err:', err);
-      }
+      // 2. Add 600ms setTimeout before showing the "CIRCUIT CLEARED!" modal so player clearly sees the electric thunder climax
+      setTimeout(() => {
+        // Cleanup thunder VFX from board
+        const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
+        const node25 = nodes[finalNodeIndex];
+        if (node25) {
+          node25.classList.remove('node-thunder-pulse');
+          node25.style.transform = '';
+          node25.style.filter = '';
+        }
+        const board = document.getElementById('interactive-board');
+        if (board) board.classList.remove('board-thunder-flash');
+        const thunderLayer = document.getElementById('thunder-vfx-layer');
+        if (thunderLayer) thunderLayer.innerHTML = '';
+
+        // Show Level Cleared modal showing clear time
+        showLevelClearedModal(parseFloat(clearTime), totalRunTime, currentLevel);
+        const clearedModal = document.getElementById('level-cleared-modal');
+        if (clearedModal) {
+          clearedModal.style.display = 'flex';
+          clearedModal.classList.remove('hidden');
+          clearedModal.classList.add('flex');
+        }
+
+        // Cyber Phoenix Breakout & Confetti
+        try {
+          triggerCyberPhoenixBreakout(finalNodeIndex, () => {
+            confetti.burst();
+            sound.playSuccess();
+          });
+        } catch (err) {
+          console.warn('Breakout FX err:', err);
+        }
+      }, 600);
     }
 
     function startNextLevel(e) {
