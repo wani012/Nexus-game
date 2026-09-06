@@ -5147,25 +5147,13 @@
       const currentStepIndex = playerPath.length;
       if (currentStepIndex >= activeLevelSequence.length) return;
 
-      const expectedNodeValue = activeLevelSequence[currentStepIndex];
-      if (touchedNode.value !== expectedNodeValue) return; // Ignore any other node completely
+      //const expectedNodeValue = activeLevelSequence[currentStepIndex];
+      //if (touchedNode.value !== expectedNodeValue) return; // Ignore any other node completely
 
       // Prevent Direct Skip Wires:
       // On Circuit #1 (Standard Sequential Protocol), only allow connection between node N and node N+1.
       // Drawing a wire must only succeed if the finger/cursor moves onto the exact next adjacent numerical step.
-      if (typeof isLeapProtocol === 'function' && !isLeapProtocol(currentLevel) && currentStepIndex > 0) {
-        const prevCellIndex = playerPath[playerPath.length - 1];
-        const prevX = prevCellIndex % GRID_SIZE;
-        const prevY = Math.floor(prevCellIndex / GRID_SIZE);
-        const currX = cellIndex % GRID_SIZE;
-        const currY = Math.floor(cellIndex / GRID_SIZE);
-        const isGridAdjacent = Math.abs(currX - prevX) + Math.abs(currY - prevY) === 1;
-
-        if (!isGridAdjacent) {
-          triggerInvalidNodeFeedback(cellIndex);
-          return;
-        }
-      }
+    
 
       // 3. Initial Step: Must start on initial sequence milestone (e.g. [1])
       if (currentStepIndex === 0) {
@@ -5183,7 +5171,7 @@
         return;
       }
 
-      // 4. Consecutive Sequential Target Activation (Direct Jumps between targets):
+      //4. Consecutive Sequential Target Activation (Direct Jumps between targets):
       // As soon as touch/pointer hits the EXACT next target node ([20]), immediately draw the laser wire
       // from [15] to [20], mark [20] as completed/green, and advance sequence index to [25].
       playerPath.push(cellIndex);
