@@ -7107,42 +7107,26 @@ ${shareData.url}`;
   
   
   </script>
-  <!-- ================= NEXUS MASTER REPAIR PATCH ================= -->
+<!-- ================= NEXUS MASTER REPAIR PATCH ================= -->
 <script>
 (function() {
-  // 1. HARDWIRE LEVEL 1: FULL 1 TO 25 NUMBER SEQUENCE
-  const origInit = window.initCircuit || window.startLevel || window.loadLevel;
-  
-  function generateClean25Grid() {
+  // 1. LET NATIVE GENERATOR CREATE THE ADJACENT CIRCUIT PATH
+  // Unhide any accidentally hidden nodes on Level 1 instead of rewriting their numbers
+  function ensureAllNodesVisible() {
     const grid = document.querySelector('.circuit-grid, #circuit-grid, .grid-container');
     if (!grid) return;
-
-    // Check if currently on Level 1
-    const lvlText = document.querySelector('[class*="level"], #level-indicator')?.textContent || '';
-    const isLevel1 = lvlText.includes('1') && !lvlText.includes('10');
-
-    if (isLevel1) {
-      const nodes = grid.querySelectorAll('.node, .circle, [class*="node"]');
-      if (nodes.length === 25) {
-        nodes.forEach((node, index) => {
-          const num = index + 1;
-          node.textContent = num;
-          node.setAttribute('data-val', num);
-          node.setAttribute('data-index', num);
-          node.style.display = 'flex';
-          node.style.opacity = '1';
-          node.style.pointerEvents = 'auto';
-        });
-      }
-    }
+    const nodes = grid.querySelectorAll('.node, .circle, [class*="node"]');
+    nodes.forEach(node => {
+      node.style.display = 'flex';
+      node.style.opacity = '1';
+      node.style.visibility = 'visible';
+      node.style.pointerEvents = 'auto';
+    });
   }
+  window.addEventListener('DOMContentLoaded', ensureAllNodesVisible);
+  setTimeout(ensureAllNodesVisible, 400);
 
-  // Auto trigger on load & observe level changes
-  window.addEventListener('DOMContentLoaded', generateClean25Grid);
-  setTimeout(generateClean25Grid, 300);
-
-  // 2. UNFREEZE COUNTDOWN TIMER (< 5s FIX) & GAME OVER
-  // Overriding any timer freeze at 5 seconds
+  // 2. UNFREEZE COUNTDOWN TIMER (< 5s FIX) & GAME OVER AT 00:00
   let originalSetInterval = window.setInterval;
   window.setInterval = function(fn, time) {
     return originalSetInterval(function() {
@@ -7150,9 +7134,11 @@ ${shareData.url}`;
         const timerElem = document.querySelector('.timer, #timer, [class*="timer"]');
         if (timerElem) {
           const text = timerElem.textContent.trim();
-          // Force continue if stuck at 00:05
-          if (text === '00:00') {
-            triggerGameOver();
+          if (text === '00:00' || text === '0.00s' || text === '0s') {
+            const grid = document.querySelector('.circuit-grid, #circuit-grid');
+            if (grid) grid.style.pointerEvents = 'none';
+            const failModal = document.getElementById('fail-modal') || document.querySelector('.game-over-modal');
+            if (failModal) failModal.style.display = 'flex';
           }
         }
         fn();
@@ -7162,23 +7148,10 @@ ${shareData.url}`;
     }, time);
   };
 
-  function triggerGameOver() {
-    const grid = document.querySelector('.circuit-grid, #circuit-grid');
-    if (grid) grid.style.pointerEvents = 'none';
-    
-    let failModal = document.getElementById('fail-modal') || document.querySelector('.game-over-modal');
-    if (failModal) {
-      failModal.style.display = 'flex';
-    } else {
-      alert("TIME EXPIRED! CIRCUIT FAILED.");
-      location.reload();
-    }
-  }
-
-  // 3. HARDWIRE WIN MODAL BUTTONS & RENAME TO "⚡ FUEL THE FURU"
+  // 3. HARDWIRE WIN MODAL BUTTONS & RENAME
   function wireModalButtons() {
-    // A. Rename Support Development to "⚡ Fuel the Furu"
     document.querySelectorAll('button, a').forEach(el => {
+      // Fuel button rename & action
       if (el.textContent.includes('Support Development')) {
         el.innerHTML = '⚡ Fuel the Furu';
         el.id = 'btn-fuel-furu';
@@ -7187,29 +7160,26 @@ ${shareData.url}`;
         el.onclick = function(e) {
           e.preventDefault();
           const fuelModal = document.getElementById('fuel-modal') || document.querySelector('.fuel-modal');
-          if (fuelModal) {
-            fuelModal.style.display = 'flex';
-          } else {
+          if (fuelModal) fuelModal.style.display = 'flex';
+          else {
             const navFuel = document.querySelector('[class*="fuel"], [id*="fuel"]');
             if (navFuel) navFuel.click();
           }
         };
       }
 
-      // B. Replay Circuit Hardwire
+      // Replay button
       if (el.textContent.includes('REPLAY CIRCUIT')) {
         el.id = 'btn-replay-circuit';
         el.style.pointerEvents = 'auto';
         el.style.cursor = 'pointer';
         el.onclick = function(e) {
           e.preventDefault();
-          const modal = el.closest('[class*="modal"], [class*="cleared"]') || document.querySelector('.modal');
-          if (modal) modal.style.display = 'none';
-          location.reload(); // Instant clean state reload
+          location.reload();
         };
       }
 
-      // C. Challenge a Friend Hardwire
+      // Challenge friend button
       if (el.textContent.includes('Challenge a Friend')) {
         el.id = 'btn-challenge-friend';
         el.style.pointerEvents = 'auto';
@@ -7218,32 +7188,24 @@ ${shareData.url}`;
           e.preventDefault();
           const shareText = "Beat my Apex speedrun time on Nexus Circuit! Play here: " + window.location.href;
           if (navigator.share) {
-            navigator.share({
-              title: 'Nexus Challenge',
-              text: shareText,
-              url: window.location.href
-            }).catch(() => copyToClipboard(shareText));
+            navigator.share({ title: 'Nexus Challenge', text: shareText, url: window.location.href }).catch(() => copyLink(shareText));
           } else {
-            copyToClipboard(shareText);
+            copyLink(shareText);
           }
         };
       }
     });
   }
 
-  function copyToClipboard(text) {
+  function copyLink(text) {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Challenge Link Copied to Clipboard!");
-      });
+      navigator.clipboard.writeText(text).then(() => alert("Challenge Link Copied!"));
     } else {
       prompt("Copy challenge link:", text);
     }
   }
 
-  // Continuously ensure buttons remain responsive
   setInterval(wireModalButtons, 500);
-
 })();
 </script>
 <!-- ================= END REPAIR PATCH ================= -->
