@@ -1347,6 +1347,110 @@
       color: #38bdf8 !important;
     }
 
+  
+    /* ================= HARDWARE ACCELERATION FOR NODES & SVG CIRCUITS ================= */
+    .node,
+    .circuit-node,
+    .circuit-svg-layer,
+    .circuit-svg-layer svg,
+    .circuit-svg-layer path,
+    .circuit-svg-layer line,
+    .circuit-svg-layer circle,
+    #svg-glow-beam,
+    #svg-core-beam,
+    circle {
+      will-change: transform;
+      transform: translateZ(0);
+      touch-action: none;
+    }
+
+    /* ================= MOBILE PERFORMANCE OPTIMIZATION (< 768px) ================= */
+    @media (max-width: 768px) {
+      /* 1. Disable expensive backdrop-filter on modals, game containers, and control docks; replace with solid/opaque fallback */
+      .modal-overlay,
+      .leaderboard-modal,
+      .cyber-controls-dock,
+      .board-frame,
+      .board-grid,
+      #game-arena,
+      #landing-launch-overlay,
+      #landing-card,
+      #level-cleared-modal,
+      #level-cleared-card,
+      #circuit-cracked-modal,
+      #circuit-cracked-card,
+      #leaderboard-modal,
+      #leaderboard-card,
+      #support-modal,
+      #support-card,
+      #skin-modal,
+      #skin-card,
+      #archive-modal,
+      #challenge-toast,
+      #pwa-install-banner,
+      .enclosed-reset-card,
+      .dock-capsule,
+      .modal-card,
+      .modal-content,
+      [class*="backdrop-blur"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 23, 42, 0.95) !important;
+      }
+
+      /* 2. Reduce large CSS box-shadows down to simple 1px borders or subtle 4px shadows */
+      .cyber-controls-dock,
+      #landing-card,
+      #level-cleared-card,
+      #circuit-cracked-card,
+      #leaderboard-card,
+      #support-card,
+      #skin-card,
+      .hologram-pedestal,
+      .landing-apex-card,
+      .warp-launch-btn,
+      .dock-btn,
+      .btn-shimmer,
+      .board-frame,
+      .enclosed-reset-card {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      }
+
+      /* 3. Hardware acceleration & touch-action for nodes and SVG elements on mobile */
+      .node,
+      .circuit-node,
+      .circuit-svg-layer,
+      .circuit-svg-layer svg,
+      .circuit-svg-layer path,
+      .circuit-svg-layer line,
+      .circuit-svg-layer circle,
+      #svg-glow-beam,
+      #svg-core-beam,
+      #game-arena,
+      #interactive-board,
+      #node-grid,
+      canvas {
+        will-change: transform;
+        transform: translateZ(0);
+        touch-action: none !important;
+      }
+
+      /* 4. Pause continuous infinite keyframe animations when game is active on mobile */
+      body.game-active .hologram-pedestal,
+      body.game-active .landing-ship-icon,
+      body.game-active .btn-shimmer::after,
+      body.game-active .zero-g-float,
+      body.game-active .ambient-glow,
+      body.game-active .victory-modal-icon,
+      body.game-active [class*="animate-"],
+      .game-active-mobile .hologram-pedestal,
+      .game-active-mobile .landing-ship-icon,
+      .game-active-mobile .btn-shimmer::after,
+      .game-active-mobile .ambient-pulse {
+        animation-play-state: paused !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -4213,11 +4317,39 @@
       updateActiveStates();
     }
 
+        let timerRaf = null;
+
+    function setMobileAnimationsPaused(paused) {
+      if (paused) {
+        document.body.classList.add('game-active');
+        document.body.classList.add('game-active-mobile');
+        document.body.setAttribute('data-game-active', 'true');
+      } else {
+        document.body.classList.remove('game-active');
+        document.body.classList.remove('game-active-mobile');
+        document.body.removeAttribute('data-game-active');
+      }
+    }
+    window.setMobileAnimationsPaused = setMobileAnimationsPaused;
+
+    function stopTimerLoop() {
+      if (typeof timerInterval !== 'undefined' && timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      if (typeof timerTimer !== 'undefined' && timerTimer) {
+        clearInterval(timerTimer);
+        timerTimer = null;
+      }
+      if (timerRaf) {
+        cancelAnimationFrame(timerRaf);
+        timerRaf = null;
+      }
+      setMobileAnimationsPaused(false);
+    }
+
     function resetTimerDisplay() {
-      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
-      clearInterval(timerTimer);
-      timerInterval = null;
-      timerTimer = null;
+      stopTimerLoop();
       timerStart = null;
       timerAccumulatedMs = 0;
       isTimerPaused = false;
@@ -4237,10 +4369,17 @@
     }
 
     function start20sTimer() {
-      if (timerTimer || isCompleted || isTimeOver) return;
+      if (timerRaf || timerTimer || isCompleted || isTimeOver) return;
       timerStart = Date.now();
+      isGameActive = true;
+      setMobileAnimationsPaused(true);
 
-      timerTimer = setInterval(() => {
+      function updateTimerFrame() {
+        if (!isGameActive || !timerStart) {
+          timerRaf = null;
+          return;
+        }
+
         const currentSegmentMs = timerStart ? (Date.now() - timerStart) : 0;
         const totalElapsedMs = timerAccumulatedMs + currentSegmentMs;
         const elapsedSec = totalElapsedMs / 1000;
@@ -4269,16 +4408,21 @@
         }
 
         if (remainingSec <= 0) {
+          stopTimerLoop();
           triggerTimeoutOverload();
+          return;
         }
-      }, 50);
+
+        timerRaf = requestAnimationFrame(updateTimerFrame);
+      }
+
+      timerRaf = requestAnimationFrame(updateTimerFrame);
     }
 
     function pauseGameTimer() {
-      if (timerTimer && timerStart) {
+      if ((timerTimer || timerRaf) && timerStart) {
         timerAccumulatedMs += (Date.now() - timerStart);
-        clearInterval(timerTimer);
-        timerTimer = null;
+        stopTimerLoop();
         timerStart = null;
         isTimerPaused = true;
       }
@@ -4287,12 +4431,13 @@
     function resumeGameTimer() {
       if (isTimerPaused && !isCompleted && !isTimeOver) {
         isTimerPaused = false;
+        timerStart = Date.now();
         start20sTimer();
       }
     }
 
     function triggerTimeoutOverload() {
-      clearInterval(timerTimer);
+      stopTimerLoop();
       isTimeOver = true;
       isDragging = false;
       sound.playGameOver();
@@ -4369,10 +4514,7 @@
       });
 
       // 2. Clear active interval timer
-      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
-      clearInterval(timerTimer);
-      timerInterval = null;
-      timerTimer = null;
+      stopTimerLoop();
       timerStart = null;
       isGameActive = false;
 
@@ -4643,7 +4785,9 @@
         boardFrameEl.addEventListener('pointerdown', (e) => {
           sound.init();
           if (isCompleted || isTimeOver) return;
+          if (e.cancelable) e.preventDefault();
           isDragging = true;
+          setMobileAnimationsPaused(true);
           try { boardFrameEl.setPointerCapture(e.pointerId); } catch (_) {}
           const idx = getNodeIndexFromPoint(e.clientX, e.clientY);
           handlePointerOnIndex(idx);
@@ -4655,6 +4799,7 @@
 
         boardFrameEl.addEventListener('pointermove', (e) => {
           if (!isDragging || isCompleted || isTimeOver) return;
+          if (e.cancelable) e.preventDefault();
           const idx = getNodeIndexFromPoint(e.clientX, e.clientY);
           handlePointerOnIndex(idx);
           if (currentLevel >= 3) {
@@ -5151,10 +5296,8 @@
       if (isCompleted) return;
       isCompleted = true;
       unlockNextLevelBtn();
+      stopTimerLoop();
       if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
-      clearInterval(timerTimer);
-      timerInterval = null;
-      timerTimer = null;
       isGameActive = false;
 
       const finalNodeIndex = playerPath[playerPath.length - 1];
