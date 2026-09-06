@@ -1343,8 +1343,31 @@
       color: #ffffff !important;
       transform: translateY(-1px);
     }
+    #btn-fuel-furu,
+    #btn-support-creator {
+      color: rgba(251, 191, 36, 0.8) !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+    #btn-fuel-furu:hover,
+    #btn-fuel-furu:focus-visible,
     #btn-support-creator:hover {
-      color: #38bdf8 !important;
+      color: #fbbf24 !important;
+      text-shadow: 0 0 12px rgba(245, 158, 11, 0.6) !important;
+    }
+    #btn-fuel-furu:active,
+    #btn-support-creator:active {
+      transform: scale(0.98);
+    }
+    #support-modal,
+    .support-modal {
+      z-index: 100050 !important;
+    }
+    #support-modal.active,
+    #support-modal.show {
+      display: flex !important;
     }
 
   
@@ -1752,6 +1775,8 @@
           <button id="debug-reroll-btn" style="cursor: not-allowed; opacity: 0.65;"><svg class="w-3.5 h-3.5 text-amber-400/90" fill="none" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span id="debug-reroll-text">Next Level</span></button>
           <button id="duel-header-btn"></button>
           <button id="arena-fuel-btn"></button>
+          <div id="fuel-modal"></div>
+          <button id="btn-support-creator"></button>
         </div>
       </div>
 
@@ -2170,9 +2195,10 @@
           <span>Challenge a Friend</span>
         </button>
 
-        <button id="btn-support-creator" onclick="openSupportModal()" class="cursor-pointer w-full py-1.5 text-xs text-slate-500 hover:text-sky-400 transition flex items-center justify-center gap-1" style="background: transparent !important; border: none !important; font-weight: 500; text-decoration: none;">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-          <span>Support Development</span>
+        <!-- Fuel the Furu Button (alias: id="btn-support-creator") -->
+        <button id="btn-fuel-furu" class="cursor-pointer w-full py-2 text-xs font-semibold text-amber-400/80 hover:text-amber-300 transition flex items-center justify-center gap-1.5" style="background: transparent !important; border: none !important; text-decoration: none; pointer-events: auto !important; cursor: pointer !important; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+          <span class="text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">⚡</span>
+          <span class="tracking-wide">Fuel the Furu</span>
         </button>
       </div>
 
@@ -5142,6 +5168,36 @@
         });
       }
 
+      // Victory Modal: Fuel the Furu / Support Button
+      const btnFuelFuru = document.getElementById('btn-fuel-furu') || document.getElementById('btn-support-creator');
+      if (btnFuelFuru) {
+        btnFuelFuru.onclick = function(e) {
+          if (e) {
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+          }
+          const fuelModal = document.getElementById('support-modal') || document.getElementById('fuel-modal') || document.querySelector('.fuel-modal');
+          if (fuelModal) {
+            fuelModal.style.display = 'flex';
+            fuelModal.style.zIndex = '100050';
+            fuelModal.classList.remove('hidden');
+            fuelModal.classList.add('active', 'show', 'flex');
+            if (typeof openSupportModal === 'function') {
+              try { openSupportModal(); } catch (_) {}
+            }
+          } else {
+            // Fallback if no modal: scroll to or trigger existing navbar Fuel handler
+            const navFuel = document.querySelector('[class*="fuel"], [id*="fuel"]');
+            if (navFuel) navFuel.click();
+          }
+        };
+        btnFuelFuru.addEventListener('pointerdown', function(e) {
+          if (e && e.pointerType === 'touch') {
+            if (btnFuelFuru.onclick) btnFuelFuru.onclick(e);
+          }
+        });
+      }
+
       const openLbBtn = document.getElementById('open-leaderboard-btn');
       if (openLbBtn) {
         openLbBtn.addEventListener('click', openLeaderboardModal);
@@ -6243,8 +6299,10 @@ ${shareData.url}`;
         selectMicroTier(29, 'OVERCLOCK');
       }
 
+      modal.style.display = 'flex';
+      modal.style.zIndex = '100050';
       modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      modal.classList.add('flex', 'active', 'show');
       sound.playStep(8);
       triggerHaptic(20);
     }
@@ -6254,8 +6312,9 @@ ${shareData.url}`;
       if (!modal) return;
       isSupportModalOpen = false;
 
+      modal.style.display = 'none';
       modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      modal.classList.remove('flex', 'active', 'show');
 
       // Resume game timer upon closing if paused mid-game
       if (isTimerPaused && !isCompleted && !isTimeOver) {
