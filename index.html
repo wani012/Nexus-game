@@ -973,15 +973,25 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <button id="btn-next-level" class="btn-shimmer w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-1.5 cursor-pointer">
-          <span>Next Level</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        <!-- Primary Action: REPLAY CIRCUIT (Dominant active button) -->
+        <button id="btn-replay-circuit" class="btn-shimmer w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>REPLAY CIRCUIT</span>
         </button>
 
-        <button id="btn-bank-score" class="w-full py-3 bg-[#161F33] hover:bg-[#1E2A45] border border-white/10 text-white font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+        <!-- Gated Next Level: Strictly Locked State -->
+        <button id="btn-next-level" class="w-full py-3 bg-gradient-to-r from-slate-800/80 via-slate-800/60 to-slate-900/80 border border-white/10 text-slate-400 text-xs font-semibold rounded-xl cursor-not-allowed opacity-65 flex items-center justify-center gap-1.5 transition hover:opacity-75 select-none" style="cursor: not-allowed; opacity: 0.65;">
+          <svg class="w-3.5 h-3.5 text-amber-400/90 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span id="btn-next-level-text">🔒 NEXT CIRCUIT LOCKED</span>
+        </button>
+
+        <!-- Secondary Action: Save Score to Leaderboard -->
+        <button id="btn-bank-score" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] border border-white/10 text-white font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
           <span>Save Score to Leaderboard</span>
         </button>
 
+        <!-- Cross-Platform Share: Challenge a Friend -->
         <button id="btn-duel-share" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6-1.4 1.4-1.6-1.6a1 1 0 00-1.4 0l-7 7a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l7-7a1 1 0 000-1.4l-1.6-1.6 1.4-1.4 1.6 1.6a1 1 0 001.4 0l1.3-1.3a1 1 0 000-1.4l-3-3a1 1 0 00-1.4 0l-1.5 1.5z"/></svg>
           <span>Challenge a Friend</span>
@@ -2355,11 +2365,13 @@
 
     async function generateDuelChallengeLink() {
       const myName = (localStorage.getItem('nexus_player_callsign') || 'CHALLENGER').toUpperCase();
-      const myTime = lastSolvedTimeSec || (ROUND_DURATION_SEC - 5.00).toFixed(2);
+      const timeVal = typeof lastSolvedTimeSec === 'number' ? lastSolvedTimeSec.toFixed(2) : (lastSolvedTimeSec || (ROUND_DURATION_SEC - 5.00).toFixed(2));
+      const formattedTime = `${timeVal}s`;
       const circuitLvl = currentLevel || 1;
       const seedToShare = currentCircuitSeed || `circuit_${circuitLvl}_${Date.now()}`;
-      const url = `${window.location.origin}${window.location.pathname}?duelSeed=${encodeURIComponent(seedToShare)}&challengerTime=${encodeURIComponent(myTime)}&challengerName=${encodeURIComponent(myName)}&circuitLevel=${encodeURIComponent(circuitLvl)}`;
-      const inviteMsg = `I reached Circuit #${circuitLvl}! Can you beat my time? Play here: ${url}`;
+      const url = `${window.location.origin}${window.location.pathname}?duelSeed=${encodeURIComponent(seedToShare)}&challengerTime=${encodeURIComponent(timeVal)}&challengerName=${encodeURIComponent(myName)}&circuitLevel=${encodeURIComponent(circuitLvl)}`;
+      
+      const shareText = `⚡ NEXUS Protocol: Cleared Circuit in ${formattedTime}! Can you beat my time? ${url}`;
 
       const giveButtonFeedback = () => {
         const btnDuelShare = document.getElementById('btn-duel-share');
@@ -2374,44 +2386,50 @@
         }
       };
 
-      const copyToClipboard = async () => {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          try {
-            await navigator.clipboard.writeText(inviteMsg);
-            showChallengeToast('Challenge link copied to clipboard!');
-            giveButtonFeedback();
-            return true;
-          } catch (err) {
-            console.warn('Clipboard writeText failed:', err);
-          }
-        }
-        fallbackCopyText(inviteMsg, () => {
-          showChallengeToast('Challenge link copied to clipboard!');
-          giveButtonFeedback();
-        });
-      };
-
-      if (navigator.share) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
-          await navigator.share({
-            title: 'NEXUS Circuit Challenge',
-            text: `I reached Circuit #${circuitLvl}! Can you beat my time?`,
-            url: url
-          });
-          showChallengeToast('Challenge shared successfully!');
+          await navigator.clipboard.writeText(shareText);
+          showChallengeToast("Challenge link copied to clipboard!");
           giveButtonFeedback();
           return;
         } catch (err) {
-          if (err && err.name === 'AbortError') {
-            return;
-          }
-          await copyToClipboard();
+          console.warn("Clipboard API rejected, falling back to input prompt:", err);
+          prompt("Copy your challenge link:", shareText);
+          showChallengeToast("Challenge link copied to clipboard!");
+          giveButtonFeedback();
+          return;
         }
       } else {
-        await copyToClipboard();
+        // Fallback input prompt
+        prompt("Copy your challenge link:", shareText);
+        showChallengeToast("Challenge link copied to clipboard!");
+        giveButtonFeedback();
       }
     }
     window.generateDuelChallengeLink = generateDuelChallengeLink;
+
+    function replayCurrentCircuit() {
+      // Clean reset of active attempt without reloading page
+      playerPath = [];
+      isCompleted = false;
+      isTimeOver = false;
+      isDragging = false;
+      didLiftFinger = false;
+
+      resetTimerDisplay();
+      updateActiveStates();
+      renderSVGLine();
+
+      const modal = document.getElementById('level-cleared-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      sound.playStep(0);
+      triggerHaptic(25);
+    }
+    window.replayCurrentCircuit = replayCurrentCircuit;
 
     // 5. Fog of War / Dynamic Spotlight Tracker
     function updateFogOfWar(clientX, clientY) {
@@ -3004,20 +3022,22 @@
         });
       }
 
+      const btnReplayCircuit = document.getElementById('btn-replay-circuit');
+      if (btnReplayCircuit) {
+        btnReplayCircuit.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          replayCurrentCircuit();
+        });
+      }
+
       const btnNextLevel = document.getElementById('btn-next-level');
       if (btnNextLevel) {
         btnNextLevel.addEventListener('click', (e) => {
           if (e) e.preventDefault();
-          // Explicit click only: ignore accidental touch bleed-through within 300ms of modal appearance
-          if (Date.now() - levelModalOpenedAt < 300) return;
-
-          const modal = document.getElementById('level-cleared-modal');
-          if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-          }
-          currentLevel++;
-          loadNewCircuit(currentLevel);
+          // Strictly locked: inform player of locked state and prompt replay to improve Apex run
+          showChallengeToast("Next circuits are locked! Expansion updates arriving soon. Replay to improve your Apex run.");
+          sound.playStep(4);
+          triggerHaptic(20);
         });
       }
 
@@ -3321,12 +3341,8 @@
 
     function showLevelClearedModal(levelTimeSec, cumulativeTimeSec, clearedLvl) {
       levelModalOpenedAt = Date.now();
-      safeSetText('cleared-level-title', `LEVEL ${clearedLvl} CLEARED!`);
-      const isReverse = isReverseProtocol(clearedLvl);
-      safeSetText('cleared-level-subtitle', isReverse 
-        ? `REVERSE PROTOCOL CRACKED — ADVANCING TO LEVEL ${clearedLvl + 1}...` 
-        : `CIRCUIT #${clearedLvl} SYNCHRONIZED — ADVANCING TO LEVEL ${clearedLvl + 1}...`
-      );
+      safeSetText('cleared-level-title', `CIRCUIT CLEARED!`);
+      safeSetText('cleared-level-subtitle', 'Circuit synchronized! Replay to beat your Apex time or bank your score.');
       safeSetText('cleared-level-time', `${levelTimeSec.toFixed(2)}s`);
       safeSetText('cleared-total-time', `${cumulativeTimeSec.toFixed(2)}s`);
 
@@ -3356,7 +3372,7 @@
 
       const nextBtn = document.getElementById('btn-next-level');
       if (nextBtn) {
-        nextBtn.innerHTML = `<span>NEXT LEVEL (LVL ${clearedLvl + 1}) &gt;&gt;</span>`;
+        nextBtn.innerHTML = `<svg class="w-3.5 h-3.5 text-amber-400/90 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span id="btn-next-level-text">🔒 NEXT CIRCUIT LOCKED</span>`;
       }
 
       const modal = document.getElementById('level-cleared-modal');
