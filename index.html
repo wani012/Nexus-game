@@ -620,6 +620,51 @@
         transform: translate(-50%, -10px) scale(0.95);
       }
     }
+  
+    /* Cyberpunk Contribution Tier Badges */
+    .cyber-tier-btn {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 9px 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.2;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
+      color: #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      user-select: none;
+    }
+    @media (min-width: 400px) {
+      .cyber-tier-btn {
+        font-size: 12px;
+        padding: 10px 6px;
+      }
+    }
+    .cyber-tier-btn:hover {
+      transform: scale(1.03);
+      border-color: rgba(0, 240, 255, 0.65);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+      color: #ffffff;
+    }
+    .cyber-tier-btn.active {
+      border-color: #00f0ff !important;
+      background: rgba(0, 240, 255, 0.12) !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45), inset 0 0 10px rgba(0, 240, 255, 0.15) !important;
+      color: #00f0ff !important;
+      font-weight: 700 !important;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+      transform: scale(1.02);
+    }
   </style>
 </head>
 
@@ -1002,26 +1047,26 @@
       <!-- 100% Scannable Real UPI QR Code Frame -->
       <div class="relative w-52 h-52 mx-auto mb-3 rounded-2xl bg-white p-2.5 shadow-[0_0_25px_rgba(59,130,246,0.3)] border border-blue-400/40 flex items-center justify-center">
         <img id="upi-qr-image" 
-             src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybl%26pn%3DFurkan%26cu%3DINR&margin=10" 
+             src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybl%26pn%3DFurkan%26am%3D29%26cu%3DINR&margin=10" 
              alt="Scan with GPay, PhonePe, Paytm, or any UPI App" 
              class="w-full h-full object-contain rounded-xl select-none" />
       </div>
 
       <!-- Cyberpunk / Gamer Contribution Tiers -->
-      <div class="flex items-center justify-center gap-1.5 sm:gap-2 mb-3">
-        <button type="button" onclick="selectMicroTier(29, 'Energy Boost', this)" class="tier-chip flex-1 py-2 px-1 rounded-xl bg-[#161F33] border border-white/10 hover:border-amber-400 text-slate-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
-          <span>⚡ ₹29 Energy Boost</span>
+      <div class="flex items-center justify-between gap-1.5 sm:gap-2 mb-3">
+        <button id="tier-btn-29" type="button" onclick="selectMicroTier(29, 'OVERCLOCK', this)" class="cyber-tier-btn active">
+          <span>⚡ OVERCLOCK • ₹29</span>
         </button>
-        <button type="button" onclick="selectMicroTier(59, 'Cyber Core', this)" class="tier-chip flex-1 py-2 px-1 rounded-xl bg-[#161F33] border border-white/10 hover:border-sky-400 text-slate-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
-          <span>💠 ₹59 Cyber Core</span>
+        <button id="tier-btn-59" type="button" onclick="selectMicroTier(59, 'QUANTUM CORE', this)" class="cyber-tier-btn">
+          <span>💠 QUANTUM CORE • ₹59</span>
         </button>
-        <button type="button" onclick="selectMicroTier(99, 'Apex Supporter', this)" class="tier-chip flex-1 py-2 px-1 rounded-xl bg-[#161F33] border border-white/10 hover:border-purple-400 text-slate-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
-          <span>👑 ₹99 Apex Supporter</span>
+        <button id="tier-btn-99" type="button" onclick="selectMicroTier(99, 'NEURAL APEX', this)" class="cyber-tier-btn">
+          <span>👑 NEURAL APEX • ₹99</span>
         </button>
       </div>
 
       <!-- Mobile Deep-Link Option ("Pay via UPI App") -->
-      <a id="mobile-upi-deeplink" href="upi://pay?pa=furkanfarooq1@ybl&pn=Furkan&cu=INR" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mb-3 cursor-pointer transition active:scale-[0.98]">
+      <a id="mobile-upi-deeplink" href="upi://pay?pa=furkanfarooq1@ybl&pn=Furkan&am=29&cu=INR" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mb-3 cursor-pointer transition active:scale-[0.98]">
         <span>🚀 Pay via Any UPI App (GPay / PhonePe / Paytm)</span>
       </a>
 
@@ -4317,6 +4362,14 @@ https://nexusgame-website.vercel.app`;
         pauseGameTimer();
       }
 
+      // Ensure Tier 1 (OVERCLOCK • ₹29) is active by default on modal launch
+      const tier29Btn = document.getElementById('tier-btn-29');
+      if (tier29Btn) {
+        selectMicroTier(29, 'OVERCLOCK', tier29Btn);
+      } else {
+        selectMicroTier(29, 'OVERCLOCK');
+      }
+
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       sound.playStep(8);
@@ -4337,7 +4390,7 @@ https://nexusgame-website.vercel.app`;
       }
     }
 
-    let selectedSupportAmount = null;
+    let selectedSupportAmount = 29;
 
     function selectMicroTier(amount, label, btnEl) {
       selectedSupportAmount = amount;
@@ -4364,14 +4417,15 @@ https://nexusgame-website.vercel.app`;
         hint.classList.remove('hidden');
       }
 
-      // 4. Highlight selected tier button with active neon glow border
-      document.querySelectorAll('.tier-chip').forEach(btn => {
-        btn.classList.remove('border-blue-400', 'bg-blue-500/20', 'shadow-[0_0_15px_rgba(59,130,246,0.5)]', 'text-white');
-        btn.classList.add('border-white/10', 'bg-[#161F33]', 'text-slate-300');
+      // 4. Highlight selected tier button with active neon cyan border and glow
+      document.querySelectorAll('.cyber-tier-btn').forEach(btn => {
+        btn.classList.remove('active');
       });
       if (btnEl) {
-        btnEl.classList.remove('border-white/10', 'bg-[#161F33]', 'text-slate-300');
-        btnEl.classList.add('border-blue-400', 'bg-blue-500/20', 'shadow-[0_0_15px_rgba(59,130,246,0.5)]', 'text-white');
+        btnEl.classList.add('active');
+      } else {
+        const targetBtn = document.getElementById(`tier-btn-${amount}`);
+        if (targetBtn) targetBtn.classList.add('active');
       }
     }
     window.selectMicroTier = selectMicroTier;
