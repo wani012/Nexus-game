@@ -666,6 +666,66 @@
       transform: scale(1.02);
     }
   
+    
+    /* ================= SKIP LEVEL PASS POWER-UP & HYPERDRIVE WARP ================= */
+    @keyframes skipPulse {
+      0%, 100% {
+        box-shadow: 0 0 12px rgba(217, 70, 239, 0.45), 0 0 24px rgba(245, 158, 11, 0.25);
+        border-color: rgba(245, 158, 11, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(217, 70, 239, 0.75), 0 0 35px rgba(245, 158, 11, 0.45);
+        border-color: #ffd700;
+      }
+    }
+
+    .skip-level-active {
+      background: linear-gradient(135deg, #7e22ce 0%, #d946ef 50%, #f59e0b 100%) !important;
+      animation: skipPulse 2.2s infinite ease-in-out !important;
+      border: 1px solid #f59e0b !important;
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    .skip-level-active:hover {
+      transform: translateY(-1px) scale(1.02);
+      filter: brightness(1.1);
+    }
+
+    .skip-level-disabled {
+      background: rgba(30, 41, 59, 0.6) !important;
+      border: 1px solid rgba(71, 85, 105, 0.5) !important;
+      color: #94a3b8 !important;
+    }
+
+    .skip-level-disabled:hover {
+      border-color: rgba(148, 163, 184, 0.6) !important;
+      color: #e2e8f0 !important;
+    }
+
+    @keyframes hyperdriveWarp {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      25% {
+        opacity: 0.95;
+        transform: scale(1.02);
+      }
+      60% {
+        opacity: 0.85;
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.1);
+      }
+    }
+
+    .hyperdrive-warp-active {
+      animation: hyperdriveWarp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
     /* ================= ZERO-G IDLE FLOATING ================= */
     @keyframes float {
       0%, 100% {
@@ -769,6 +829,17 @@
 </head>
 
 <body class="min-h-screen flex flex-col bg-[#090D16] text-[#F8FAFC]">
+  <!-- ================= HYPERDRIVE WARP FLASH OVERLAY ================= -->
+  <div id="warp-hyperdrive-overlay" class="pointer-events-none fixed inset-0 z-[9990] hidden bg-gradient-to-tr from-purple-600/90 via-cyan-400/80 to-white/95 backdrop-blur-md flex items-center justify-center">
+    <div class="text-center">
+      <div class="text-3xl sm:text-5xl font-black text-white font-orbitron tracking-widest uppercase drop-shadow-[0_0_25px_rgba(255,255,255,0.9)]">
+        ⚡ HYPERDRIVE WARP
+      </div>
+      <div class="text-xs sm:text-sm font-mono text-cyan-200 font-bold tracking-widest mt-2">
+        CIRCUIT SKIPPED • CONVERGING COORDINATES
+      </div>
+    </div>
+  </div>
   <!-- ================= MANDATORY LANDING OVERLAY (WINNER SPOTLIGHT & SPACESHIP LAUNCH) ================= -->
   <div id="landing-launch-overlay" onclick="if(event.target === this) bypassLandingOverlay(event)" class="fixed inset-0 z-[9999] bg-[#070b14]/95 backdrop-blur-2xl flex items-center justify-center p-4 transition-opacity duration-500">
     <div id="landing-card" class="w-full max-w-md bg-[#0e1626]/90 border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(6,182,212,0.25)] relative text-center flex flex-col items-center overflow-hidden">
@@ -1016,14 +1087,22 @@
             </div>
           </div>
 
-          <!-- Reset Button Card / Box (Glowing Blue Border & Dark Neon Chip) -->
-          <div id="reset-btn-card" class="enclosed-reset-card rounded-xl p-1 sm:p-1.5 flex items-center shrink-0 border border-[#38bdf8] shadow-[0_0_15px_rgba(56,189,248,0.25)] hover:shadow-[0_0_22px_rgba(56,189,248,0.45)] transition-all">
+          <div class="flex items-center gap-2 shrink-0">
+            <!-- SKIP LEVEL POWER-UP BUTTON -->
+            <button id="skip-level-btn" onclick="executeSkipLevel(event)" title="Invite a friend to unlock a Level Skip" class="skip-level-disabled px-2.5 sm:px-3 py-1.5 rounded-xl font-orbitron text-[10px] sm:text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer">
+              <span>⚡ SKIP LEVEL</span>
+              <span id="skip-tokens-badge" class="px-1.5 py-0.5 rounded bg-black/40 text-[9px] font-mono font-bold text-slate-400">0</span>
+            </button>
+
+            <!-- Reset Button Card / Box (Glowing Blue Border & Dark Neon Chip) -->
+            <div id="reset-btn-card" class="enclosed-reset-card rounded-xl p-1 sm:p-1.5 flex items-center shrink-0 border border-[#38bdf8] shadow-[0_0_15px_rgba(56,189,248,0.25)] hover:shadow-[0_0_22px_rgba(56,189,248,0.45)] transition-all">
             <button id="clear-btn" onclick="resetCircuitAttempt()" title="Reset Attempt" class="px-3.5 py-1.5 rounded-[10px] bg-[#111726] hover:bg-[#18233c] border border-sky-400/40 hover:border-sky-400 text-sky-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95">
               <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
               </svg>
               <span class="text-xs font-bold text-sky-200 tracking-wide">Reset</span>
             </button>
+            </div>
           </div>
         </div>
 
@@ -2939,6 +3018,176 @@
     let activeDuelChallenger = 'RIVAL';
     let activeDuelTargetTime = 0;
 
+    // ================= VIRAL REFERRAL SYSTEM & SKIP LEVEL PASS =================
+    function getOrCreateUserId() {
+      let uid = localStorage.getItem('nexus_user_id');
+      if (!uid) {
+        const callsign = (localStorage.getItem('nexus_player_callsign') || 'RUNNER').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+        const randPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+        uid = `${callsign}_${randPart}`;
+        localStorage.setItem('nexus_user_id', uid);
+      }
+      return uid;
+    }
+    window.getOrCreateUserId = getOrCreateUserId;
+
+    function getSkipTokens() {
+      const stored = parseInt(localStorage.getItem('nexus_skip_tokens') || '0', 10);
+      return isNaN(stored) || stored < 0 ? 0 : stored;
+    }
+    window.getSkipTokens = getSkipTokens;
+
+    function setSkipTokens(count) {
+      const safeCount = Math.max(0, parseInt(count || 0, 10));
+      localStorage.setItem('nexus_skip_tokens', safeCount.toString());
+      updateSkipLevelButtonUI();
+      if (firestoreDb) {
+        try {
+          const uid = getOrCreateUserId();
+          firestoreDb.collection('nexus_user_tokens').doc(uid).set({
+            tokens: safeCount,
+            lastUpdated: Date.now()
+          }, { merge: true }).catch(() => {});
+        } catch (_) {}
+      }
+      return safeCount;
+    }
+    window.setSkipTokens = setSkipTokens;
+
+    function updateSkipLevelButtonUI() {
+      const btn = document.getElementById('skip-level-btn');
+      if (!btn) return;
+      const count = getSkipTokens();
+
+      if (count >= 1) {
+        btn.classList.remove('skip-level-disabled');
+        btn.classList.add('skip-level-active');
+        btn.title = `⚡ Skip current circuit! (${count} available)`;
+        btn.innerHTML = `<span>⚡ SKIP LEVEL</span> <span id="skip-tokens-badge" class="px-1.5 py-0.5 rounded bg-black/40 text-[9px] font-mono font-bold text-amber-300">Available: ${count}</span>`;
+      } else {
+        btn.classList.remove('skip-level-active');
+        btn.classList.add('skip-level-disabled');
+        btn.title = "Invite a friend to unlock a Level Skip";
+        btn.innerHTML = `<span>⚡ SKIP LEVEL</span> <span id="skip-tokens-badge" class="px-1.5 py-0.5 rounded bg-black/30 text-[9px] font-mono font-bold text-slate-400">0</span>`;
+      }
+    }
+    window.updateSkipLevelButtonUI = updateSkipLevelButtonUI;
+
+    async function checkReferralUrlParams() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const referrerId = params.get('ref') || params.get('referrer');
+        if (!referrerId) return;
+
+        const myId = getOrCreateUserId();
+        // Prevent self-referral
+        if (referrerId === myId) return;
+
+        // Prevent duplicate referral rewards from same client
+        const claimKey = `nexus_ref_claimed_${referrerId}`;
+        if (localStorage.getItem(claimKey) === 'true') {
+          return;
+        }
+
+        // Mark claimed locally
+        localStorage.setItem(claimKey, 'true');
+        localStorage.setItem('nexus_referred_by', referrerId);
+
+        // Credit 1 Level Skip Token to referrer in Firestore
+        if (firestoreDb) {
+          try {
+            const refDoc = firestoreDb.collection('nexus_user_tokens').doc(referrerId);
+            const snap = await refDoc.get();
+            const currentTokens = (snap.exists && snap.data() && typeof snap.data().tokens === 'number') ? snap.data().tokens : 0;
+            await refDoc.set({
+              tokens: currentTokens + 1,
+              lastReferralAt: Date.now()
+            }, { merge: true });
+          } catch (err) {
+            console.warn("Firestore referral credit warning:", err);
+          }
+        }
+
+        showChallengeToast(`⚡ Referral accepted from ${referrerId}! You're in.`);
+      } catch (err) {
+        console.warn("checkReferralUrlParams error:", err);
+      }
+    }
+    window.checkReferralUrlParams = checkReferralUrlParams;
+
+    function initUserTokensSync() {
+      if (!firestoreDb) return;
+      try {
+        const uid = getOrCreateUserId();
+        firestoreDb.collection('nexus_user_tokens').doc(uid)
+          .onSnapshot((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              if (data && typeof data.tokens === 'number') {
+                const localTokens = getSkipTokens();
+                if (data.tokens > localTokens) {
+                  const diff = data.tokens - localTokens;
+                  showChallengeToast(`🎉 A friend joined! +${diff} Level Skip Pass earned!`);
+                  sound.playVictory();
+                  triggerHaptic([100, 50, 150]);
+                }
+                localStorage.setItem('nexus_skip_tokens', data.tokens.toString());
+                updateSkipLevelButtonUI();
+              }
+            }
+          }, (err) => {
+            console.warn("User tokens sync error:", err);
+          });
+      } catch (_) {}
+    }
+    window.initUserTokensSync = initUserTokensSync;
+
+    function executeSkipLevel(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      const count = getSkipTokens();
+      if (count <= 0) {
+        showChallengeToast("⚡ Invite a friend to earn Level Skip Passes!");
+        openSocialShareModal();
+        return;
+      }
+
+      // 1. Deduct token
+      setSkipTokens(count - 1);
+
+      // 2. Play sound and haptics
+      sound.playStep(15);
+      triggerHaptic([80, 40, 120]);
+
+      // 3. Show 0.5s Hyperdrive Warp Flash
+      const warp = document.getElementById('warp-hyperdrive-overlay');
+      if (warp) {
+        warp.classList.remove('hidden');
+        warp.classList.add('hyperdrive-warp-active');
+        setTimeout(() => {
+          warp.classList.remove('hyperdrive-warp-active');
+          warp.classList.add('hidden');
+        }, 550);
+      }
+
+      // 4. Mark circuit as completed & advance immediately to next level
+      isCompleted = true;
+      clearInterval(timerTimer);
+      timerTimer = null;
+
+      setTimeout(() => {
+        const nextLvl = currentLevel + 1;
+        loadNewCircuit(nextLvl);
+        showChallengeToast(`🚀 HYPERDRIVE WARP! Advanced to Level ${nextLvl}!`);
+        sound.playVictory();
+      }, 300);
+    }
+    window.executeSkipLevel = executeSkipLevel;
+
+
     function checkDuelUrlParams() {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -2996,6 +3245,7 @@
         const circuitLvl = currentLevel || 1;
         const seedToShare = currentCircuitSeed || `circuit_${circuitLvl}_${Date.now()}`;
         const urlObj = new URL(window.location.href);
+        urlObj.searchParams.set('ref', getOrCreateUserId());
         urlObj.searchParams.set('duelSeed', seedToShare);
         urlObj.searchParams.set('challengerTime', timeVal);
         urlObj.searchParams.set('challengerName', myName);
@@ -3053,6 +3303,7 @@ ${url}`);
 
       sound.playStep(8);
       triggerHaptic(20);
+      showChallengeToast("⚡ Custom invite link ready! Friends joining earn you Level Skip Passes.");
     }
     window.openSocialShareModal = openSocialShareModal;
     window.generateDuelChallengeLink = openSocialShareModal;
@@ -5169,6 +5420,9 @@ https://nexusgame-website.vercel.app`;
       currentLevel = 1;
       totalRunTime = 0;
       checkDuelUrlParams();
+      checkReferralUrlParams();
+      initUserTokensSync();
+      updateSkipLevelButtonUI();
 
       if (isDuelActive && activeDuelSeed) {
         loadNewCircuit(1, activeDuelSeed);
