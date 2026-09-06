@@ -7210,28 +7210,93 @@ ${shareData.url}`;
 
   window.addEventListener('DOMContentLoaded', initContinuousPathGame);
   setTimeout(initContinuousPathGame, 400);
+<!-- ================= NEXUS PATH FILL & DRAG ENGINE ================= -->
+<style>
+  .active-path-step {
+    background: rgba(0, 229, 255, 0.45) !important;
+    border-color: #00f3ff !important;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.75) !important;
+    transform: scale(1.08);
+    transition: all 0.1s ease;
+  }
+  .shockwave-25 {
+    animation: blast25 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+  }
+  @keyframes blast25 {
+    0% { transform: scale(1); filter: brightness(1); }
+    40% { transform: scale(1.4); filter: brightness(2) drop-shadow(0 0 40px #00f3ff) drop-shadow(0 0 80px #38bdf8); }
+    100% { transform: scale(1.1); filter: drop-shadow(0 0 20px #00e5ff); }
+  }
+</style>
 
-  // STRICT TIMER OUT (<5s & 00:00)
-  const origInterval = window.setInterval;
-  window.setInterval = function(fn, t) {
-    return origInterval(function() {
-      try {
-        const timer = document.querySelector('.timer, #timer, [class*="timer"]');
-        if (timer) {
-          const txt = timer.textContent.trim();
-          if (txt === '00:00' || txt === '0s' || txt === '0.00s') {
-            const grid = document.querySelector('.circuit-grid, #circuit-grid');
-            if (grid) grid.style.pointerEvents = 'none';
-            const fail = document.getElementById('fail-modal') || document.querySelector('.game-over-modal');
-            if (fail) fail.style.display = 'flex';
+<script>
+(function() {
+  const MILESTONES = [1, 5, 10, 15, 20, 25];
+  let isDragging = false;
+  let currentTargetIdx = 1; // Looking for 5 next
+  let visitedNodes = [];
+
+  function attachDragOverride() {
+    const grid = document.querySelector('.circuit-grid, #circuit-grid, [id*="grid"]');
+    if (!grid) return;
+    const cells = Array.from(grid.children);
+    if (cells.length < 25) return;
+
+    cells.forEach((cell) => {
+      cell.addEventListener('pointerdown', (e) => {
+        const val = parseInt(cell.textContent.trim(), 10);
+        if (val === 1) {
+          isDragging = true;
+          visitedNodes = [cell];
+          currentTargetIdx = 1;
+          cell.classList.add('active-path-step');
+        }
+      });
+
+      cell.addEventListener('pointerenter', (e) => {
+        if (!isDragging) return;
+        if (visitedNodes.includes(cell)) return;
+
+        const val = parseInt(cell.textContent.trim(), 10);
+        const nextTarget = MILESTONES[currentTargetIdx];
+
+        if (val && MILESTONES.includes(val) && val !== nextTarget) {
+          return;
+        }
+
+        cell.classList.add('active-path-step');
+        visitedNodes.push(cell);
+
+        if (val === nextTarget) {
+          currentTargetIdx++;
+          if (val === 25) {
+            isDragging = false;
+            cell.classList.add('shockwave-25');
+
+            setTimeout(() => {
+              const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, .level-cleared');
+              if (winModal) {
+                winModal.style.display = 'flex';
+              } else {
+                const nextBtn = document.querySelector('#next-level, [class*="next"]');
+                if (nextBtn) nextBtn.click();
+              }
+            }, 600);
           }
         }
-        fn();
-      } catch (err) {}
-    }, t);
-  };
+      });
+    });
+
+    window.addEventListener('pointerup', () => {
+      isDragging = false;
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', attachDragOverride);
+  setTimeout(attachDragOverride, 500);
 })();
 </script>
-<!-- ================= END CONTROLLER ================= -->
+<!-- ================= END NEXUS ENGINE ================= -->
+
 </body>
 </html>
