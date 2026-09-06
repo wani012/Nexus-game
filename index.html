@@ -724,7 +724,7 @@
       <div id="apex-runner-banner" class="inline-flex flex-wrap items-center justify-center gap-2.5 px-4 py-2 rounded-2xl bg-[#111726] border border-white/10 shadow-lg mb-3">
         <span class="text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></span>
         <div class="text-left">
-          <span id="apex-runner-title" class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">TODAY\'S APEX RUNNER</span>
+          <span id="apex-runner-title" class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">TODAY'S APEX RUNNER</span>
           <div class="flex items-center gap-1.5">
             <span id="apex-runner-name" class="text-xs font-bold text-white">No records yet</span>
             <span class="text-slate-600 text-xs">•</span>
@@ -802,10 +802,10 @@
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
           </button>
 
-          <!-- New Circuit / Reroll -->
-          <button id="debug-reroll-btn" title="Next Puzzle" class="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-            <span id="debug-reroll-text" class="hidden sm:inline text-[11px]">New</span>
+          <!-- In-Game HUD Next Level / Level Skip Button (Strictly Locked) -->
+          <button id="debug-reroll-btn" title="Level skipping is locked! Complete the current circuit to advance." class="px-2.5 py-1.5 rounded-xl bg-slate-800/40 border border-white/5 text-slate-400 hover:text-slate-300 text-xs font-semibold transition flex items-center gap-1.5 select-none" style="cursor: not-allowed; opacity: 0.65;">
+            <svg class="w-3.5 h-3.5 text-amber-400/90 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span id="debug-reroll-text" class="hidden sm:inline text-[11px]">Next Level</span>
           </button>
 
           <!-- Reset Current Attempt -->
@@ -1137,16 +1137,16 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <!-- Primary Action: REPLAY CIRCUIT (Dominant active button) -->
-        <button id="btn-replay-circuit" class="btn-shimmer w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span>REPLAY CIRCUIT</span>
+        <!-- Primary Action: NEXT CIRCUIT (Active Progression Button) -->
+        <button id="btn-next-level" class="btn-shimmer w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]">
+          <span id="btn-next-level-text">NEXT CIRCUIT (LVL &gt;&gt;)</span>
+          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
 
-        <!-- Gated Next Level: Strictly Locked State -->
-        <button id="btn-next-level" class="w-full py-3 bg-gradient-to-r from-slate-800/80 via-slate-800/60 to-slate-900/80 border border-white/10 text-slate-400 text-xs font-semibold rounded-xl cursor-not-allowed opacity-65 flex items-center justify-center gap-1.5 transition hover:opacity-75 select-none" style="cursor: not-allowed; opacity: 0.65;">
-          <svg class="w-3.5 h-3.5 text-amber-400/90 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          <span id="btn-next-level-text">🔒 NEXT CIRCUIT LOCKED</span>
+        <!-- Secondary Action: REPLAY CIRCUIT -->
+        <button id="btn-replay-circuit" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 border border-white/10 text-white font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>REPLAY CIRCUIT</span>
         </button>
 
         <!-- Secondary Action: Save Score to Leaderboard -->
@@ -3172,36 +3172,45 @@
         });
       }
 
+      // In-game HUD Next Level button: Strictly locked against level skipping
       const debugRerollBtn = document.getElementById('debug-reroll-btn');
       if (debugRerollBtn) {
-        debugRerollBtn.addEventListener('click', () => {
-          currentLevel++;
-          totalRunTime += 4.50;
-          loadNewCircuit(currentLevel);
-          const lbl = document.getElementById('debug-reroll-text');
-          if (lbl) {
-            lbl.innerText = `Level ${currentLevel}`;
-            setTimeout(() => { lbl.innerText = 'Next Level'; }, 1500);
-          }
+        debugRerollBtn.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          showChallengeToast("Level skipping is locked! Complete the current circuit to advance.");
+          sound.playErrorBuzz();
+          triggerHaptic(20);
         });
       }
 
+      // Victory Modal: Primary Action - Advance to next level upon explicit click
+      const btnNextLevel = document.getElementById('btn-next-level');
+      if (btnNextLevel) {
+        btnNextLevel.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          // Guard against accidental touch bleed-through from final node touch
+          if (Date.now() - levelModalOpenedAt < 300) return;
+
+          const modal = document.getElementById('level-cleared-modal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+
+          // Advance to the next level/circuit normally
+          currentLevel++;
+          loadNewCircuit(currentLevel);
+          sound.playStep(0);
+          triggerHaptic(30);
+        });
+      }
+
+      // Victory Modal: Replay Circuit without page reload
       const btnReplayCircuit = document.getElementById('btn-replay-circuit');
       if (btnReplayCircuit) {
         btnReplayCircuit.addEventListener('click', (e) => {
           if (e) e.preventDefault();
           replayCurrentCircuit();
-        });
-      }
-
-      const btnNextLevel = document.getElementById('btn-next-level');
-      if (btnNextLevel) {
-        btnNextLevel.addEventListener('click', (e) => {
-          if (e) e.preventDefault();
-          // Strictly locked: inform player of locked state and prompt replay to improve Apex run
-          showChallengeToast("Next circuits are locked! Expansion updates arriving soon. Replay to improve your Apex run.");
-          sound.playStep(4);
-          triggerHaptic(20);
         });
       }
 
@@ -3536,7 +3545,7 @@
 
       const nextBtn = document.getElementById('btn-next-level');
       if (nextBtn) {
-        nextBtn.innerHTML = `<svg class="w-3.5 h-3.5 text-amber-400/90 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span id="btn-next-level-text">🔒 NEXT CIRCUIT LOCKED</span>`;
+        nextBtn.innerHTML = `<span id="btn-next-level-text">NEXT CIRCUIT (LVL ${clearedLvl + 1}) &gt;&gt;</span><svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
       }
 
       const modal = document.getElementById('level-cleared-modal');
