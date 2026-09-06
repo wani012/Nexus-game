@@ -791,10 +791,10 @@
       <!-- Winner Spotlight Card -->
       <div class="w-full bg-[#141e33] border border-cyan-500/30 rounded-2xl p-3.5 mb-5 text-center shadow-inner">
         <div id="landing-apex-name" class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-cyan-300 to-sky-400 font-orbitron tracking-wide uppercase drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">
-          APEX RUNNER
+          FURU
         </div>
         <div id="landing-apex-stats" class="text-xs font-mono text-cyan-300 font-bold mt-1">
-          Fastest daily verified circuit run
+          LVL 1 • 08.42s • REIGNING APEX RECORD
         </div>
       </div>
 
@@ -930,9 +930,9 @@
         <div class="text-left">
           <span id="apex-runner-title" class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">TODAY'S APEX RUNNER</span>
           <div class="flex items-center gap-1.5">
-            <span id="apex-runner-name" class="text-xs font-bold text-white">No records yet</span>
+            <span id="apex-runner-name" class="text-xs font-bold text-white">FURU</span>
             <span class="text-slate-600 text-xs">•</span>
-            <span id="apex-runner-time" class="text-xs font-mono font-bold text-blue-400">LVL 1 • --.--s</span>
+            <span id="apex-runner-time" class="text-xs font-mono font-bold text-blue-400">LVL 1 • 08.42s</span>
           </div>
         </div>
         <a id="apex-runner-cta" href="#game-arena" class="ml-2 px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[11px] rounded-lg transition shadow-sm flex items-center gap-1">
@@ -2335,10 +2335,14 @@
       ];
 
       targets.forEach(({ timeEl, nameEl, rank }) => {
-        const rec = records && records[rank];
+        let rec = records && records[rank];
+        // Rank 0 is the apex target: if today has no record yet, display the reigning apex champion
+        if (rank === 0 && !rec && window.lbManager) {
+          rec = window.lbManager.getApexRunner();
+        }
         if (rec) {
           const lvl = rec.levelReached !== undefined ? rec.levelReached : (rec.level || 1);
-          const timeVal = typeof rec.totalTime === 'number' ? rec.totalTime : parseFloat(rec.totalTime || rec.time || 0);
+          const timeVal = typeof rec.recordTime === 'number' ? rec.recordTime : (typeof rec.totalTime === 'number' ? rec.totalTime : parseFloat(rec.recordTime || rec.totalTime || rec.time || 0));
           top3TargetTimes.push({ level: lvl, time: timeVal });
           if (timeEl) timeEl.innerText = `LVL ${lvl} • ${timeVal.toFixed(2)}s`;
           if (nameEl) nameEl.innerText = rec.name || 'OPERATOR';
@@ -2349,10 +2353,44 @@
       });
     }
 
+    // --- Persistent All-Time Reigning Apex Champion & Daily Leaderboards ---
+    const DEFAULT_APEX_RECORD = {
+      name: 'FURU',
+      recordTime: 8.42,
+      totalTime: 8.42,
+      levelReached: 1,
+      timestamp: 1741243567890
+    };
+
     class DailyLeaderboardManager {
       constructor(puzzle) {
         this.puzzle = puzzle;
         this.storageKey = `nexus_lb_progressive_${new Date().toISOString().slice(0, 10)}`;
+        this.apexStorageKey = 'nexus_apex_record';
+        this.reigningApex = this.loadPersistentApex();
+      }
+
+      loadPersistentApex() {
+        try {
+          const saved = localStorage.getItem(this.apexStorageKey);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.name && (parsed.recordTime || parsed.totalTime)) {
+              const rTime = typeof parsed.recordTime === 'number' ? parsed.recordTime : (typeof parsed.totalTime === 'number' ? parsed.totalTime : parseFloat(parsed.recordTime || parsed.totalTime || parsed.time || 8.42));
+              return {
+                name: String(parsed.name).trim().toUpperCase().slice(0, 12),
+                recordTime: rTime,
+                totalTime: rTime,
+                levelReached: Number(parsed.levelReached || parsed.level || 1),
+                timestamp: parsed.timestamp || Date.now()
+              };
+            }
+          }
+        } catch (_) {}
+        try {
+          localStorage.setItem(this.apexStorageKey, JSON.stringify(DEFAULT_APEX_RECORD));
+        } catch (_) {}
+        return { ...DEFAULT_APEX_RECORD };
       }
 
       getEntries() {
@@ -2376,20 +2414,69 @@
       }
 
       getApexRunner() {
-        const entries = this.getEntries();
-        return entries.length > 0 ? entries[0] : null;
+        if (!this.reigningApex) {
+          this.reigningApex = this.loadPersistentApex();
+        }
+        return this.reigningApex;
+      }
+
+      // Condition to dethrone:
+      // Higher level reached, or same level completed in strictly faster time (newTime < recordTime)
+      isDethroningRun(levelReached, totalTime) {
+        const apex = this.getApexRunner();
+        if (!apex) return true;
+        const newLvl = Number(levelReached || 1);
+        const oldLvl = Number(apex.levelReached || apex.level || 1);
+        const newTime = parseFloat(Number(totalTime || 0).toFixed(2));
+        const oldTime = typeof apex.recordTime === 'number' ? apex.recordTime : (typeof apex.totalTime === 'number' ? apex.totalTime : parseFloat(apex.recordTime || apex.totalTime || apex.time || 9999));
+
+        if (newLvl > oldLvl) return true;
+        if (newLvl === oldLvl && newTime < oldTime) return true;
+        return false;
+      }
+
+      updateReigningApex(newRecord) {
+        const rTime = typeof newRecord.recordTime === 'number' ? newRecord.recordTime : (typeof newRecord.totalTime === 'number' ? newRecord.totalTime : parseFloat(newRecord.recordTime || newRecord.totalTime || newRecord.time || 0));
+        this.reigningApex = {
+          name: String(newRecord.name).trim().toUpperCase().slice(0, 12),
+          recordTime: rTime,
+          totalTime: rTime,
+          levelReached: Number(newRecord.levelReached || newRecord.level || 1),
+          timestamp: newRecord.timestamp || Date.now()
+        };
+        try {
+          localStorage.setItem(this.apexStorageKey, JSON.stringify(this.reigningApex));
+        } catch (_) {}
+        syncApexBanner();
+        syncLandingApexWinner();
       }
 
       async submitScore(playerName, levelReached, totalTime) {
         const cleanName = (playerName.trim().toUpperCase() || 'OPERATOR').slice(0, 12);
+        const newTime = parseFloat(Number(totalTime || 0).toFixed(2));
+        const newLvl = Number(levelReached || 1);
         const record = {
           name: cleanName,
-          levelReached: Number(levelReached || 1),
-          totalTime: parseFloat(Number(totalTime || 0).toFixed(2)),
+          levelReached: newLvl,
+          totalTime: newTime,
+          recordTime: newTime,
           timestamp: Date.now()
         };
 
-        // Save to Firestore collection nexus_daily_records
+        // 1. Evaluate persistent dethroning condition
+        const dethroned = this.isDethroningRun(newLvl, newTime);
+        if (dethroned) {
+          this.updateReigningApex(record);
+          if (firestoreDb) {
+            try {
+              await firestoreDb.collection('nexus_apex_record').doc('reigning_champion').set(record);
+            } catch (err) {
+              console.warn("Firestore reigning apex update error:", err);
+            }
+          }
+        }
+
+        // 2. Save to daily collection
         if (firestoreDb) {
           try {
             await firestoreDb.collection('nexus_daily_records').add(record);
@@ -2398,20 +2485,51 @@
           }
         }
 
-        // Optimistic local update
+        // 3. Optimistic local update for daily leaderboard
         const updated = [...this.getEntries(), record];
         firestoreRecords = sortRecords(updated).slice(0, 10);
         this.saveEntries(firestoreRecords);
         syncApexBanner();
-            syncLandingApexWinner();
+        syncLandingApexWinner();
         updateTargetApexUI(firestoreRecords);
-        return record;
+        return { record, dethroned };
       }
     }
 
     function initFirestoreLeaderboard() {
       if (!firestoreDb) return;
       try {
+        // A. Dedicated listener for persistent all-time reigning champion
+        firestoreDb.collection('nexus_apex_record').doc('reigning_champion')
+          .onSnapshot((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              if (data && data.name && (data.recordTime || data.totalTime)) {
+                const remoteApex = {
+                  name: String(data.name).trim().toUpperCase().slice(0, 12),
+                  recordTime: typeof data.recordTime === 'number' ? data.recordTime : parseFloat(data.recordTime || data.totalTime || 0),
+                  totalTime: typeof data.totalTime === 'number' ? data.totalTime : parseFloat(data.totalTime || data.recordTime || 0),
+                  levelReached: Number(data.levelReached || data.level || 1),
+                  timestamp: data.timestamp || Date.now()
+                };
+                if (lbManager.isDethroningRun(remoteApex.levelReached, remoteApex.recordTime)) {
+                  lbManager.updateReigningApex(remoteApex);
+                } else if (!localStorage.getItem('nexus_apex_record')) {
+                  lbManager.updateReigningApex(remoteApex);
+                }
+              }
+            } else {
+              // Seed remote Firestore document with local reigning champion
+              const currentApex = lbManager.getApexRunner();
+              if (currentApex) {
+                firestoreDb.collection('nexus_apex_record').doc('reigning_champion').set(currentApex).catch(() => {});
+              }
+            }
+          }, (err) => {
+            console.warn("Firestore reigning champion listener error:", err);
+          });
+
+        // B. Daily records listener
         firestoreDb.collection('nexus_daily_records')
           .limit(60)
           .onSnapshot((snapshot) => {
@@ -2425,13 +2543,24 @@
                   name: String(data.name).trim().toUpperCase().slice(0, 12),
                   levelReached: lvl,
                   totalTime: t,
+                  recordTime: t,
                   timestamp: data.timestamp || Date.now()
                 });
               }
             });
             firestoreRecords = sortRecords(records).slice(0, 10);
             lbManager.saveEntries(firestoreRecords);
+
+            // If a daily record beats current apex, promote to reigning champion
+            if (firestoreRecords.length > 0) {
+              const topDaily = firestoreRecords[0];
+              if (lbManager.isDethroningRun(topDaily.levelReached, topDaily.totalTime)) {
+                lbManager.updateReigningApex(topDaily);
+              }
+            }
+
             syncApexBanner();
+            syncLandingApexWinner();
             updateTargetApexUI(firestoreRecords);
 
             const modal = document.getElementById('leaderboard-modal');
@@ -2439,12 +2568,13 @@
               renderLeaderboardModal();
             }
           }, (err) => {
-            console.warn("Firestore onSnapshot error:", err);
+            console.error("Firestore snapshot error:", err);
           });
       } catch (err) {
-        console.warn("Firestore listener setup error:", err);
+        console.error("initFirestoreLeaderboard error:", err);
       }
     }
+
 
     // --- 5B. Procedural Circuit Generator for Every Level & Real-Time Sync ---
     function loadNewCircuit(level = 1, customSeed = null, broadcastToFirestore = false, triggeredBy = 'OPERATOR') {
@@ -2992,21 +3122,16 @@ ${url}`);
     }
 
     
-    // --- Mandatory Landing Overlay Spaceship Launch & Winner Spotlight ---
+        // --- Mandatory Landing Overlay Spaceship Launch & Winner Spotlight ---
     function syncLandingApexWinner() {
       const apex = lbManager.getApexRunner();
       const apexNameEl = document.getElementById('landing-apex-name');
       const apexStatsEl = document.getElementById('landing-apex-stats');
-      if (apexNameEl && apexStatsEl) {
-        if (apex) {
-          const lvl = apex.levelReached !== undefined ? apex.levelReached : (apex.level || 1);
-          const timeVal = typeof apex.totalTime === 'number' ? apex.totalTime : parseFloat(apex.totalTime || apex.time || 0);
-          apexNameEl.innerText = apex.name;
-          apexStatsEl.innerText = `LVL ${lvl} • ${timeVal.toFixed(2)}s • CLAIMED #1`;
-        } else {
-          apexNameEl.innerText = "NO RUNNERS YET";
-          apexStatsEl.innerText = "Be the first operator globally to claim #1";
-        }
+      if (apexNameEl && apexStatsEl && apex) {
+        const lvl = apex.levelReached !== undefined ? apex.levelReached : (apex.level || 1);
+        const timeVal = typeof apex.recordTime === 'number' ? apex.recordTime : (typeof apex.totalTime === 'number' ? apex.totalTime : parseFloat(apex.recordTime || apex.totalTime || apex.time || 8.42));
+        apexNameEl.innerText = apex.name;
+        apexStatsEl.innerText = `LVL ${lvl} • ${timeVal.toFixed(2)}s • REIGNING APEX`;
       }
 
       const playerInput = document.getElementById('landing-player-input');
@@ -3070,22 +3195,16 @@ ${url}`);
     }
     window.handleSpaceshipLaunch = handleSpaceshipLaunch;
 
-    function syncApexBanner() {
+        function syncApexBanner() {
       const apex = lbManager.getApexRunner();
       const bannerCta = document.getElementById('apex-runner-cta');
       if (apex) {
         const lvl = apex.levelReached !== undefined ? apex.levelReached : (apex.level || 1);
-        const timeVal = typeof apex.totalTime === 'number' ? apex.totalTime : parseFloat(apex.totalTime || apex.time || 0);
+        const timeVal = typeof apex.recordTime === 'number' ? apex.recordTime : (typeof apex.totalTime === 'number' ? apex.totalTime : parseFloat(apex.recordTime || apex.totalTime || apex.time || 8.42));
         safeSetText('apex-runner-title', "TODAY'S APEX RUNNER");
         safeSetText('apex-runner-name', apex.name);
         safeSetText('apex-runner-time', `LVL ${lvl} • ${timeVal.toFixed(2)}s`);
         if (bannerCta) bannerCta.innerHTML = 'Beat Record';
-      } else {
-        safeSetText('apex-runner-title', "TODAY'S APEX RUNNER");
-        safeSetText('apex-runner-name', "NO RUNNERS YET");
-        syncLandingApexWinner();
-        safeSetText('apex-runner-time', "LVL 1 • --.--s");
-        if (bannerCta) bannerCta.innerHTML = 'Claim #1';
       }
     }
 
@@ -3748,8 +3867,9 @@ ${url}`);
           const timeToSubmit = bankedTotalTime || totalRunTime;
 
           // Submit record to Firestore & local leaderboard
+          let submitResult = null;
           try {
-            await lbManager.submitScore(name, levelToSubmit, timeToSubmit);
+            submitResult = await lbManager.submitScore(name, levelToSubmit, timeToSubmit);
           } catch (err) {
             console.error("Firestore submission error:", err);
           }
@@ -3767,14 +3887,14 @@ ${url}`);
 
           // Evaluate Top 3 / Matrix breach celebration
           const entries = lbManager.getEntries();
-          const isApex = entries.length > 0 && entries[0].name === name && entries[0].levelReached === levelToSubmit;
+          const isApex = (submitResult && submitResult.dethroned) || (lbManager.getApexRunner()?.name === name && lbManager.getApexRunner()?.levelReached === levelToSubmit);
           const isTop3 = entries.slice(0, 3).some(e => e.name === name && e.levelReached === levelToSubmit);
 
           if (isApex || isTop3) {
             const overlay = document.getElementById('benchmark-matched-overlay');
             const title = document.getElementById('benchmark-match-title');
             const detail = document.getElementById('benchmark-match-detail');
-            if (title) title.innerText = isApex ? 'New Daily Record!' : 'Level Completed!';
+            if (title) title.innerText = isApex ? '👑 NEW REIGNING APEX RECORD!' : 'Level Completed!';
             if (detail) {
               detail.innerText = `${name} REACHED LEVEL ${levelToSubmit} IN ${timeToSubmit.toFixed(2)}s! GLOBAL ARCHIVE UPDATED!`;
             }
