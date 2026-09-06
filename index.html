@@ -7107,34 +7107,68 @@ ${shareData.url}`;
   
   
   </script>
-<!-- ================= NEXUS MASTER REPAIR PATCH ================= -->
+<!-- ================= NEXUS QUANTUM [1, 5, 10, 15, 20, 25] PROTOCOL ================= -->
 <script>
 (function() {
-  // 1. LET NATIVE GENERATOR CREATE THE ADJACENT CIRCUIT PATH
-  // Unhide any accidentally hidden nodes on Level 1 instead of rewriting their numbers
-  function ensureAllNodesVisible() {
+  const TARGETS = [1, 5, 10, 15, 20, 25];
+
+  function applyQuantumGrid() {
     const grid = document.querySelector('.circuit-grid, #circuit-grid, .grid-container');
     if (!grid) return;
-    const nodes = grid.querySelectorAll('.node, .circle, [class*="node"]');
-    nodes.forEach(node => {
-      node.style.display = 'flex';
-      node.style.opacity = '1';
-      node.style.visibility = 'visible';
-      node.style.pointerEvents = 'auto';
-    });
-  }
-  window.addEventListener('DOMContentLoaded', ensureAllNodesVisible);
-  setTimeout(ensureAllNodesVisible, 400);
+    const nodes = Array.from(grid.querySelectorAll('.node, .circle, [class*="node"]'));
+    if (nodes.length < 25) return;
 
-  // 2. UNFREEZE COUNTDOWN TIMER (< 5s FIX) & GAME OVER AT 00:00
-  let originalSetInterval = window.setInterval;
+    // Fixed positions for 1, 5, 10, 15, 20, 25 on the 5x5 grid
+    const targetMap = {
+      12: 1,   // Center or corner positions
+      4:  5,
+      6:  10,
+      18: 15,
+      21: 20,
+      9:  25
+    };
+
+    nodes.forEach((node, idx) => {
+      if (targetMap[idx]) {
+        const val = targetMap[idx];
+        node.textContent = val;
+        node.setAttribute('data-val', val);
+        node.setAttribute('data-index', val);
+        node.style.display = 'flex';
+        node.style.opacity = '1';
+        node.style.visibility = 'visible';
+        node.style.pointerEvents = 'auto';
+        node.style.fontSize = '1.1rem';
+        node.style.fontWeight = 'bold';
+      } else {
+        // Baaki sabhi circles ko blank/dot bana do
+        node.textContent = '';
+        node.removeAttribute('data-val');
+        node.style.pointerEvents = 'none'; // Drag ko block na karein
+        node.style.opacity = '0.25';
+      }
+    });
+
+    // Update bottom HUD text to 6 targets instead of 25
+    const hud = document.querySelector('[class*="connected"], #connected-count');
+    if (hud && hud.textContent.includes('/25')) {
+      hud.textContent = hud.textContent.replace('/25', '/6');
+    }
+  }
+
+  // Run on load and dynamic renders
+  window.addEventListener('DOMContentLoaded', applyQuantumGrid);
+  setInterval(applyQuantumGrid, 500);
+
+  // 2. UNFREEZE TIMER (<5s FIX) & GAME OVER AT 00:00
+  let origSetInterval = window.setInterval;
   window.setInterval = function(fn, time) {
-    return originalSetInterval(function() {
+    return origSetInterval(function() {
       try {
         const timerElem = document.querySelector('.timer, #timer, [class*="timer"]');
         if (timerElem) {
-          const text = timerElem.textContent.trim();
-          if (text === '00:00' || text === '0.00s' || text === '0s') {
+          const t = timerElem.textContent.trim();
+          if (t === '00:00' || t === '0.00s' || t === '0s') {
             const grid = document.querySelector('.circuit-grid, #circuit-grid');
             if (grid) grid.style.pointerEvents = 'none';
             const failModal = document.getElementById('fail-modal') || document.querySelector('.game-over-modal');
@@ -7142,70 +7176,49 @@ ${shareData.url}`;
           }
         }
         fn();
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) {}
     }, time);
   };
 
-  // 3. HARDWIRE WIN MODAL BUTTONS & RENAME
+  // 3. HARDWIRE WIN MODAL BUTTONS & FUEL
   function wireModalButtons() {
     document.querySelectorAll('button, a').forEach(el => {
-      // Fuel button rename & action
       if (el.textContent.includes('Support Development')) {
         el.innerHTML = '⚡ Fuel the Furu';
         el.id = 'btn-fuel-furu';
-        el.style.pointerEvents = 'auto';
-        el.style.cursor = 'pointer';
-        el.onclick = function(e) {
+        el.onclick = (e) => {
           e.preventDefault();
           const fuelModal = document.getElementById('fuel-modal') || document.querySelector('.fuel-modal');
           if (fuelModal) fuelModal.style.display = 'flex';
-          else {
-            const navFuel = document.querySelector('[class*="fuel"], [id*="fuel"]');
-            if (navFuel) navFuel.click();
-          }
+          else document.querySelector('[class*="fuel"]')?.click();
         };
       }
-
-      // Replay button
       if (el.textContent.includes('REPLAY CIRCUIT')) {
         el.id = 'btn-replay-circuit';
-        el.style.pointerEvents = 'auto';
-        el.style.cursor = 'pointer';
-        el.onclick = function(e) {
-          e.preventDefault();
-          location.reload();
-        };
+        el.onclick = (e) => { e.preventDefault(); location.reload(); };
       }
-
-      // Challenge friend button
       if (el.textContent.includes('Challenge a Friend')) {
         el.id = 'btn-challenge-friend';
-        el.style.pointerEvents = 'auto';
-        el.style.cursor = 'pointer';
-        el.onclick = function(e) {
+        el.onclick = (e) => {
           e.preventDefault();
-          const shareText = "Beat my Apex speedrun time on Nexus Circuit! Play here: " + window.location.href;
-          if (navigator.share) {
-            navigator.share({ title: 'Nexus Challenge', text: shareText, url: window.location.href }).catch(() => copyLink(shareText));
-          } else {
-            copyLink(shareText);
-          }
+          const txt = "Beat my Apex speedrun on Nexus! " + window.location.href;
+          if (navigator.share) navigator.share({ title: 'Nexus Speedrun', text: txt, url: window.location.href }).catch(() => {});
+          else if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => alert("Challenge Link Copied!"));
         };
       }
     });
   }
-
-  function copyLink(text) {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => alert("Challenge Link Copied!"));
-    } else {
-      prompt("Copy challenge link:", text);
-    }
-  }
-
   setInterval(wireModalButtons, 500);
+
+  // 4. ELECTRIC THUNDER BURST WHEN 25 IS HIT
+  document.addEventListener('pointerup', function() {
+    const node25 = document.querySelector('[data-val="25"].active, [data-val="25"].connected');
+    if (node25) {
+      node25.style.boxShadow = '0 0 40px #00f3ff, 0 0 80px #38bdf8';
+      node25.style.transform = 'scale(1.25)';
+      node25.style.transition = 'all 0.2s ease';
+    }
+  });
 })();
 </script>
 <!-- ================= END REPAIR PATCH ================= -->
