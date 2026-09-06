@@ -1,62 +1,103 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NEXUS — High-Adrenaline Daily Quantum Circuit</title>
-  <meta name="description" content="One 20-second daily logic rush. 25 quantum nodes. Global universal seed. Defend your streak.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NEXUS — Minimalist Daily Circuit Puzzle</title>
+  <meta name="description" content="A fast-paced daily logic puzzle. Connect 25 nodes in order before the 20-second timer expires. Real-time global leaderboard, progressive endless streak levels, and universal daily challenge seeds.">
+  <meta name="keywords" content="nexus, daily puzzle, logic puzzle, brain teaser, speedrun, hamiltonian path, web game, minimal puzzle">
+  <meta name="author" content="Furkan Farooq">
+  <link rel="canonical" href="https://nexusgame-website.vercel.app">
 
-  <!-- Mobile & PWA Web App Capable (Fullscreen / Standalone Mode) -->
+  <!-- Mobile & PWA Web App Capable -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Nexus">
-  <meta name="application-name" content="Nexus">
-  <meta name="theme-color" content="#06070A">
-  <meta name="msapplication-navbutton-color" content="#06070A">
-  <meta name="msapplication-TileColor" content="#06070A">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="application-name" content="NEXUS">
+  <meta name="theme-color" content="#090D16">
+  <meta name="msapplication-navbutton-color" content="#090D16">
+  <meta name="msapplication-TileColor" content="#090D16">
 
-  <!-- Open Graph / WhatsApp / Instagram / Social Previews -->
+  <!-- Open Graph / WhatsApp / Social Previews -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://nexusgame-website.vercel.app">
-  <meta property="og:title" content="NEXUS // Cyber Circuit Runner — 20s Speedrun">
-  <meta property="og:description" content="One 20-second quantum logic rush. 25 procedural nodes, reverse protocols, zero-asset Web Audio synthesis, and real-time global leaderboard synchronization.">
+  <meta property="og:title" content="NEXUS — Minimalist Daily Circuit Puzzle">
+  <meta property="og:description" content="Connect 25 nodes before the 20-second clock expires. Daily global challenges, progressive levels, and real-time leaderboards.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=80">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Nexus Cyber Circuit Speedrun Preview">
+  <meta property="og:image:alt" content="NEXUS Daily Circuit Puzzle Preview">
   <meta property="og:site_name" content="NEXUS">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://nexusgame-website.vercel.app">
-  <meta name="twitter:title" content="NEXUS // Cyber Circuit Runner — 20s Speedrun">
-  <meta name="twitter:description" content="One 20-second quantum logic rush. 25 procedural nodes, reverse protocols, zero-asset Web Audio synthesis, and real-time global leaderboard synchronization.">
+  <meta name="twitter:title" content="NEXUS — Minimalist Daily Circuit Puzzle">
+  <meta name="twitter:description" content="Connect 25 nodes before the 20-second clock expires. Daily global challenges, progressive levels, and real-time leaderboards.">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=80">
 
-  <!-- Tailwind CSS -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://nexusgame-website.vercel.app/#webapp",
+        "name": "NEXUS",
+        "url": "https://nexusgame-website.vercel.app",
+        "description": "Minimalist competitive daily circuit puzzle. Connect 25 nodes before time runs out.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5 Canvas.",
+        "author": {
+          "@type": "Person",
+          "name": "Furkan Farooq"
+        }
+      },
+      {
+        "@type": "VideoGame",
+        "@id": "https://nexusgame-website.vercel.app/#game",
+        "name": "NEXUS Circuit Puzzle",
+        "url": "https://nexusgame-website.vercel.app",
+        "genre": ["Puzzle", "Logic", "Speedrun"],
+        "gamePlatform": ["Web Browser", "Mobile Browser"],
+        "playMode": "SinglePlayer",
+        "numberOfPlayers": {
+          "@type": "QuantitativeValue",
+          "value": 1
+        }
+      }
+    ]
+  }
+  </script>
 
-  <!-- Firebase App & Firestore SDKs -->
+  <!-- Typography: Inter, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- External Tailwind & Firebase Libraries -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
-  <!-- Google Fonts: Orbitron, JetBrains Mono, Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
   <style>
     :root {
-      --neon-cyan: #00F0FF;
-      --neon-cyan-glow: rgba(0, 240, 255, 0.5);
-      --neon-magenta: #FF2A6D;
-      --neon-magenta-glow: rgba(255, 42, 109, 0.6);
-      --neon-purple: #8A2BE2;
-      --neon-purple-glow: rgba(138, 43, 226, 0.55);
-      --neon-gold: #FFD700;
-      --neon-gold-glow: rgba(255, 215, 0, 0.55);
-      --bg-dark: #08090E;
+      --bg-canvas: #090D16;
+      --bg-card: #111726;
+      --bg-card-hover: #161F33;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(59, 130, 246, 0.25);
+      --brand-blue: #3B82F6;
+      --brand-blue-hover: #2563EB;
+      --laser-core: #38BDF8;
+      --laser-glow: rgba(56, 189, 248, 0.4);
+      --color-emerald: #10B981;
+      --color-amber: #F59E0B;
+      --color-coral: #EF4444;
+      --color-violet: #8B5CF6;
     }
 
     * {
@@ -64,126 +105,77 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html {
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-canvas);
+      color: #F8FAFC;
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overscroll-behavior: none;
-      -webkit-overscroll-behavior: none;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-dark);
-      background-image: 
-        linear-gradient(rgba(0, 240, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.025) 1px, transparent 1px);
-      background-size: 32px 32px;
-      color: #F1F5F9;
-      overscroll-behavior: none;
-      -webkit-overscroll-behavior: none;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
-      -webkit-touch-callout: none;
     }
 
-    .font-orbitron { font-family: 'Orbitron', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: "tnum" 1;
+    }
 
-    /* ================= CYBER GLASS CARD ================= */
-    .cyber-glass-card {
-      background: rgba(13, 17, 26, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      box-shadow: 
-        0 24px 60px rgba(0, 0, 0, 0.8),
-        0 0 45px rgba(0, 240, 255, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-      border-radius: 28px;
+    .font-orbitron {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    }
+
+    /* Minimalist Dark Neutral Surfaces */
+    .surface-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+    }
+
+    .surface-elevated {
+      background-color: var(--bg-card-hover);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* 5x5 Responsive Board Container */
+    .board-frame {
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 1 / 1;
       position: relative;
+      border-radius: 24px;
+      background: #0E1424;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.06);
       overflow: hidden;
+      touch-action: none !important;
     }
 
-    .cyber-glass-card::before {
-      content: '';
+    .board-grid {
       position: absolute;
       inset: 0;
-      border-radius: 28px;
-      padding: 1.5px;
-      background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), transparent 45%, rgba(255, 42, 109, 0.35));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-
-    /* ================= 1:1 SQUARE PUZZLE BOARD ================= */
-    .board-frame {
-      position: relative;
-      width: 100%;
-      max-width: 390px;
-      margin: 0 auto;
-      aspect-ratio: 1 / 1;
-      background: radial-gradient(circle at 50% 50%, #0F1424 0%, #080B14 100%);
-      border: 1px solid rgba(0, 240, 255, 0.18);
-      border-radius: 24px;
-      padding: clamp(10px, 3.2vw, 18px);
-      box-shadow: 
-        inset 0 0 35px rgba(0, 0, 0, 0.85),
-        0 0 25px rgba(0, 240, 255, 0.06);
-      touch-action: none !important;
-      user-select: none !important;
-      -webkit-user-select: none !important;
-    }
-
-    /* GRID CONTAINER: STRICT CSS DISPLAY & SIZING TO PREVENT COLLAPSE */
-    .board-grid {
-      display: grid !important;
-      grid-template-columns: repeat(5, 1fr) !important;
-      grid-template-rows: repeat(5, 1fr) !important;
-      gap: 8px !important;
-      width: 100% !important;
-      height: 100% !important;
-      aspect-ratio: 1 / 1 !important;
-      min-width: 240px;
-      min-height: 240px;
-      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: clamp(6px, 2vw, 10px);
+      padding: clamp(10px, 3vw, 16px);
       z-index: 20;
       touch-action: none !important;
-      user-select: none !important;
-      -webkit-user-select: none !important;
-      pointer-events: auto;
-    }
-
-    /* ================= HITBOX & EVENT PROPAGATION ================= */
-    .circuit-node,
-    .milestone-node,
-    .grid-cell {
-      touch-action: none !important;
-      user-select: none !important;
-      -webkit-user-select: none !important;
-      pointer-events: auto !important;
-    }
-
-    .circuit-node *,
-    .milestone-node *,
-    .grid-cell *,
-    .circuit-node span,
-    .milestone-node span {
-      pointer-events: none !important;
-      user-select: none !important;
-      -webkit-user-select: none !important;
     }
 
     .circuit-svg-layer {
       position: absolute;
-      inset: clamp(10px, 3.2vw, 18px);
-      width: calc(100% - 2 * clamp(10px, 3.2vw, 18px));
-      height: calc(100% - 2 * clamp(10px, 3.2vw, 18px));
+      inset: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
       z-index: 10;
     }
 
-    /* ================= NODES: STRICT 1:1 CIRCLE ================= */
+    /* Circuit Node Components */
     .circuit-node {
       width: 100%;
       height: 100%;
@@ -195,225 +187,176 @@
       cursor: pointer;
       position: relative;
       touch-action: none !important;
-      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease, border-color 0.16s ease;
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
-    /* Empty/Inactive Node Socket */
+    /* Unconnected Empty Socket */
     .circuit-node.empty {
-      background: rgba(16, 21, 35, 0.88);
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 
-        inset 0 0 8px rgba(0, 0, 0, 0.7),
-        0 2px 4px rgba(0, 0, 0, 0.4);
+      background: #141A2B;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
     }
 
     .circuit-node.empty::after {
       content: '';
-      width: clamp(6px, 1.8vw, 9px);
-      height: clamp(6px, 1.8vw, 9px);
+      width: clamp(6px, 1.8vw, 8px);
+      height: clamp(6px, 1.8vw, 8px);
       border-radius: 50%;
-      background: #38455E;
-      box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+      background: #2D374E;
       transition: all 0.2s ease;
     }
 
-    /* Active Regular Node */
+    /* Connected Regular Node */
     .circuit-node.empty.active {
-      background: radial-gradient(circle, rgba(0, 240, 255, 0.32) 0%, rgba(9, 14, 25, 0.95) 100%);
-      border-color: var(--neon-cyan);
-      box-shadow: 
-        0 0 18px var(--neon-cyan-glow),
-        inset 0 0 8px rgba(0, 240, 255, 0.4);
-      transform: scale(1.08);
+      background: rgba(59, 130, 246, 0.18);
+      border-color: #3B82F6;
+      box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+      transform: scale(1.06);
     }
 
     .circuit-node.empty.active::after {
       background: #FFFFFF;
-      box-shadow: 0 0 12px var(--neon-cyan), 0 0 4px #FFFFFF;
-      width: clamp(7px, 2.2vw, 11px);
-      height: clamp(7px, 2.2vw, 11px);
+      box-shadow: 0 0 8px #38BDF8;
+      width: clamp(7px, 2vw, 10px);
+      height: clamp(7px, 2vw, 10px);
     }
 
-    /* Purple Milestone Nodes (1, 5, 10, 15, 20, 25) */
+    /* Numbered Checkpoints (1, 5, 10, 15, 20, 25) */
     .circuit-node.anchor,
     .circuit-node.milestone-node {
-      background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 100%);
-      border: 2px solid #C084FC;
-      box-shadow: 
-        0 0 18px var(--neon-purple-glow),
-        inset 0 1px 2px rgba(255, 255, 255, 0.4),
-        0 4px 8px rgba(0, 0, 0, 0.5);
+      background: #1B243B;
+      border: 2px solid #3B82F6;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
       color: #FFFFFF;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 800;
-      font-size: clamp(0.75rem, 3.2vw, 1.15rem);
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.85rem, 3.2vw, 1.15rem);
       letter-spacing: -0.02em;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+    }
+
+    /* Start Beacon Pulse on Node [1] */
+    .circuit-node.anchor[data-checkpoint="1"]:not(.active) {
+      animation: startBeaconPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes startBeaconPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
+        border-color: #60A5FA;
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0), 0 0 16px rgba(59, 130, 246, 0.6);
+        border-color: #93C5FD;
+        transform: scale(1.05);
+      }
     }
 
     /* Visited Milestone Node */
     .circuit-node.anchor.active,
     .circuit-node.milestone-node.active {
-      background: linear-gradient(135deg, #00F0FF 0%, #0070F3 100%);
-      border-color: #FFFFFF;
-      box-shadow: 
-        0 0 26px var(--neon-cyan-glow),
-        0 0 40px rgba(0, 240, 255, 0.4),
-        inset 0 1px 2px #FFFFFF;
-      color: #040810;
-      text-shadow: none;
+      background: #10B981;
+      border-color: #34D399;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
+      color: #FFFFFF;
       transform: scale(1.1);
     }
 
-    /* Non-blocking shake on illegal attempt */
-    @keyframes node-error-shake {
-      0%, 100% { transform: translateX(0); border-color: var(--neon-magenta); }
-      20% { transform: translateX(-5px); }
-      40% { transform: translateX(5px); }
-      60% { transform: translateX(-3px); }
-      80% { transform: translateX(3px); }
+    /* Reverse Protocol Start Anchor on Node [25] */
+    .circuit-node.reverse-start-anchor {
+      background: #25163D !important;
+      border: 2.5px solid #8B5CF6 !important;
+      color: #FFFFFF !important;
+      animation: reverseStartPulse 1.5s ease-in-out infinite alternate !important;
     }
 
-    .circuit-node.shake-error,
-    .milestone-node.shake-error,
-    .grid-cell.shake-error {
-      animation: node-error-shake 0.22s ease-in-out;
-      border-color: var(--neon-magenta) !important;
-      box-shadow: 0 0 22px var(--neon-magenta) !important;
+    @keyframes reverseStartPulse {
+      0% { transform: scale(1); box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
+      100% { transform: scale(1.08); box-shadow: 0 0 22px rgba(139, 92, 246, 0.7); }
     }
 
-    /* Heartbeat Urgent Timer (< 5s) */
-    @keyframes pulse-heartbeat {
-      0% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 42, 109, 0.6); }
-      50% { transform: scale(1.08); text-shadow: 0 0 24px rgba(255, 42, 109, 1), 0 0 40px rgba(255, 42, 109, 0.8); }
-      100% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 42, 109, 0.6); }
+    /* Mystery Node */
+    .circuit-node.mystery-node {
+      background: #261D10 !important;
+      border: 2px solid #F59E0B !important;
+      color: #F59E0B !important;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.35) !important;
     }
 
-    .timer-critical {
-      color: var(--neon-magenta) !important;
-      animation: pulse-heartbeat 0.55s infinite ease-in-out;
+    .mystery-glyph {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1rem, 3.5vw, 1.25rem);
+      color: #F59E0B;
     }
 
-    .timer-bar-fill {
-      transition: width 0.1s linear, background-color 0.3s ease;
+    /* Error Vibration / Feedback */
+    @keyframes shakeError {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
     }
 
-    .text-glow-cyan { text-shadow: 0 0 18px rgba(0, 240, 255, 0.6); }
-    .text-glow-gold { text-shadow: 0 0 18px rgba(255, 215, 0, 0.7); }
-
-    .neon-glow-gradient {
-      background: linear-gradient(135deg, #00F0FF 0%, #C084FC 50%, #FF2A6D 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.45)) drop-shadow(0 0 28px rgba(255, 42, 109, 0.35));
+    .circuit-node.shake-error {
+      animation: shakeError 0.3s ease-in-out;
+      border-color: #EF4444 !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
     }
 
-    /* Crown Floating Glow */
-    .glow-crown {
-      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    /* Wire Theme: Crimson Coral */
+    .skin-crimson .circuit-node.empty.active {
+      background: rgba(244, 63, 94, 0.2) !important;
+      border-color: #F43F5E !important;
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.4) !important;
+    }
+    .skin-crimson .circuit-node.empty.active::after {
+      background: #FFFFFF !important;
+      box-shadow: 0 0 8px #F43F5E !important;
+    }
+    .skin-crimson .circuit-node.anchor.active,
+    .skin-crimson .circuit-node.milestone-node.active {
+      background: #F43F5E !important;
+      border-color: #FB7185 !important;
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.5) !important;
+      color: #FFFFFF !important;
     }
 
-    /* Live Circuit Glitch & Transition Animation */
-    @keyframes circuitGlitchAnim {
-      0% { transform: translate(0); filter: hue-rotate(0deg) contrast(1); }
-      15% { transform: translate(-5px, 3px); filter: hue-rotate(90deg) contrast(2.2); }
-      30% { transform: translate(5px, -3px); filter: hue-rotate(180deg) invert(0.25); }
-      45% { transform: translate(-4px, -2px); filter: hue-rotate(270deg) contrast(1.8); }
-      60% { transform: translate(4px, 2px); filter: hue-rotate(360deg) contrast(1.4); }
-      75% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
-      100% { transform: translate(0); filter: none; }
+    /* Wire Theme: Golden Amber */
+    .skin-golden .circuit-node.empty.active {
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-color: #F59E0B !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.4) !important;
+    }
+    .skin-golden .circuit-node.empty.active::after {
+      background: #FFFFFF !important;
+      box-shadow: 0 0 8px #F59E0B !important;
+    }
+    .skin-golden .circuit-node.anchor.active,
+    .skin-golden .circuit-node.milestone-node.active {
+      background: #F59E0B !important;
+      border-color: #FCD34D !important;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.5) !important;
+      color: #111827 !important;
     }
 
-    .circuit-transition-glitch {
-      animation: circuitGlitchAnim 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    /* Wire Theme: Emerald Jade */
+    .skin-matrix .circuit-node.empty.active {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: #10B981 !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
+    }
+    .skin-matrix .circuit-node.empty.active::after {
+      background: #FFFFFF !important;
+      box-shadow: 0 0 8px #10B981 !important;
+    }
+    .skin-matrix .circuit-node.anchor.active,
+    .skin-matrix .circuit-node.milestone-node.active {
+      background: #10B981 !important;
+      border-color: #6EE7B7 !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+      color: #FFFFFF !important;
     }
 
-    #confetti-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 100;
-    }
-    /* Screen Rumble Effect */
-    @keyframes screenRumbleAnim {
-      0% { transform: translate(0, 0); }
-      20% { transform: translate(-3px, 2px); }
-      40% { transform: translate(3px, -2px); }
-      60% { transform: translate(-2px, -1px); }
-      80% { transform: translate(2px, 1px); }
-      100% { transform: translate(0, 0); }
-    }
-    .screen-rumble {
-      animation: screenRumbleAnim 0.28s ease-in-out;
-    }
-
-    /* Cyber Phoenix Breakout Animation */
-    @keyframes phoenixSwoop {
-      0% {
-        transform: scale(0.15) rotate(0deg);
-        opacity: 0;
-        filter: drop-shadow(0 0 25px #00F0FF) brightness(3);
-      }
-      22% {
-        transform: scale(1.2) rotate(6deg);
-        opacity: 1;
-        filter: drop-shadow(0 0 35px #FF2A6D) brightness(2);
-      }
-      48% {
-        transform: translate(60px, -60px) scale(1.45) rotate(-15deg);
-        opacity: 1;
-        filter: drop-shadow(0 0 45px #00F0FF);
-      }
-      100% {
-        transform: translate(460px, -540px) scale(2.3) rotate(-35deg);
-        opacity: 0;
-        filter: drop-shadow(0 0 65px #FFD700) brightness(3);
-      }
-    }
-
-    .cyber-phoenix {
-      animation: phoenixSwoop 0.78s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
-      pointer-events: none;
-      transform-origin: center center;
-      z-index: 50;
-    }
-
-    @keyframes sparkBurst {
-      0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(var(--tx), var(--ty)) scale(0);
-        opacity: 0;
-      }
-    }
-
-    .phoenix-spark {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: sparkBurst 0.65s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-      z-index: 45;
-    }
-
-    /* Wire Electric Surge Animation */
-    @keyframes wireSurgeAnim {
-      0% { stroke: #FFFFFF !important; stroke-width: 18 !important; }
-      50% { stroke: #FF2A6D !important; stroke-width: 22 !important; }
-      100% { stroke: var(--neon-cyan) !important; stroke-width: 12 !important; }
-    }
-
-    .wire-surge {
-      animation: wireSurgeAnim 0.65s ease-out;
-    }
-
-    /* Fog of War / Spotlight Styles */
+    /* Fog of War / Spotlight */
     #fog-spotlight-layer {
       position: absolute;
       inset: 0;
@@ -422,7 +365,7 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       z-index: 12;
-      background: radial-gradient(circle 120px at var(--spotlight-x, -999px) var(--spotlight-y, -999px), transparent 0%, rgba(6, 9, 18, 0.4) 75px, rgba(4, 6, 14, 0.94) 120px);
+      background: radial-gradient(circle 120px at var(--spotlight-x, -999px) var(--spotlight-y, -999px), transparent 0%, rgba(9, 13, 22, 0.45) 75px, rgba(9, 13, 22, 0.96) 120px);
     }
 
     .fog-active #fog-spotlight-layer {
@@ -430,7 +373,7 @@
     }
 
     .fog-active .circuit-node span {
-      opacity: 0.08 !important;
+      opacity: 0.1 !important;
       filter: blur(2px);
       transition: opacity 0.15s ease, filter 0.15s ease;
     }
@@ -443,258 +386,227 @@
       filter: none !important;
     }
 
-    /* Secret Mystery Node Styles */
-    .circuit-node.mystery-node {
-      background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #FFD700 100%) !important;
-      border: 2px solid #FFF8DC !important;
-      box-shadow: 0 0 25px rgba(255, 215, 0, 0.85), inset 0 0 10px #FFA500 !important;
-      animation: pulse-gold 1.2s infinite ease-in-out;
+    /* Celebration Breakout Animation */
+    @keyframes celebrationSwoop {
+      0% { transform: scale(0.2); opacity: 0; }
+      35% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1.6) translateY(-80px); opacity: 0; }
     }
 
-    @keyframes pulse-gold {
-      0%, 100% { box-shadow: 0 0 18px rgba(255, 215, 0, 0.7), inset 0 0 8px #FFA500; }
-      50% { box-shadow: 0 0 32px rgba(255, 215, 0, 1), inset 0 0 14px #FFF; transform: scale(1.08); }
+    .cyber-phoenix {
+      animation: celebrationSwoop 0.75s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
+      pointer-events: none;
+      z-index: 50;
     }
 
-    .mystery-glyph {
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      font-size: clamp(1rem, 3.8vw, 1.35rem);
-      color: #040810;
-      text-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+    @keyframes sparkBurst {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
     }
 
-    /* Reverse Protocol Start Anchor */
-    .circuit-node.reverse-start-anchor {
-      background: linear-gradient(135deg, #FF2A6D 0%, #8A2BE2 100%) !important;
-      border: 2.5px solid #FFFFFF !important;
-      box-shadow: 0 0 28px rgba(255, 42, 109, 0.95), inset 0 0 10px #FFFFFF !important;
-      animation: pulse-reverse-start 1s infinite alternate;
+    .phoenix-spark {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: sparkBurst 0.65s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      z-index: 45;
     }
 
-    @keyframes pulse-reverse-start {
-      0% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 42, 109, 0.7); }
-      100% { transform: scale(1.1); box-shadow: 0 0 32px rgba(255, 42, 109, 1), 0 0 45px rgba(138, 43, 226, 0.8); }
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 100;
     }
 
-    /* Wire Skins: Crimson Overload */
-    .skin-crimson .circuit-node.empty.active {
-      background: radial-gradient(circle, rgba(255, 42, 109, 0.4) 0%, rgba(18, 5, 12, 0.95) 100%) !important;
-      border-color: #FF2A6D !important;
-      box-shadow: 0 0 20px rgba(255, 42, 109, 0.8), inset 0 0 8px rgba(255, 42, 109, 0.5) !important;
-    }
-    .skin-crimson .circuit-node.empty.active::after {
-      background: #FFFFFF !important;
-      box-shadow: 0 0 12px #FF2A6D, 0 0 4px #FFFFFF !important;
-    }
-    .skin-crimson .circuit-node.anchor.active,
-    .skin-crimson .circuit-node.milestone-node.active {
-      background: linear-gradient(135deg, #FF2A6D 0%, #8A2BE2 100%) !important;
-      box-shadow: 0 0 30px rgba(255, 42, 109, 0.9) !important;
-      color: #FFFFFF !important;
+    /* Timer Critical Pulse */
+    @keyframes timerCriticalPulse {
+      0%, 100% { color: #EF4444; }
+      50% { color: #FFFFFF; transform: scale(1.04); }
     }
 
-    /* Wire Skins: Golden Voltage */
-    .skin-golden .circuit-node.empty.active {
-      background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(18, 14, 4, 0.95) 100%) !important;
-      border-color: #FFD700 !important;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), inset 0 0 8px rgba(255, 215, 0, 0.5) !important;
-    }
-    .skin-golden .circuit-node.empty.active::after {
-      background: #FFFFFF !important;
-      box-shadow: 0 0 12px #FFD700, 0 0 4px #FFFFFF !important;
-    }
-    .skin-golden .circuit-node.anchor.active,
-    .skin-golden .circuit-node.milestone-node.active {
-      background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%) !important;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.9) !important;
-      color: #040810 !important;
+    .timer-critical {
+      animation: timerCriticalPulse 0.5s infinite;
+      color: #EF4444 !important;
     }
 
-    /* Wire Skins: Matrix Glitch */
-    .skin-matrix .circuit-node.empty.active {
-      background: radial-gradient(circle, rgba(0, 255, 102, 0.4) 0%, rgba(4, 18, 8, 0.95) 100%) !important;
-      border-color: #00FF66 !important;
-      box-shadow: 0 0 20px rgba(0, 255, 102, 0.8), inset 0 0 8px rgba(0, 255, 102, 0.5) !important;
-    }
-    .skin-matrix .circuit-node.empty.active::after {
-      background: #FFFFFF !important;
-      box-shadow: 0 0 12px #00FF66, 0 0 4px #FFFFFF !important;
-    }
-    .skin-matrix .circuit-node.anchor.active,
-    .skin-matrix .circuit-node.milestone-node.active {
-      background: linear-gradient(135deg, #00FF66 0%, #008F39 100%) !important;
-      box-shadow: 0 0 30px rgba(0, 255, 102, 0.9) !important;
-      color: #040810 !important;
-    }
-
-    /* Fuel The Furu Pulsing Glowing Pill */
-    .fuel-pill-badge {
-      animation: fuelPulse 3s ease-in-out infinite;
+    /* Subtle Shimmer for High-Priority CTAs */
+    .btn-shimmer {
       position: relative;
+      overflow: hidden;
     }
-    @keyframes fuelPulse {
-      0%, 100% {
-        box-shadow: 0 0 8px rgba(245, 158, 11, 0.25), inset 0 0 4px rgba(245, 158, 11, 0.15);
-        border-color: rgba(245, 158, 11, 0.45);
-      }
-      50% {
-        box-shadow: 0 0 16px rgba(0, 240, 255, 0.35), 0 0 25px rgba(245, 158, 11, 0.25), inset 0 0 6px rgba(0, 240, 255, 0.2);
-        border-color: rgba(0, 240, 255, 0.65);
-      }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: rotate(30deg);
+      animation: shimmerAnim 4s infinite;
+    }
+    @keyframes shimmerAnim {
+      0% { left: -60%; }
+      25% { left: 140%; }
+      100% { left: 140%; }
     }
   </style>
 </head>
-<body class="selection:bg-[#00F0FF] selection:text-black antialiased flex flex-col min-h-screen">
+
+<body class="min-h-screen flex flex-col bg-[#090D16] text-[#F8FAFC]">
 
   <canvas id="confetti-canvas"></canvas>
 
-  <!-- ================= MOBILE PWA / HOME SCREEN TIP BANNER (FIRST 5 SECONDS) ================= -->
+  <!-- ================= MOBILE ADD-TO-HOME-SCREEN BANNER ================= -->
   <div id="pwa-install-banner" class="fixed top-3 inset-x-3 sm:inset-x-auto sm:right-4 z-50 hidden transition-all duration-500 ease-out transform -translate-y-12 opacity-0 max-w-sm mx-auto pointer-events-auto">
-    <div class="px-3.5 py-2.5 rounded-2xl bg-[#090C16]/95 border border-[#00F0FF]/50 backdrop-blur-xl shadow-2xl shadow-[#00F0FF]/25 flex items-center justify-between gap-3 text-left">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#00F0FF]/20 to-[#8A2BE2]/20 border border-[#00F0FF]/40 flex items-center justify-center text-sm shrink-0">
-          📱
+    <div class="px-4 py-3 rounded-2xl bg-[#111726]/95 border border-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-between gap-3 text-left">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
         </div>
         <div class="leading-tight">
-          <div class="text-[10px] font-orbitron font-bold text-[#00F0FF] uppercase tracking-wider flex items-center gap-1.5">
-            <span>FULLSCREEN APP MODE</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <div class="text-[11px] font-bold text-white tracking-wide flex items-center gap-1.5">
+            <span>Install App Experience</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
           </div>
-          <div class="text-[11px] text-slate-200 font-mono mt-0.5">
-            Tap <span class="text-[#00F0FF] font-bold">⋮ / Share</span> &rarr; <span class="text-white font-bold">Add to Home Screen</span> for fullscreen app experience
+          <div class="text-[11px] text-slate-400 mt-0.5">
+            Tap <strong class="text-white">Share</strong> &rarr; <strong class="text-white">Add to Home Screen</strong> for full screen.
           </div>
         </div>
       </div>
-      <button onclick="dismissPwaBanner()" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-sm font-bold flex items-center justify-center leading-none shrink-0 cursor-pointer transition" aria-label="Dismiss Tip">
-        &times;
+      <button onclick="dismissPwaBanner()" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-sm font-semibold flex items-center justify-center shrink-0 cursor-pointer transition" aria-label="Dismiss banner">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
   </div>
 
-
-  <!-- ================= TOP NAVIGATION ================= -->
-  <nav class="fixed top-0 left-0 right-0 z-40 border-b border-white/10 bg-[#06070A]/85 backdrop-blur-xl">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#8A2BE2] via-[#00F0FF] to-[#FF2A6D] p-[1.5px] shadow-lg shadow-[#00F0FF]/15 flex-shrink-0">
-          <div class="w-full h-full bg-[#08080C] rounded-[10px] flex items-center justify-center font-black text-white text-lg font-orbitron">
-            ⚡
+  <!-- ================= NAVIGATION BAR ================= -->
+  <nav class="fixed top-0 left-0 right-0 z-40 border-b border-white/8 bg-[#090D16]/90 backdrop-blur-md">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Logotype -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-sky-400 p-[1.5px] shadow-sm flex-shrink-0">
+          <div class="w-full h-full bg-[#090D16] rounded-[10px] flex items-center justify-center text-sky-400">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
           </div>
         </div>
-        <div class="flex flex-col justify-center leading-none">
+        <div class="flex flex-col justify-center">
           <div class="flex items-center gap-2">
-            <span class="font-black text-lg tracking-wider text-white font-orbitron leading-none">NEXUS</span>
-            <span class="hidden sm:inline-block text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/20 font-orbitron leading-none">20s Rush</span>
+            <span class="font-extrabold text-base tracking-tight text-white group-hover:text-blue-400 transition">NEXUS</span>
+            <span class="hidden sm:inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Daily Circuit</span>
           </div>
-          <span class="text-[10px] font-mono tracking-[1.5px] uppercase mt-1 leading-none select-none" style="color: rgba(0, 240, 255, 0.65); letter-spacing: 1.5px;">Organized by Furu</span>
         </div>
+      </a>
+
+      <!-- Navigation Links (Desktop) -->
+      <div class="hidden md:flex items-center gap-6 text-xs font-medium text-slate-400">
+        <a href="#game-arena" class="text-white hover:text-blue-400 transition">Play</a>
+        <a href="#rules" class="hover:text-white transition">How to Play</a>
+        <a href="#archive" class="hover:text-white transition">Archive</a>
       </div>
 
-      <div class="flex items-center gap-2.5 sm:gap-4">
+      <!-- Right Utility Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
         <!-- Trophy Leaderboard Button -->
-        <button id="open-leaderboard-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#141824] border border-amber-500/40 hover:border-amber-400 text-xs font-bold text-amber-300 hover:text-white transition font-orbitron shadow-sm shadow-amber-500/10">
-          <span class="text-sm">🏆</span>
-          <span class="hidden sm:inline">LEADERBOARD</span>
+        <button id="open-leaderboard-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#111726] border border-white/10 hover:border-amber-500/50 text-xs font-semibold text-slate-300 hover:text-amber-300 transition shadow-sm">
+          <span class="text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></span>
+          <span class="hidden sm:inline">Leaderboard</span>
         </button>
 
         <!-- Streak / Level Pill -->
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#12141D] border border-white/10 text-xs font-bold text-slate-300">
-          <span>🔥</span>
-          <span class="text-slate-400 font-orbitron text-[10px]">LVL</span>
-          <span id="nav-streak" class="font-mono text-[#00F0FF]">1</span>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#111726] border border-white/10 text-xs font-semibold text-slate-300">
+          <span class="text-blue-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.286L13 21l-2.286-6.857L5 12l5.714-2.286L13 3z"/></svg></span>
+          <span class="text-slate-400 text-[11px]">Level</span>
+          <span id="nav-streak" class="font-mono text-white font-bold">1</span>
         </div>
 
-        <!-- Fuel The Furu Trigger Pill Badge -->
-        <button id="nav-fuel-dev-btn" onclick="openSupportModal()" title="Support Furu / Fuel The Core" class="fuel-pill-badge flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-[#161220] to-[#00F0FF]/15 border border-amber-400/40 hover:border-amber-300 text-xs font-bold text-amber-300 hover:text-white transition font-orbitron shadow-sm shadow-amber-500/20 hover:-translate-y-0.5 cursor-pointer">
-          <span class="text-amber-400 animate-pulse text-xs">⚡</span>
-          <span class="text-[10px] tracking-wider uppercase">FUEL THE FURU</span>
+        <!-- Support Developer Button -->
+        <button id="nav-fuel-dev-btn" onclick="openSupportModal()" title="Support development" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#111726] border border-white/10 hover:border-blue-400/40 text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer">
+          <span class="text-rose-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span>
+          <span class="hidden sm:inline text-xs">Support</span>
         </button>
 
-        <!-- Play Button -->
-        <a href="#game-arena" class="px-4 py-2 rounded-xl bg-[#00F0FF] text-black text-xs font-black tracking-wider hover:bg-[#33f3ff] transition shadow-lg shadow-[#00F0FF]/25 flex items-center gap-1.5 font-orbitron">
-          PLAY
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        <!-- Quick Jump to Game -->
+        <a href="#game-arena" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-sm shadow-blue-600/20 flex items-center gap-1">
+          Play
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </a>
       </div>
+
     </div>
   </nav>
 
-  <!-- ================= HERO SECTION ================= -->
-  <header class="pt-28 pb-8 sm:pt-34 sm:pb-10 px-4 text-center relative overflow-hidden">
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00F0FF]/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute top-1/3 left-1/4 -translate-x-1/2 w-64 h-64 bg-[#FF2A6D]/15 rounded-full blur-3xl pointer-events-none"></div>
-
-    <div class="max-w-3xl mx-auto relative z-10">
+  <!-- ================= HERO & BENCHMARK BANNER ================= -->
+  <header class="pt-24 pb-4 px-4 text-center relative overflow-hidden">
+    <div class="max-w-2xl mx-auto">
       
-      <!-- ================= CHAMPION / APEX BANNER ================= -->
-      <div id="apex-runner-banner" class="inline-flex flex-wrap items-center justify-center gap-2.5 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500/15 via-[#121520] to-cyan-500/15 border border-amber-500/40 shadow-lg shadow-amber-500/10 mb-4">
-        <span class="text-xl glow-crown animate-bounce">👑</span>
-        <div class="text-left font-orbitron">
-          <span id="apex-runner-title" class="text-[9px] uppercase text-amber-400 tracking-widest block font-bold">TODAY'S APEX RUNNER</span>
+      <!-- TODAY'S RECORD HIGHLIGHT BANNER -->
+      <div id="apex-runner-banner" class="inline-flex flex-wrap items-center justify-center gap-2.5 px-4 py-2 rounded-2xl bg-[#111726] border border-white/10 shadow-lg mb-3">
+        <span class="text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></span>
+        <div class="text-left">
+          <span id="apex-runner-title" class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">Today's Fastest Run</span>
           <div class="flex items-center gap-1.5">
-            <span id="apex-runner-name" class="text-xs sm:text-sm font-black text-white">NO RUNNERS YET</span>
-            <span class="text-slate-500 text-xs">•</span>
-            <span id="apex-runner-time" class="text-xs sm:text-sm font-mono font-black text-[#00F0FF]">LVL 1 • --.--s</span>
+            <span id="apex-runner-name" class="text-xs font-bold text-white">No records yet</span>
+            <span class="text-slate-600 text-xs">•</span>
+            <span id="apex-runner-time" class="text-xs font-mono font-bold text-blue-400">LVL 1 • --.--s</span>
           </div>
         </div>
-        <a id="apex-runner-cta" href="#game-arena" class="ml-1 sm:ml-3 px-3 py-1 bg-amber-400 hover:bg-amber-300 text-black font-black text-[10px] rounded-lg tracking-wider transition font-orbitron shadow-md flex items-center gap-1">
-          CLAIM #1 NOW ⚡
+        <a id="apex-runner-cta" href="#game-arena" class="ml-2 px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[11px] rounded-lg transition shadow-sm flex items-center gap-1">
+          Beat Record
         </a>
       </div>
 
-      <!-- Hero Circuit Tag -->
-      <div class="mb-5">
-        <span id="hero-circuit-tag" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#121520] border border-white/10 text-xs font-bold text-[#00F0FF] font-orbitron">
-          <span class="w-2 h-2 rounded-full bg-[#00F0FF] animate-ping"></span>
-          LEVEL 1 / CIRCUIT #1
-        </span>
+      <!-- Hero Circuit Info -->
+      <div class="flex items-center justify-center gap-2 text-xs text-slate-400 mb-1">
+        <span id="hero-circuit-tag" class="font-semibold text-slate-300">Level 1 / Circuit #1</span>
+        <span>•</span>
+        <span id="hero-countdown" class="font-mono text-slate-400">Resets daily</span>
       </div>
 
-      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.15] mb-4 font-orbitron text-center">
-        20 Seconds on the Clock.<br>
-        <span class="inline-block neon-glow-gradient">
-          Brain: 404 Not Found?
-        </span>
+      <h1 id="game-circuit-title" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        Daily Circuit Puzzle
       </h1>
-
-      <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-6 font-medium text-center">
-        Connect <span class="px-2 py-0.5 rounded-md bg-[#8A2BE2]/20 border border-[#8A2BE2]/40 text-[#C084FC] font-orbitron font-bold text-xs sm:text-sm shadow-[0_0_10px_rgba(138,43,226,0.3)]">[1]</span> to <span class="px-2 py-0.5 rounded-md bg-[#8A2BE2]/20 border border-[#8A2BE2]/40 text-[#C084FC] font-orbitron font-bold text-xs sm:text-sm shadow-[0_0_10px_rgba(138,43,226,0.3)]">[25]</span> without lifting your finger or breaking the loop. <span class="text-slate-300 font-semibold block sm:inline mt-1 sm:mt-0">Warning: Aggressive table-slapping may occur.</span>
+      <p class="text-xs text-slate-400 max-w-md mx-auto mt-1">
+        Connect all 25 nodes in numerical sequence before the 20-second timer runs out.
       </p>
 
-      <div class="inline-flex items-center gap-3 px-5 py-2 rounded-2xl bg-[#0F121C] border border-[#00F0FF]/25 shadow-inner">
-        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold font-orbitron">Midnight Reset in:</span>
-        <span id="hero-countdown" class="font-mono text-base sm:text-lg font-bold text-[#00F0FF] tracking-wider tabular-nums">00:00:00</span>
-      </div>
     </div>
   </header>
 
-  <!-- ================= THE GAME ARENA ================= -->
-  <section id="game-arena" class="py-4 px-4 flex flex-col items-center justify-center relative">
-    <div class="w-full max-w-[440px] cyber-glass-card p-5 sm:p-7">
-      
-      <!-- Top Status Header -->
-      <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
-        <div>
-          <div class="flex items-center gap-2">
-            <span id="game-level-badge" class="font-orbitron text-xs font-black text-[#00F0FF] tracking-wider uppercase px-2.5 py-0.5 rounded-lg bg-[#00F0FF]/15 border border-[#00F0FF]/40 shadow-sm shadow-[#00F0FF]/20 animate-pulse">LEVEL 1</span>
-            <span id="game-circuit-title" class="font-orbitron text-xs font-bold text-slate-400 tracking-wider uppercase">CIRCUIT #1</span>
+  <!-- ================= GAME ARENA ================= -->
+  <section id="game-arena" class="py-2 px-4 flex flex-col items-center justify-center relative">
+    <div class="w-full max-w-[420px] flex flex-col">
+
+      <!-- Timer & Utilities Header Bar -->
+      <div class="mb-3 p-3 rounded-2xl bg-[#111726] border border-white/10 flex items-center justify-between">
+        
+        <!-- Timer Clock Display -->
+        <div class="flex items-baseline gap-2">
+          <div id="game-timer" class="font-mono text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            00:20
           </div>
-          <div class="flex items-baseline gap-3 mt-1">
-            <div>
-              <span class="text-[9px] font-mono uppercase text-slate-500 block">LEVEL CLOCK</span>
-              <div id="game-timer" class="font-mono text-2xl sm:text-3xl font-black text-[#00F0FF] tracking-tight tabular-nums transition-colors">00:20</div>
-            </div>
-            <div class="pl-2.5 border-l border-white/10">
-              <span class="text-[9px] font-mono uppercase text-slate-500 block">TOTAL TIME</span>
-              <div id="game-total-time" class="font-mono text-base sm:text-lg font-bold text-[#C084FC] tracking-tight tabular-nums">00.00s</div>
-            </div>
+          <div class="flex flex-col text-left leading-none">
+            <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Remaining</span>
+            <span id="game-total-time" class="text-[11px] font-mono text-slate-400 mt-0.5">0.00s</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <button id="sound-btn" title="Toggle Sound (Mute/Unmute)" class="p-2 rounded-xl border border-[#00F0FF]/40 bg-[#00F0FF]/10 text-[#00F0FF] hover:text-white transition flex items-center justify-center">
-            <svg id="sound-icon-on" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Level Badge -->
+        <div id="game-level-badge" class="hidden">LEVEL 1</div>
+
+        <!-- Control Buttons -->
+        <div class="flex items-center gap-1.5">
+          <!-- Audio Toggle -->
+          <button id="sound-btn" title="Toggle Sound" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center" aria-label="Toggle Sound">
+            <svg id="sound-icon-on" class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
             </svg>
             <svg id="sound-icon-off" class="w-4 h-4 text-slate-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -702,221 +614,229 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
             </svg>
           </button>
-          <button id="skin-picker-btn" title="Laser Wire Skins" class="px-2 py-2 rounded-xl bg-slate-800/60 border border-cyan-400/30 hover:border-cyan-400 text-xs font-bold text-cyan-300 hover:text-white transition flex items-center gap-1 font-orbitron active:scale-95 cursor-pointer">
-            <span>🎨</span>
-            <span class="hidden sm:inline text-[10px]">SKINS</span>
+
+          <!-- Themes / Wire Skins -->
+          <button id="skin-picker-btn" title="Wire Themes" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center cursor-pointer" aria-label="Wire Themes">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
           </button>
-          <button id="duel-header-btn" title="Challenge a Friend to 1v1 Duel" class="px-2 py-2 rounded-xl bg-gradient-to-r from-[#FF2A6D]/20 to-[#8A2BE2]/20 border border-[#FF2A6D]/50 hover:border-[#FF2A6D] text-xs font-bold text-[#FF2A6D] hover:text-white transition flex items-center gap-1 font-orbitron active:scale-95 cursor-pointer shadow-sm shadow-[#FF2A6D]/20">
-            <span>⚔️</span>
-            <span class="hidden sm:inline text-[10px]">DUEL</span>
+
+          <!-- 1v1 Challenge Button -->
+          <button id="duel-header-btn" title="Challenge a Friend" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center cursor-pointer" aria-label="Challenge a Friend">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6-1.4 1.4-1.6-1.6a1 1 0 00-1.4 0l-7 7a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l7-7a1 1 0 000-1.4l-1.6-1.6 1.4-1.4 1.6 1.6a1 1 0 001.4 0l1.3-1.3a1 1 0 000-1.4l-3-3a1 1 0 00-1.4 0l-1.5 1.5z"/></svg>
           </button>
-          <button id="arena-fuel-btn" onclick="openSupportModal()" title="Support Furu / Fuel The Core" class="px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/15 to-[#8A2BE2]/15 border border-amber-400/40 hover:border-amber-300 text-xs font-bold text-amber-300 hover:text-white transition flex items-center gap-1 font-orbitron active:scale-95 cursor-pointer shadow-sm shadow-amber-500/10">
-            <span>⚡</span>
-            <span class="hidden sm:inline text-[10px]">FUEL FURU</span>
+
+          <!-- Support Creator Button -->
+          <button id="arena-fuel-btn" onclick="openSupportModal()" title="Support Development" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-rose-400 hover:text-rose-300 transition flex items-center justify-center cursor-pointer" aria-label="Support Development">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
           </button>
-          <button id="debug-reroll-btn" title="Next Level (Debug)" class="px-2 py-2 rounded-xl bg-purple-900/30 border border-[#8A2BE2]/50 hover:border-[#8A2BE2] hover:bg-[#8A2BE2]/30 text-[11px] font-black text-[#C084FC] hover:text-white transition flex items-center gap-1 font-orbitron shadow-md shadow-[#8A2BE2]/15">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
-            <span id="debug-reroll-text">NEXT LVL 🎲</span>
+
+          <!-- New Circuit / Reroll -->
+          <button id="debug-reroll-btn" title="Next Puzzle" class="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+            <span id="debug-reroll-text" class="hidden sm:inline text-[11px]">New</span>
           </button>
-          <button id="clear-btn" onclick="resetCircuitAttempt()" title="Reset Circuit / Attempt" class="px-2.5 py-2 rounded-xl bg-slate-800/60 border border-white/10 hover:border-white/30 text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1 font-orbitron active:scale-95 cursor-pointer select-none">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            <span>RESET</span>
+
+          <!-- Reset Current Attempt -->
+          <button id="clear-btn" onclick="resetCircuitAttempt()" title="Reset Attempt" class="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span class="text-[11px]">Reset</span>
           </button>
         </div>
+
       </div>
 
-      <!-- Linear Countdown Bar -->
-      <div class="w-full bg-slate-900/90 h-1.5 rounded-full overflow-hidden mb-3 border border-white/5">
-        <div id="timer-bar" class="h-full bg-[#00F0FF] w-full timer-bar-fill shadow-sm shadow-[#00F0FF]"></div>
+      <!-- Linear Countdown Timer Bar -->
+      <div class="w-full bg-slate-800/60 h-1.5 rounded-full overflow-hidden mb-2.5 border border-white/5">
+        <div id="timer-bar" class="h-full bg-blue-500 w-full transition-all duration-75"></div>
       </div>
 
       <!-- Protocol Reverse Alert Banner -->
-      <div id="protocol-warning-banner" class="hidden mb-3 py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/25 via-rose-600/30 to-purple-600/25 border-2 border-amber-400 text-center font-orbitron text-xs font-black text-amber-300 shadow-lg shadow-amber-500/20 animate-pulse">
-        ⚠️ PROTOCOL REVERSED: TRACE [25] TO [1]!
+      <div id="protocol-warning-banner" class="hidden mb-2.5 py-2 px-3.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-center text-xs font-bold text-purple-300 shadow-sm">
+        Reverse Protocol: Trace nodes from [25] down to [1]
       </div>
 
-      <!-- 1v1 Async Duel Active Banner -->
-      <div id="duel-banner" class="hidden mb-3 py-2 px-3 rounded-xl bg-gradient-to-r from-[#FF2A6D]/25 via-black/80 to-[#8A2BE2]/25 border border-[#FF2A6D]/60 text-center font-orbitron text-xs text-white shadow-lg flex items-center justify-between">
-        <span id="duel-banner-text" class="truncate font-bold">⚔️ 1V1 DUEL ACTIVE</span>
-        <span class="text-[10px] text-pink-400 font-mono shrink-0 ml-2">BEAT TIME!</span>
+      <!-- 1v1 Challenge Active Banner -->
+      <div id="duel-banner" class="hidden mb-2.5 py-2 px-3.5 rounded-xl bg-slate-900 border border-blue-500/40 text-center text-xs text-white shadow-sm flex items-center justify-between">
+        <span id="duel-banner-text" class="truncate font-semibold">1v1 Challenge Active</span>
+        <span class="text-[11px] text-blue-400 font-mono font-bold shrink-0 ml-2">BEAT TIME</span>
       </div>
 
-      <!-- Instruction Tip Pill -->
-      <div class="mb-3 bg-slate-900/80 rounded-xl px-3.5 py-2 border border-white/5 flex items-center justify-between text-xs">
-        <span id="instruction-tip-text" class="text-slate-400">Drag from <strong class="text-[#8A2BE2] font-black font-orbitron">[1]</strong>! Drag backward to undo.</span>
-        <span id="nodes-progress" class="font-mono font-bold text-[#00F0FF] ml-2 text-xs">0/25</span>
+      <!-- Toast Alert for Multi-Client Circuit Sync -->
+      <div id="circuit-sync-toast" class="hidden mb-2.5 py-2 px-3.5 rounded-xl bg-blue-950/80 border border-blue-500/40 text-center text-xs text-white shadow-sm">
+        <span id="circuit-sync-toast-text">New circuit puzzle generated!</span>
       </div>
 
-      <!-- Live Circuit Transition Toast Alert -->
-      <div id="circuit-sync-toast" class="hidden mb-3 py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#FF2A6D]/20 via-[#00F0FF]/20 to-[#8A2BE2]/20 border border-[#00F0FF]/40 text-center font-orbitron text-xs text-white shadow-lg animate-pulse">
-        <span id="circuit-sync-toast-text">⚡ NEW CIRCUIT DEPLOYED GLOBALLY!</span>
-      </div>
-
-      <!-- TARGET APEX TIMES (Top 3 Benchmark Track) -->
-      <div class="mb-3.5 bg-[#090C15]/90 rounded-2xl p-3 border border-[#00F0FF]/30 shadow-lg shadow-[#00F0FF]/5 relative overflow-hidden">
+      <!-- TARGET APEX BENCHMARKS (Top 3 Track) -->
+      <div class="mb-3 p-3 rounded-2xl bg-[#111726] border border-white/10 shadow-sm">
         <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center gap-1.5">
-            <span class="text-xs text-[#00F0FF] animate-pulse">🎯</span>
-            <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-300 font-orbitron">TARGET APEX BENCHMARKS</span>
+          <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
+            <span>Target Apex Times</span>
           </div>
-          <span class="text-[9px] font-mono text-[#00F0FF]/80 font-bold px-1.5 py-0.5 rounded bg-[#00F0FF]/10 border border-[#00F0FF]/20">TOP 3 RUNS ⚡</span>
+          <span class="text-[10px] font-medium text-slate-400 px-2 py-0.5 rounded-full bg-slate-800 border border-white/5">Top 3 Today</span>
         </div>
-        <div class="grid grid-cols-3 gap-2 text-center font-orbitron">
-          <div class="bg-[#121624] border border-amber-400/50 rounded-xl p-2 relative shadow-inner">
-            <div class="text-[9px] font-black text-amber-400">#1 GOLD</div>
-            <div id="target-apex-1" class="font-mono text-[11px] sm:text-xs font-black text-amber-300 mt-0.5 truncate">LVL 1 • --.--s</div>
-            <div id="target-apex-name-1" class="text-[8px] text-slate-400 font-mono truncate mt-0.5">EMPTY</div>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-[#161F33] border border-amber-500/30 rounded-xl p-2">
+            <div class="text-[10px] font-bold text-amber-400 flex items-center justify-center gap-1">
+              <span>1st</span>
+            </div>
+            <div id="target-apex-1" class="font-mono text-xs font-bold text-amber-300 mt-0.5 truncate">LVL 1 • --.--s</div>
+            <div id="target-apex-name-1" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Empty</div>
           </div>
-          <div class="bg-[#121624] border border-slate-300/40 rounded-xl p-2 relative shadow-inner">
-            <div class="text-[9px] font-black text-slate-300">#2 SILVER</div>
-            <div id="target-apex-2" class="font-mono text-[11px] sm:text-xs font-black text-slate-200 mt-0.5 truncate">LVL 1 • --.--s</div>
-            <div id="target-apex-name-2" class="text-[8px] text-slate-400 font-mono truncate mt-0.5">EMPTY</div>
+          <div class="bg-[#161F33] border border-slate-400/20 rounded-xl p-2">
+            <div class="text-[10px] font-bold text-slate-300 flex items-center justify-center gap-1">
+              <span>2nd</span>
+            </div>
+            <div id="target-apex-2" class="font-mono text-xs font-bold text-slate-200 mt-0.5 truncate">LVL 1 • --.--s</div>
+            <div id="target-apex-name-2" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Empty</div>
           </div>
-          <div class="bg-[#121624] border border-amber-600/40 rounded-xl p-2 relative shadow-inner">
-            <div class="text-[9px] font-black text-amber-500">#3 BRONZE</div>
-            <div id="target-apex-3" class="font-mono text-[11px] sm:text-xs font-black text-amber-400 mt-0.5 truncate">LVL 1 • --.--s</div>
-            <div id="target-apex-name-3" class="text-[8px] text-slate-400 font-mono truncate mt-0.5">EMPTY</div>
+          <div class="bg-[#161F33] border border-amber-700/30 rounded-xl p-2">
+            <div class="text-[10px] font-bold text-amber-500 flex items-center justify-center gap-1">
+              <span>3rd</span>
+            </div>
+            <div id="target-apex-3" class="font-mono text-xs font-bold text-amber-400 mt-0.5 truncate">LVL 1 • --.--s</div>
+            <div id="target-apex-name-3" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Empty</div>
           </div>
         </div>
       </div>
 
-      <!-- Strict 1:1 Square Board Frame -->
-      <div class="board-frame" id="interactive-board">
-        <!-- Fog of War / Dynamic Flashlight Spotlight Layer -->
+      <!-- ================= INTERACTIVE 5x5 BOARD ================= -->
+      <div class="board-frame mx-auto" id="interactive-board">
+        <!-- Fog of War Spotlight Layer -->
         <div id="fog-spotlight-layer"></div>
 
-        <!-- Cyber Phoenix Breakout & Particle Layer -->
+        <!-- Celebration Breakout Layer -->
         <div id="phoenix-layer" class="pointer-events-none absolute inset-0 overflow-visible z-30"></div>
 
+        <!-- Laser Wire SVG Layer -->
         <svg id="circuit-svg" class="circuit-svg-layer">
           <defs>
             <filter id="circuit-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            <!-- Wire Skin Glow Filters -->
+            <!-- Wire Skin Filters -->
             <filter id="circuit-glow-cyan" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="4.5" result="blur" />
+              <feGaussianBlur stdDeviation="4" result="blur" />
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
             <filter id="circuit-glow-crimson" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="5.5" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-            <filter id="circuit-glow-golden" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="5.5" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-            <filter id="circuit-glow-matrix" x="-25%" y="-25%" width="150%" height="150%">
               <feGaussianBlur stdDeviation="4.5" result="blur" />
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
+            <filter id="circuit-glow-golden" x="-25%" y="-25%" width="150%" height="150%">
+              <feGaussianBlur stdDeviation="4.5" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <filter id="circuit-glow-matrix" x="-25%" y="-25%" width="150%" height="150%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
           </defs>
-          <path id="svg-glow-beam" fill="none" stroke="rgba(0, 240, 255, 0.4)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
-          <path id="svg-core-beam" fill="none" stroke="#00F0FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#circuit-glow)" />
+          <path id="svg-glow-beam" fill="none" stroke="rgba(56, 189, 248, 0.35)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="svg-core-beam" fill="none" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#circuit-glow)" />
         </svg>
 
-        <!-- 5x5 Grid Container (display: grid, 5 cols, gap 8px) -->
+        <!-- 5x5 Grid Cells (25 Nodes) -->
         <div class="board-grid" id="node-grid"></div>
       </div>
 
-      <!-- Footer -->
-      <div class="mt-4 pt-3 flex items-center justify-between text-xs text-slate-400 border-t border-white/5">
-        <div class="flex items-center gap-2">
-          <span class="font-orbitron text-[11px]">MODE:</span>
-          <span class="text-[#00F0FF] font-mono font-bold">20s FLASH</span>
+      <!-- Tip & Progress Status -->
+      <div class="mt-3 px-4 py-2.5 rounded-xl bg-[#111726] border border-white/5 flex items-center justify-between text-xs text-slate-400">
+        <span id="instruction-tip-text">Touch <strong class="text-blue-400 font-bold">[1]</strong> to begin. Drag backward to undo.</span>
+        <div class="flex items-center gap-1 font-mono font-bold text-white shrink-0 ml-2">
+          <span>Connected:</span>
+          <span id="nodes-progress" class="text-blue-400">0/25</span>
+        </div>
+      </div>
+
+      <!-- Mode & Solves Footer -->
+      <div class="mt-3 flex items-center justify-between text-xs text-slate-500 px-1">
+        <div class="flex items-center gap-1.5">
+          <span>Mode:</span>
+          <span class="text-slate-300 font-medium">20s Speedrun</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-500">Global Solves:</span>
-          <span class="text-white font-mono font-bold" id="global-solves-counter">19,842</span>
+          <span>Global Solves Today:</span>
+          <span class="text-slate-300 font-mono font-bold" id="global-solves-counter">19,842</span>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- ================= TOP 5 LEADERBOARD MODAL ================= -->
-  <div id="leaderboard-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0F121C] border border-amber-500/40 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative">
-      <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5"></div>
+  <!-- ================= LEADERBOARD MODAL ================= -->
+  <div id="leaderboard-modal" class="fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative">
       
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl glow-crown">🏆</span>
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
+          </div>
           <div>
-            <h3 class="text-lg font-black text-white font-orbitron uppercase tracking-wide">DAILY APEX BOARD</h3>
-            <span id="lb-circuit-subtitle" class="text-[11px] text-slate-400 font-mono">CIRCUIT #42 SPEEDRUNS</span>
+            <h3 class="text-base font-bold text-white">Daily Leaderboard</h3>
+            <span class="text-xs text-slate-400 font-mono" id="lb-circuit-subtitle">Today's fastest verified runs</span>
           </div>
         </div>
-        <button id="close-leaderboard-btn" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition">
+        <button id="close-leaderboard-btn" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition" aria-label="Close Leaderboard">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <!-- Top 5 List Container -->
-      <div class="space-y-2.5 mb-6" id="leaderboard-list"></div>
-
-      <div class="bg-slate-900/80 p-3 rounded-xl border border-white/5 text-center text-xs text-slate-400 font-mono">
-        Ranked by Highest Level Reached, tie-broken by fastest Total Run Time.
+      <!-- Leaderboard Entries List -->
+      <div class="space-y-2 max-h-[60vh] overflow-y-auto pr-1" id="leaderboard-list">
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>
 
-  <!-- ================= SUPPORT FURU / FUEL THE FURU MODAL ================= -->
-  <div id="support-modal" class="fixed inset-0 bg-black/85 backdrop-blur-[12px] hidden items-center justify-center p-4 z-50 transition-opacity duration-200">
-    <div class="cyber-glass-card border-2 border-amber-400/50 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl shadow-amber-500/15 relative text-center">
+  <!-- ================= SUPPORT CREATOR MODAL ================= -->
+  <div id="support-modal" class="fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
       
-      <!-- Top Glowing Accent Line -->
-      <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-75" aria-hidden="true"></div>
-
-      <!-- Header: Title & Close Button -->
-      <div class="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
-        <div class="flex items-center gap-2 text-left">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-          <h3 class="font-orbitron font-black text-xs sm:text-sm text-amber-300 tracking-wider">NEURAL CORE // FUEL THE FURU</h3>
+      <div class="flex items-center justify-between mb-3 text-left">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Support Development</h3>
+            <span class="text-xs text-slate-400">Independent, ad-free puzzle game</span>
+          </div>
         </div>
-        <button id="close-support-btn" onclick="closeSupportModal()" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-red-500/20 border border-white/10 hover:border-red-400/60 text-slate-400 hover:text-red-300 flex items-center justify-center text-lg font-bold transition cursor-pointer" aria-label="Close Support Modal">
-          &times;
+        <button id="close-support-btn" onclick="closeSupportModal()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition" aria-label="Close modal">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <!-- Subtext -->
-      <p class="text-slate-300 text-xs sm:text-[13px] leading-relaxed mb-4 text-left font-sans">
-        Nexus is an open-source, zero-ad speedrun experiment by Furu. If you enjoyed hacking the circuit, fuel Furu's development with a quick chai/coffee!
+      <p class="text-xs text-slate-400 mb-4 text-left leading-relaxed">
+        Nexus is an open-source logic puzzle project with zero ads. If you enjoyed playing, support future updates with a small contribution.
       </p>
 
-      <!-- Central QR Code Frame (180x180 neon-bordered container) -->
-      <div class="relative mx-auto w-[180px] h-[180px] rounded-2xl bg-[#06080F] border-2 border-amber-400/60 shadow-lg shadow-amber-400/20 p-2.5 flex items-center justify-center mb-4 group overflow-hidden">
-        <!-- Corner Cyberpunk Bracket Accents -->
-        <div class="absolute top-1 left-1 w-3 h-3 border-t-2 border-l-2 border-[#00F0FF]"></div>
-        <div class="absolute top-1 right-1 w-3 h-3 border-t-2 border-r-2 border-[#00F0FF]"></div>
-        <div class="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-[#00F0FF]"></div>
-        <div class="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-[#00F0FF]"></div>
-
-        <!-- Dynamic Cyber QR Code (Real scan-to-pay QR for furkanfarooq1@ybi with SVG fallback) -->
-        <div id="qr-display-container" class="w-full h-full flex items-center justify-center relative">
-          <img id="real-upi-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybi%26pn%3DFurkan%2520Farooq%26cu%3DINR&color=00F0FF&bgcolor=0A0E1A" alt="Scan to Pay furkanfarooq1@ybi" class="w-full h-full rounded-lg object-contain" onerror="this.style.display='none'; const fb = document.getElementById('svg-upi-qr'); if(fb) fb.style.display='block';" />
+      <!-- QR Code Frame -->
+      <div class="relative w-48 h-48 mx-auto mb-4 rounded-2xl bg-[#090D16] border border-white/10 p-3 shadow-inner flex items-center justify-center">
+        <div id="qr-display-container" class="w-full h-full flex items-center justify-center">
+          <img id="real-upi-qr" src="assets/upi-qr.png" alt="UPI QR Code" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; const s=document.getElementById('svg-upi-qr'); if(s) s.style.display='block';">
           <svg id="svg-upi-qr" style="display:none;" class="w-full h-full rounded-lg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
             <rect width="160" height="160" fill="#0A0E1A"/>
             <defs>
               <linearGradient id="qrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00F0FF"/>
-                <stop offset="50%" stop-color="#F59E0B"/>
-                <stop offset="100%" stop-color="#C084FC"/>
+                <stop offset="0%" stop-color="#3B82F6"/>
+                <stop offset="50%" stop-color="#10B981"/>
+                <stop offset="100%" stop-color="#F59E0B"/>
               </linearGradient>
             </defs>
-            <!-- QR Position Detection Patterns -->
             <rect x="14" y="14" width="36" height="36" fill="none" stroke="url(#qrGrad)" stroke-width="4" rx="4"/>
-            <rect x="22" y="22" width="20" height="20" fill="#00F0FF"/>
+            <rect x="22" y="22" width="20" height="20" fill="#3B82F6"/>
             <rect x="110" y="14" width="36" height="36" fill="none" stroke="url(#qrGrad)" stroke-width="4" rx="4"/>
-            <rect x="118" y="22" width="20" height="20" fill="#F59E0B"/>
+            <rect x="118" y="22" width="20" height="20" fill="#10B981"/>
             <rect x="14" y="110" width="36" height="36" fill="none" stroke="url(#qrGrad)" stroke-width="4" rx="4"/>
-            <rect x="22" y="118" width="20" height="20" fill="#C084FC"/>
-            <!-- Stylized Cyberpunk Data Blocks -->
-            <g fill="url(#qrGrad)" opacity="0.9">
+            <rect x="22" y="118" width="20" height="20" fill="#F59E0B"/>
+            <g fill="url(#qrGrad)" opacity="0.85">
               <rect x="60" y="18" width="8" height="8" rx="1"/>
               <rect x="76" y="18" width="8" height="8" rx="1"/>
               <rect x="92" y="18" width="8" height="8" rx="1"/>
@@ -943,302 +863,288 @@
               <rect x="84" y="126" width="8" height="8" rx="1"/>
               <rect x="110" y="126" width="8" height="8" rx="1"/>
               <rect x="126" y="126" width="8" height="8" rx="1"/>
-              <rect x="76" y="138" width="8" height="8" rx="1"/>
-              <rect x="138" y="138" width="8" height="8" rx="1"/>
             </g>
-            <!-- Center Shield / UPI Badge -->
-            <rect x="62" y="62" width="36" height="36" fill="#0A0E1A" stroke="#F59E0B" stroke-width="2" rx="8"/>
-            <text x="80" y="85" fill="#F59E0B" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">UPI</text>
+            <rect x="62" y="62" width="36" height="36" fill="#0A0E1A" stroke="#3B82F6" stroke-width="2" rx="8"/>
+            <text x="80" y="85" fill="#3B82F6" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">UPI</text>
           </svg>
         </div>
-
-        <!-- Ambient scanline highlight -->
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-amber-400/5 to-transparent pointer-events-none"></div>
       </div>
 
-      <!-- Optional Micro-tier Buttons -->
+      <!-- Quick Contribution Chips -->
       <div class="flex items-center justify-center gap-2 mb-3">
-        <button type="button" onclick="selectMicroTier(20, 'Chai', this)" class="tier-chip px-2.5 py-1 rounded-xl bg-[#141724] border border-amber-400/30 hover:border-amber-300 text-amber-300 text-[11px] font-mono font-bold transition flex items-center gap-1 hover:scale-105 active:scale-95 cursor-pointer">
-          <span>☕</span> <span>₹20 Chai</span>
+        <button type="button" onclick="selectMicroTier(20, 'Chai', this)" class="tier-chip px-3 py-1.5 rounded-xl bg-[#161F33] border border-white/10 hover:border-blue-400 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
+          ₹20 Chai
         </button>
-        <button type="button" onclick="selectMicroTier(50, 'Coffee', this)" class="tier-chip px-2.5 py-1 rounded-xl bg-[#141724] border border-[#00F0FF]/30 hover:border-[#00F0FF] text-[#00F0FF] text-[11px] font-mono font-bold transition flex items-center gap-1 hover:scale-105 active:scale-95 cursor-pointer">
-          <span>⚡</span> <span>₹50 Coffee</span>
+        <button type="button" onclick="selectMicroTier(50, 'Coffee', this)" class="tier-chip px-3 py-1.5 rounded-xl bg-[#161F33] border border-white/10 hover:border-blue-400 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
+          ₹50 Coffee
         </button>
-        <button type="button" onclick="selectMicroTier(100, 'Cyber Fuel', this)" class="tier-chip px-2.5 py-1 rounded-xl bg-[#141724] border border-[#C084FC]/40 hover:border-[#C084FC] text-[#C084FC] text-[11px] font-mono font-bold transition flex items-center gap-1 hover:scale-105 active:scale-95 cursor-pointer">
-          <span>🚀</span> <span>₹100 Fuel</span>
+        <button type="button" onclick="selectMicroTier(100, 'Developer Fuel', this)" class="tier-chip px-3 py-1.5 rounded-xl bg-[#161F33] border border-white/10 hover:border-blue-400 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
+          ₹100 Support
         </button>
       </div>
 
-      <!-- Quick Details Box: Monospace UPI ID + Copy Button -->
-      <div class="bg-[#121524] rounded-2xl p-3 border border-white/10 mb-2">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider">DIRECT UPI ID</span>
-          <span id="tier-hint" class="text-[9px] font-mono text-amber-300 font-semibold hidden">Selected: ₹20 Chai</span>
+      <!-- UPI ID Display & Copy Button -->
+      <div class="bg-[#161F33] rounded-2xl p-3 border border-white/10 mb-2 text-left">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-[10px] font-semibold uppercase text-slate-400">Direct UPI ID</span>
+          <span id="tier-hint" class="text-[10px] text-blue-400 font-medium hidden">Selected: ₹20</span>
         </div>
-        <div class="flex items-center justify-between gap-2 bg-[#080B14] p-2 rounded-xl border border-white/5">
-          <span id="upi-id-display" class="font-mono text-xs sm:text-sm font-bold text-[#00F0FF] tracking-wider truncate">furkanfarooq1@ybi</span>
-          <button id="copy-upi-btn" onclick="copyUpiId()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-black text-[10px] sm:text-xs font-orbitron tracking-wider transition flex items-center gap-1 cursor-pointer shrink-0 shadow-sm shadow-amber-400/20 active:scale-95">
-            <span id="copy-upi-icon">📋</span>
-            <span id="copy-upi-text">COPY UPI ID</span>
+        <div class="flex items-center justify-between gap-2 bg-[#090D16] p-2 rounded-xl border border-white/5">
+          <span id="upi-id-display" class="font-mono text-xs sm:text-sm font-bold text-white tracking-wider truncate">furkanfarooq1@ybi</span>
+          <button id="copy-upi-btn" onclick="copyUpiId()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer shrink-0">
+            <span id="copy-upi-icon"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
+            <span id="copy-upi-text">Copy UPI</span>
           </button>
         </div>
       </div>
 
-      <!-- Security & Gratitude Note -->
-      <div class="text-[10px] text-slate-500 font-mono mt-2">
-        Instant transfer via GPay / PhonePe / Paytm / BHIM
+      <div class="text-[11px] text-slate-500">
+        Supports GPay, PhonePe, Paytm, and all UPI applications
       </div>
 
     </div>
   </div>
 
-  <!-- ================= UNLOCKABLE WIRE SKINS MODAL ================= -->
-  <div id="skin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0F121C] border border-[#00F0FF]/40 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative">
+  <!-- ================= WIRE SKINS MODAL ================= -->
+  <div id="skin-modal" class="fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl">🎨</span>
+          <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          </div>
           <div>
-            <h3 class="text-lg font-black text-white font-orbitron uppercase tracking-wide">LASER WIRE TRAILS</h3>
-            <span class="text-[11px] text-slate-400 font-mono">Unlock by progressing to higher levels</span>
+            <h3 class="text-base font-bold text-white">Wire Styles</h3>
+            <span class="text-xs text-slate-400">Customize laser trail appearance</span>
           </div>
         </div>
-        <button id="close-skin-btn" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition">
+        <button id="close-skin-btn" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition" aria-label="Close modal">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <!-- 4 Skins Container -->
       <div class="space-y-2.5 mb-4" id="skin-list-container">
         <!-- Rendered dynamically via renderSkinModalList() -->
       </div>
     </div>
   </div>
 
-  <!-- ================= LEVEL CLEARED / PROGRESSION MODAL ================= -->
-  <div id="level-cleared-modal" class="fixed inset-0 bg-black/90 backdrop-blur-lg hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0F121C] border-2 border-[#00F0FF]/60 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#00F0FF]/30 to-[#8A2BE2]/30 border border-[#00F0FF]/40 text-[#00F0FF] mx-auto flex items-center justify-center text-3xl mb-3 font-orbitron shadow-lg shadow-[#00F0FF]/25 animate-bounce">
-        ⚡
+  <!-- ================= LEVEL CLEARED MODAL ================= -->
+  <div id="level-cleared-modal" class="fixed inset-0 bg-[#090D16]/90 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-blue-500/30 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center text-2xl mb-3 shadow-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
       </div>
 
-      <div class="inline-block px-3.5 py-1 rounded-full bg-[#00F0FF]/20 border border-[#00F0FF]/50 text-[10px] font-black text-[#00F0FF] font-orbitron tracking-widest mb-2 uppercase">
-        CIRCUIT SYNCHRONIZED
+      <div id="neural-hacker-badge" class="hidden mb-2 inline-block px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[11px] font-bold text-blue-400">
+        Speed Bonus
       </div>
 
-      <h3 id="cleared-level-title" class="text-2xl font-black text-white tracking-wide uppercase mb-1 font-orbitron">LEVEL 1 CLEARED!</h3>
-      <p id="cleared-level-subtitle" class="text-xs text-cyan-300 mb-3 font-mono">ADVANCING TO LEVEL 2...</p>
+      <h3 id="cleared-level-title" class="text-xl font-extrabold text-white tracking-tight mb-1">
+        Level Cleared
+      </h3>
+      <p id="cleared-level-subtitle" class="text-xs text-slate-400 mb-4">
+        Circuit completed successfully.
+      </p>
 
-      <!-- 1v1 Duel Result Card (If Duel Active) -->
-      <div id="duel-cleared-card" class="hidden mb-3 p-2.5 rounded-xl bg-purple-950/70 border border-[#FF2A6D]/60 text-center font-orbitron text-xs">
-        <span id="duel-cleared-text" class="text-white font-bold block">⚔️ DUEL FINISHED</span>
+      <!-- 1v1 Challenge Result Card -->
+      <div id="duel-cleared-card" class="hidden mb-4 p-3 rounded-2xl bg-[#161F33] border border-blue-500/30 text-left">
+        <div id="duel-cleared-text" class="text-xs font-semibold text-white leading-snug"></div>
       </div>
 
-      <!-- Secret Mystery Node "Neural Hacker" Badge -->
-      <div id="neural-hacker-badge" class="hidden mb-3 py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-400/20 via-yellow-400/30 to-amber-500/20 border border-amber-400 text-amber-300 font-orbitron text-[10px] font-black tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-amber-400/20 animate-pulse">
-        <span>⚡</span>
-        <span>NEURAL HACKER UNLOCKED: CONTINUOUS FLOW!</span>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2.5 mb-4">
-        <div class="bg-[#141724] p-3 rounded-2xl border border-[#00F0FF]/30">
-          <div class="text-[9px] uppercase font-bold text-slate-400 mb-1 font-orbitron">LEVEL TIME</div>
-          <div id="cleared-level-time" class="text-xl font-black text-[#00F0FF] font-mono">00:08.42</div>
+      <div class="grid grid-cols-2 gap-2.5 mb-5">
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Level Time</div>
+          <div id="cleared-level-time" class="text-xl font-extrabold text-white font-mono">00.00s</div>
         </div>
-        <div class="bg-[#141724] p-3 rounded-2xl border border-[#8A2BE2]/40">
-          <div class="text-[9px] uppercase font-bold text-slate-400 mb-1 font-orbitron">TOTAL RUN TIME</div>
-          <div id="cleared-total-time" class="text-xl font-black text-[#C084FC] font-mono">00:08.42</div>
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Total Time</div>
+          <div id="cleared-total-time" class="text-xl font-extrabold text-blue-400 font-mono">00.00s</div>
         </div>
       </div>
 
-      <div class="flex flex-col gap-2 font-orbitron">
-        <button id="btn-next-level" type="button" class="w-full py-3.5 bg-gradient-to-r from-[#00F0FF] via-[#00B4FF] to-[#8A2BE2] hover:opacity-95 text-black font-black tracking-wider rounded-xl transition shadow-lg shadow-[#00F0FF]/30 flex items-center justify-center gap-2 text-sm uppercase">
-          <span>NEXT LEVEL &gt;&gt;</span>
+      <div class="flex flex-col gap-2">
+        <button id="btn-next-level" class="btn-shimmer w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-1.5 cursor-pointer">
+          <span>Next Level</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
 
-        <button id="btn-duel-share" type="button" class="w-full py-2.5 bg-gradient-to-r from-[#FF2A6D]/20 to-[#8A2BE2]/20 border border-[#FF2A6D]/50 hover:border-[#FF2A6D] text-[#FF2A6D] hover:text-white font-black tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 text-xs uppercase shadow-sm shadow-[#FF2A6D]/20">
-          <span>⚔️ CHALLENGE A FRIEND</span>
+        <button id="btn-bank-score" class="w-full py-3 bg-[#161F33] hover:bg-[#1E2A45] border border-white/10 text-white font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <span>Save Score to Leaderboard</span>
         </button>
 
-        <button id="btn-bank-score" type="button" class="w-full py-2.5 bg-[#141824] hover:bg-[#1a2030] border border-amber-400/50 hover:border-amber-400 text-amber-300 font-black tracking-wider rounded-xl transition shadow-md shadow-amber-500/15 flex items-center justify-center gap-2 text-xs uppercase">
-          <span>BANK SCORE &amp; SUBMIT 🏆</span>
+        <button id="btn-duel-share" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6-1.4 1.4-1.6-1.6a1 1 0 00-1.4 0l-7 7a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l7-7a1 1 0 000-1.4l-1.6-1.6 1.4-1.4 1.6 1.6a1 1 0 001.4 0l1.3-1.3a1 1 0 000-1.4l-3-3a1 1 0 00-1.4 0l-1.5 1.5z"/></svg>
+          <span>Challenge a Friend</span>
         </button>
 
-        <button id="btn-support-creator" onclick="openSupportModal()" type="button" class="w-full py-2 bg-transparent hover:bg-amber-400/10 border border-amber-400/40 hover:border-amber-400 text-amber-300 hover:text-white font-bold tracking-wider rounded-xl transition flex items-center justify-center gap-2 text-xs uppercase shadow-sm font-orbitron cursor-pointer">
-          <span>☕ SUPPORT FURU</span>
+        <button id="btn-support-creator" onclick="openSupportModal()" class="w-full py-2 text-xs text-slate-400 hover:text-white transition flex items-center justify-center gap-1 cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span>Support Development</span>
         </button>
       </div>
+
     </div>
   </div>
 
-  <!-- ================= SUBMIT RUN TO LEADERBOARD MODAL ================= -->
-  <div id="circuit-cracked-modal" class="fixed inset-0 bg-black/90 backdrop-blur-lg hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0F121C] border-2 border-amber-400/50 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
-      <div class="w-16 h-16 rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-400 mx-auto flex items-center justify-center text-3xl mb-3 font-orbitron shadow-lg shadow-amber-400/25">
-        🏆
+  <!-- ================= CIRCUIT CRACKED / SUBMIT SCORE MODAL ================= -->
+  <div id="circuit-cracked-modal" class="fixed inset-0 bg-[#090D16]/90 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-white/10 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-2xl mb-3 shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
       </div>
 
-      <div class="inline-block px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-[10px] font-bold text-amber-300 font-orbitron tracking-widest mb-2 uppercase">
-        RUN BANKED
-      </div>
+      <h3 class="text-xl font-extrabold text-white tracking-tight mb-1">
+        Save Your Score
+      </h3>
+      <p class="text-xs text-slate-400 mb-4">Record your run on the daily leaderboard.</p>
 
-      <h3 class="text-2xl font-black text-white tracking-wide uppercase mb-1 font-orbitron">SUBMIT APEX RUN</h3>
-      <p class="text-xs text-slate-400 mb-4 font-mono">Lock your streak into the global leaderboard.</p>
-
-      <div class="grid grid-cols-2 gap-2.5 mb-5">
-        <div class="bg-[#141724] p-3 rounded-2xl border border-amber-400/30">
-          <div class="text-[9px] uppercase font-bold text-slate-500 mb-1 font-orbitron">LEVEL REACHED</div>
-          <div id="cracked-record-level" class="text-2xl font-black text-amber-400 font-orbitron">LVL 1</div>
+      <div class="grid grid-cols-2 gap-2.5 mb-4">
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-semibold text-slate-400 mb-1">Level Reached</div>
+          <div id="cracked-record-level" class="text-xl font-bold text-amber-400">Level 1</div>
         </div>
-        <div class="bg-[#141724] p-3 rounded-2xl border border-[#00F0FF]/30">
-          <div class="text-[9px] uppercase font-bold text-slate-500 mb-1 font-orbitron">TOTAL TIME</div>
-          <div id="cracked-record-time" class="text-2xl font-black text-[#00F0FF] font-mono">00:08.42</div>
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-semibold text-slate-400 mb-1">Total Time</div>
+          <div id="cracked-record-time" class="text-xl font-bold text-blue-400 font-mono">00:08.42</div>
         </div>
       </div>
 
-      <!-- Mandatory Name / Handle Form -->
-      <form id="cracked-form" class="space-y-4 font-orbitron">
+      <form id="cracked-form" class="space-y-3.5">
         <div class="text-left">
-          <label class="text-[10px] text-slate-400 block mb-1.5 uppercase font-bold tracking-wider">ENTER CALL-SIGN / NAME:</label>
-          <input id="cracked-name-input" type="text" maxlength="12" placeholder="CYBER_RUNNER" required
-            class="w-full px-4 py-3.5 bg-[#090B12] border border-[#00F0FF]/40 rounded-xl text-white font-mono font-bold text-sm tracking-widest uppercase focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition shadow-inner">
+          <label class="text-[11px] text-slate-400 block mb-1 font-medium">Your Name / Handle:</label>
+          <input id="cracked-name-input" type="text" maxlength="12" placeholder="Runner" required
+            class="w-full px-3.5 py-3 bg-[#090D16] border border-white/10 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-blue-500 transition">
         </div>
 
-        <div class="flex flex-col gap-2.5 pt-1">
-          <button id="cracked-submit-btn" type="submit" class="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 hover:opacity-95 text-black font-black tracking-wider rounded-xl transition shadow-lg shadow-amber-400/30 flex items-center justify-center gap-2 text-sm uppercase">
-            SUBMIT TO LEADERBOARD ⚡
+        <div class="flex flex-col gap-2 pt-1">
+          <button id="cracked-submit-btn" type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-1.5 text-xs">
+            Submit Score
           </button>
 
-          <button type="button" id="ig-story-btn" class="w-full py-3 bg-gradient-to-r from-[#8A2BE2] via-[#E066FF] to-[#FF2A6D] hover:opacity-95 text-white font-black tracking-wider rounded-xl transition shadow-lg shadow-[#FF2A6D]/25 flex items-center justify-center gap-2 text-xs uppercase font-orbitron border border-white/20">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-            <span id="ig-story-btn-text">SHARE TO INSTAGRAM STORY</span>
+          <button type="button" id="ig-story-btn" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] border border-white/10 text-slate-200 font-semibold rounded-xl transition flex items-center justify-center gap-1.5 text-xs">
+            <span id="ig-story-btn-text">Export Story Card</span>
           </button>
 
-          <button type="button" id="close-cracked-btn" class="text-xs text-slate-500 hover:text-slate-300 py-1.5 font-orbitron">
-            CONTINUE PLAYING
+          <button type="button" id="close-cracked-btn" class="text-xs text-slate-400 hover:text-slate-200 py-1 font-medium">
+            Continue Playing
           </button>
         </div>
       </form>
+
     </div>
   </div>
 
-  <!-- ================= BENCHMARK MATCH / CIRCUIT TRANSITION OVERLAY ================= -->
-  <div id="benchmark-matched-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-6 z-[60]">
-    <div class="relative max-w-md w-full p-7 sm:p-9 rounded-3xl border-2 border-[#FF2A6D] bg-[#090B14] shadow-2xl shadow-[#FF2A6D]/40 text-center">
-      <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#FF2A6D] to-[#00F0FF] mx-auto flex items-center justify-center text-4xl mb-4 shadow-lg shadow-[#FF2A6D]/50 animate-bounce">
-        ⚡
+  <!-- ================= BENCHMARK MATCH OVERLAY ================= -->
+  <div id="benchmark-matched-overlay" class="fixed inset-0 bg-[#090D16]/95 backdrop-blur-md hidden items-center justify-center p-6 z-[60]">
+    <div class="relative max-w-md w-full p-7 rounded-3xl border border-blue-500/30 bg-[#111726] shadow-2xl text-center">
+      <div class="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center text-3xl mb-4">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
       </div>
-      <div class="inline-block px-3.5 py-1 rounded-full bg-[#FF2A6D]/20 border border-[#FF2A6D]/50 text-[10px] font-black text-[#FF2A6D] font-orbitron tracking-widest uppercase mb-3">
-        QUANTUM SINGULARITY DETECTED
-      </div>
-      <h2 id="benchmark-match-title" class="text-2xl sm:text-3xl font-black text-white font-orbitron tracking-wider uppercase mb-2 drop-shadow-md">
-        MATRIX BREACHED!
+      <h2 id="benchmark-match-title" class="text-xl sm:text-2xl font-extrabold text-white tracking-tight mb-2">
+        Benchmark Matched
       </h2>
-      <p id="benchmark-match-detail" class="text-xs sm:text-sm text-cyan-300 font-mono mb-6 leading-relaxed">
-        Apex Benchmark Broken! Generating next level circuit...
+      <p id="benchmark-match-detail" class="text-xs sm:text-sm text-slate-300 mb-5">
+        Target time reached. Generating new challenge circuit...
       </p>
-      <div class="p-4 bg-black/60 rounded-2xl border border-white/10 mb-6">
-        <div class="text-[10px] font-bold text-slate-400 font-orbitron uppercase mb-1">GLOBAL BROADCAST</div>
-        <div class="text-sm sm:text-base font-black text-[#00F0FF] font-orbitron tracking-wide animate-pulse">
-          GENERATING NEW CIRCUIT...
-        </div>
-      </div>
-      <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-white/10">
-        <div id="benchmark-loader-bar" class="h-full bg-gradient-to-r from-[#00F0FF] via-[#8A2BE2] to-[#FF2A6D] w-full animate-pulse"></div>
+      <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-white/5">
+        <div id="benchmark-loader-bar" class="h-full bg-blue-500 w-full animate-pulse"></div>
       </div>
     </div>
   </div>
 
-  <!-- ================= GAME OVER (CIRCUIT OVERLOAD) MODAL ================= -->
-  <div id="gameover-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0F121C] border border-[#FF2A6D]/40 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
-      <div class="w-16 h-16 rounded-2xl bg-[#FF2A6D]/15 text-[#FF2A6D] mx-auto flex items-center justify-center text-3xl mb-4 font-orbitron shadow-lg shadow-[#FF2A6D]/20">
-        ⚠️
+  <!-- ================= GAME OVER (TIMEOUT) MODAL ================= -->
+  <div id="gameover-modal" class="fixed inset-0 bg-[#090D16]/90 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-white/10 w-full max-w-sm rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 mx-auto flex items-center justify-center text-2xl mb-3 shadow-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
       </div>
 
-      <h3 id="overload-title" class="text-2xl font-black text-[#FF2A6D] tracking-wide uppercase mb-1 font-orbitron">CIRCUIT OVERLOAD!</h3>
-      <p id="overload-subtitle" class="text-xs text-slate-400 mb-5">Time expired before synchronizing all 25 nodes.</p>
+      <h3 id="overload-title" class="text-xl font-extrabold text-white tracking-tight mb-1">Time's Up</h3>
+      <p id="overload-subtitle" class="text-xs text-slate-400 mb-4">The 20-second timer expired before connecting all nodes.</p>
 
-      <div class="bg-[#141724] p-4 rounded-2xl border border-white/10 mb-5 text-left">
-        <div class="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500 mb-1 font-orbitron">
-          <span>PROGRESS</span>
-          <span id="overload-progress-text" class="text-white font-mono">16 / 25 NODES</span>
+      <div class="bg-[#161F33] p-4 rounded-2xl border border-white/5 mb-5 text-left">
+        <div class="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400 mb-1.5">
+          <span>Nodes Connected</span>
+          <span id="overload-progress-text" class="text-white font-mono font-bold">16 / 25</span>
         </div>
-        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden mb-3">
-          <div id="overload-bar" class="h-full bg-gradient-to-r from-[#00F0FF] to-[#FF2A6D] w-0"></div>
+        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mb-3">
+          <div id="overload-bar" class="h-full bg-blue-500 w-0 transition-all duration-300"></div>
         </div>
 
         <div id="overload-bank-box" class="hidden pt-2 border-t border-white/5 flex justify-between text-xs">
-          <span class="text-slate-400 font-orbitron text-[10px]">BANKABLE RUN:</span>
+          <span class="text-slate-400 text-[11px]">Previous Best:</span>
           <span id="overload-bank-stats" class="text-amber-400 font-mono font-bold">LVL 0 • 00.00s</span>
         </div>
       </div>
 
-      <div class="flex flex-col gap-2 font-orbitron">
-        <button id="overload-bank-btn" class="hidden w-full py-3.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:opacity-95 text-black font-black tracking-wider rounded-xl transition shadow-lg shadow-amber-400/25 items-center justify-center gap-2 text-xs uppercase">
-          BANK &amp; SUBMIT RUN 🏆
+      <div class="flex flex-col gap-2">
+        <button id="overload-bank-btn" class="hidden w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold tracking-wide rounded-xl transition text-xs">
+          Save Prior Cleared Score
         </button>
 
-        <button id="retry-btn" class="w-full py-4 bg-[#00F0FF] hover:bg-[#33f3ff] text-black font-black tracking-wider rounded-xl transition shadow-lg shadow-[#00F0FF]/30 flex items-center justify-center gap-2 text-sm uppercase">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span id="retry-btn-text">RETRY LEVEL 1 (20s)</span>
+        <button id="retry-btn" onclick="resetCircuitAttempt()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-wide rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-1.5 text-xs cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span id="retry-btn-text">Try Again</span>
+        </button>
+
+        <button id="view-leaderboard-btn" onclick="document.getElementById('open-leaderboard-btn').click();" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] text-slate-300 hover:text-white font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
+          <span>View Leaderboard</span>
         </button>
       </div>
+
     </div>
   </div>
 
-  <!-- ================= HOW TO PLAY (RULES) ================= -->
-  <section id="rules" class="py-12 px-4 max-w-5xl mx-auto w-full">
+  <!-- ================= RULES & HOW TO PLAY ================= -->
+  <section id="rules" class="py-12 px-4 max-w-4xl mx-auto w-full border-t border-white/5">
     <div class="text-center mb-8">
-      <h2 class="text-xs uppercase tracking-[0.25em] font-bold text-[#00F0FF] mb-2 font-orbitron">Protocol Guide</h2>
-      <p class="text-3xl font-extrabold text-white font-orbitron">How To Play NEXUS</p>
+      <span class="text-xs font-semibold text-blue-400 uppercase tracking-widest block mb-1">Game Guide</span>
+      <h2 class="text-2xl font-extrabold text-white tracking-tight">How to Play NEXUS</h2>
+      <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+        A fast-paced test of numerical sequence tracing and route planning.
+      </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-      <div class="cyber-glass-card p-6 relative rounded-2xl">
-        <div class="w-10 h-10 rounded-xl bg-[#8A2BE2]/20 border border-[#8A2BE2]/40 text-[#8A2BE2] flex items-center justify-center font-black text-lg mb-4 font-orbitron">1</div>
-        <h3 class="text-base font-bold text-white mb-2 font-orbitron">Touch Down on [1]</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <!-- Step 1 -->
+      <div class="p-4 rounded-2xl bg-[#111726] border border-white/10">
+        <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 font-bold flex items-center justify-center text-xs mb-3">1</div>
+        <h3 class="text-sm font-bold text-white mb-1">Start at [1]</h3>
         <p class="text-slate-400 text-xs leading-relaxed">
-          The 20-second rush initiates the exact instant you touch anchor node <strong class="text-[#8A2BE2] font-semibold">[1]</strong>.
+          Touch or click on node [1] to initiate the path. On reverse levels, start at [25].
         </p>
       </div>
 
-      <div class="cyber-glass-card p-6 relative rounded-2xl">
-        <div class="w-10 h-10 rounded-xl bg-[#00F0FF]/20 border border-[#00F0FF]/40 text-[#00F0FF] flex items-center justify-center font-black text-lg mb-4 font-orbitron">2</div>
-        <h3 class="text-base font-bold text-white mb-2 font-orbitron">Sequential Checkpoints</h3>
+      <!-- Step 2 -->
+      <div class="p-4 rounded-2xl bg-[#111726] border border-white/10">
+        <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 font-bold flex items-center justify-center text-xs mb-3">2</div>
+        <h3 class="text-sm font-bold text-white mb-1">Follow Sequence</h3>
         <p class="text-slate-400 text-xs leading-relaxed">
-          Connect into milestones in ascending order: <span class="text-white font-mono font-bold">1 → 5 → 10 → 15 → 20 → 25</span>.
+          Drag through adjacent unnumbered sockets to reach milestone checkpoints in numerical order.
         </p>
       </div>
 
-      <div class="cyber-glass-card p-6 relative rounded-2xl">
-        <div class="w-10 h-10 rounded-xl bg-[#FF2A6D]/20 border border-[#FF2A6D]/40 text-[#FF2A6D] flex items-center justify-center font-black text-lg mb-4 font-orbitron">3</div>
-        <h3 class="text-base font-bold text-white mb-2 font-orbitron">Drag Back to Undo</h3>
+      <!-- Step 3 -->
+      <div class="p-4 rounded-2xl bg-[#111726] border border-white/10">
+        <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 font-bold flex items-center justify-center text-xs mb-3">3</div>
+        <h3 class="text-sm font-bold text-white mb-1">Drag Back to Undo</h3>
         <p class="text-slate-400 text-xs leading-relaxed">
-          Hit a dead end? Drag backward onto any earlier node to instantly rewind your path without restarting!
+          Hit a dead end? Drag backward along your line to undo any step without resetting the timer.
         </p>
       </div>
-    </div>
 
-    <!-- Model 1: Endless Streak Protocol Highlight -->
-    <div class="mt-5 p-5 cyber-glass-card rounded-2xl border border-[#00F0FF]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#00F0FF]/20 to-[#8A2BE2]/30 border border-[#00F0FF]/40 text-[#00F0FF] flex items-center justify-center font-black text-2xl font-orbitron shrink-0">
-          ⚡
-        </div>
-        <div>
-          <h3 class="text-sm font-black text-white font-orbitron tracking-wide uppercase">
-            MODEL 1: ENDLESS STREAK &amp; PROGRESSIVE LEVELS
-          </h3>
-          <p class="text-slate-400 text-xs mt-0.5 leading-relaxed font-mono">
-            Every solved circuit advances you to the next progressive level with a fresh 20s clock! Push your run with <span class="text-[#00F0FF] font-bold">NEXT LEVEL &gt;&gt;</span> or <span class="text-amber-400 font-bold">BANK SCORE</span> to lock your highest level reached and total cumulative time into the global Daily Apex Leaderboard.
-          </p>
-        </div>
-      </div>
-      <div class="px-3.5 py-1.5 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 text-[10px] font-mono font-bold text-[#00F0FF] whitespace-nowrap">
-        ENDLESS RUN
+      <!-- Step 4 -->
+      <div class="p-4 rounded-2xl bg-[#111726] border border-white/10">
+        <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 font-bold flex items-center justify-center text-xs mb-3">4</div>
+        <h3 class="text-sm font-bold text-white mb-1">Beat the Clock</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          Connect all 25 nodes before the 20-second timer expires to advance to progressive streak levels.
+        </p>
       </div>
     </div>
   </section>
@@ -1247,93 +1153,89 @@
   <section id="archive" class="py-12 px-4 max-w-4xl mx-auto w-full border-t border-white/5">
     <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6">
       <div>
-        <h2 class="text-xs uppercase tracking-[0.25em] font-bold text-[#8A2BE2] mb-1 font-orbitron">Practice Archive</h2>
-        <p class="text-2xl font-black text-white font-orbitron">Past Daily Challenges</p>
+        <span class="text-xs font-semibold text-blue-400 uppercase tracking-widest block mb-1">Practice Archive</span>
+        <h2 class="text-2xl font-extrabold text-white tracking-tight">Past Daily Challenges</h2>
       </div>
-      <p class="text-xs text-slate-400 mt-2 sm:mt-0">Warm up with previous deterministic boards.</p>
+      <p class="text-xs text-slate-400 mt-2 sm:mt-0">Warm up with previous daily challenge seeds.</p>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5" id="archive-grid"></div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="archive-grid"></div>
   </section>
 
-  <!-- ================= VICTORY MODAL ================= -->
-  <div id="victory-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0F121C] border border-white/15 w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl relative text-center">
-      <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5"></div>
-      <div class="w-16 h-16 rounded-2xl bg-[#00F0FF]/15 text-[#00F0FF] mx-auto flex items-center justify-center text-3xl mb-3 font-orbitron shadow-lg shadow-[#00F0FF]/15">
-        ⚡
+  <!-- ================= VICTORY & SHARE MODAL ================= -->
+  <div id="victory-modal" class="fixed inset-0 bg-[#090D16]/90 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-400 mx-auto flex items-center justify-center text-2xl mb-3 shadow-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
       </div>
 
-      <h3 class="text-2xl font-black text-white tracking-wide uppercase mb-1 font-orbitron">CIRCUIT SYNCHRONIZED!</h3>
-      <p class="text-xs text-slate-400 mb-5">Mastered under 20 seconds. Global glory unlocked.</p>
+      <h3 class="text-xl font-extrabold text-white tracking-tight mb-1">Circuit Synchronized</h3>
+      <p class="text-xs text-slate-400 mb-4">Completed within the 20-second limit.</p>
 
-      <div class="grid grid-cols-3 gap-2.5 mb-5">
-        <div class="bg-[#141724] p-3 rounded-2xl border border-white/5">
-          <div class="text-[10px] uppercase font-bold text-slate-500 mb-1 font-orbitron">TIME</div>
-          <div id="modal-time" class="text-xl font-black text-[#00F0FF] font-mono">00:14.28</div>
+      <div class="grid grid-cols-3 gap-2.5 mb-4">
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Time</div>
+          <div id="modal-time" class="text-base font-bold text-blue-400 font-mono">00:14.28</div>
         </div>
-        <div class="bg-[#141724] p-3 rounded-2xl border border-white/5">
-          <div class="text-[10px] uppercase font-bold text-slate-500 mb-1 font-orbitron">STREAK</div>
-          <div id="modal-streak" class="text-xl font-black text-orange-400 font-mono">1 🔥</div>
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Level</div>
+          <div id="modal-streak" class="text-base font-bold text-white font-mono">Level 1</div>
         </div>
-        <div class="bg-[#141724] p-3 rounded-2xl border border-white/5">
-          <div class="text-[10px] uppercase font-bold text-slate-500 mb-1 font-orbitron">PERCENTILE</div>
-          <div id="modal-percentile" class="text-xl font-black text-[#FF2A6D] font-mono">TOP 2%</div>
+        <div class="bg-[#161F33] p-3 rounded-2xl border border-white/5">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Percentile</div>
+          <div id="modal-percentile" class="text-base font-bold text-emerald-400 font-mono">Top 2%</div>
         </div>
       </div>
 
-      <div class="bg-[#08090F] border border-white/10 rounded-2xl p-4 font-mono text-xs text-left mb-5 text-slate-200">
+      <div class="bg-[#090D16] border border-white/10 rounded-2xl p-3.5 font-mono text-xs text-left mb-4 text-slate-300">
         <div id="share-card-text" class="whitespace-pre-line leading-relaxed select-all"></div>
       </div>
 
-      <div class="flex flex-col gap-2.5 font-orbitron">
-        <button id="copy-share-btn" class="w-full py-4 bg-[#00F0FF] hover:bg-[#33f3ff] text-black font-black tracking-wide rounded-xl transition shadow-lg shadow-[#00F0FF]/25 flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-          <span id="copy-btn-label">COPY VIRAL SCORE CARD</span>
+      <div class="flex flex-col gap-2">
+        <button id="copy-share-btn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-1.5 text-xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <span id="copy-btn-label">Copy Share Card</span>
         </button>
 
-        <a id="whatsapp-share-btn" target="_blank" class="w-full py-3 bg-[#25D366] hover:bg-[#20b858] text-white font-extrabold tracking-wide rounded-xl transition flex items-center justify-center gap-2 text-xs">
-          <span>SHARE TO WHATSAPP</span>
+        <a id="whatsapp-share-btn" target="_blank" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition flex items-center justify-center gap-1.5 text-xs">
+          <span>Share via WhatsApp</span>
         </a>
 
-        <button type="button" id="ig-story-victory-btn" class="w-full py-3 bg-gradient-to-r from-[#8A2BE2] via-[#E066FF] to-[#FF2A6D] hover:opacity-95 text-white font-black tracking-wide rounded-xl transition shadow-lg shadow-[#FF2A6D]/20 flex items-center justify-center gap-2 text-xs font-orbitron border border-white/20">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-          </svg>
-          <span>EXPORT INSTAGRAM STORY CARD 📱</span>
+        <button type="button" id="ig-story-victory-btn" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] border border-white/10 text-white font-semibold rounded-xl transition flex items-center justify-center gap-1.5 text-xs">
+          <span>Export Story Card</span>
         </button>
 
-        <button id="view-leaderboard-btn" class="w-full py-3 bg-[#141824] hover:bg-[#1c2233] border border-amber-500/40 text-amber-300 font-bold text-xs tracking-wide rounded-xl transition flex items-center justify-center gap-2 font-orbitron">
-          <span>🏆 VIEW DAILY LEADERBOARD</span>
-        </button>
-
-        <button id="close-modal-btn" class="text-xs font-bold text-slate-500 hover:text-slate-300 py-2">
-          CONTINUE
+        <button id="close-modal-btn" class="text-xs font-semibold text-slate-400 hover:text-white py-1.5 transition">
+          Close
         </button>
       </div>
 
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="mt-auto border-t border-white/5 bg-[#040508] py-8 px-4 text-center text-xs text-slate-500">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+  <!-- ================= FOOTER ================= -->
+  <footer class="mt-auto border-t border-white/5 bg-[#070A12] py-8 px-4 text-xs text-slate-500">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-2">
-        <span class="font-black text-sm text-white font-orbitron">NEXUS</span>
-        <span>— Universal 20-Second Daily Circuit</span>
+        <span class="font-bold text-sm text-white">NEXUS</span>
+        <span>— Minimalist Daily Circuit Puzzle</span>
       </div>
-      <div class="flex items-center gap-6">
-        <span>Resets Daily at 00:00:00 Local</span>
-        <a href="#rules" class="hover:text-slate-300">Rules</a>
-        <a href="#archive" class="hover:text-slate-300">Archive</a>
+      <div class="flex items-center gap-5">
+        <a href="#rules" class="hover:text-slate-300 transition">How to Play</a>
+        <a href="#archive" class="hover:text-slate-300 transition">Past Challenges</a>
+        <a href="https://github.com/wani012/Nexus-game" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition">GitHub</a>
+        <button onclick="openSupportModal()" class="hover:text-slate-300 transition cursor-pointer">Support</button>
       </div>
       <div>
-        <span>Built for High Adrenaline</span>
+        <span>Universal Daily Reset at 00:00 UTC</span>
       </div>
     </div>
   </footer>
 
   <script>
+
+
     // Safe DOM helper to prevent any null reference from stopping the script
     function safeSetText(id, text) {
       const el = document.getElementById(id);
@@ -2197,7 +2099,7 @@
               const toastText = document.getElementById('circuit-sync-toast-text');
               if (toastEl && toastText) {
                 const runner = data.triggeredBy || 'AN OPERATOR';
-                toastText.innerText = `⚡ MATRIX BREACHED BY ${runner}! NEW CIRCUIT DEPLOYED! ⚡`;
+                toastText.innerText = `Benchmark set by ${runner}! New puzzle generated.`;
                 toastEl.classList.remove('hidden');
                 setTimeout(() => toastEl.classList.add('hidden'), 5000);
               }
@@ -2357,7 +2259,7 @@
             ${
               isEquipped ? `<span class="text-[10px] font-black text-[#00F0FF] font-orbitron px-2.5 py-1 rounded-lg bg-[#00F0FF]/20 border border-[#00F0FF]/40">EQUIPPED</span>` :
               isUnlocked ? `<button onclick="applySkin('${skin.id}')" class="text-[10px] font-black text-black font-orbitron px-3 py-1.5 rounded-lg bg-[#00F0FF] hover:bg-[#33F3FF] transition cursor-pointer">EQUIP</button>` :
-              `<span class="text-[10px] font-mono text-slate-500 flex items-center gap-1">🔒 LOCKED</span>`
+              `<span class="text-[10px] font-mono text-slate-400 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Locked</span>`
             }
           </div>
         `;
@@ -2404,7 +2306,7 @@
           const banner = document.getElementById('duel-banner');
           const bannerText = document.getElementById('duel-banner-text');
           if (banner && bannerText) {
-            bannerText.innerText = `⚔️ 1V1 DUEL: Beat ${activeDuelChallenger} (${challengerTime.toFixed(2)}s)!`;
+            bannerText.innerText = `1v1 Challenge: Beat ${activeDuelChallenger} (${challengerTime.toFixed(2)}s)`;
             banner.classList.remove('hidden');
           }
         }
@@ -2422,11 +2324,11 @@
           const toast = document.getElementById('circuit-sync-toast');
           const toastText = document.getElementById('circuit-sync-toast-text');
           if (toast && toastText) {
-            toastText.innerText = `⚔️ DUEL LINK COPIED! Beat ${myTime}s! Share with friends.`;
+            toastText.innerText = `Challenge link copied (${myTime}s). Share with a friend.`;
             toast.classList.remove('hidden');
             setTimeout(() => toast.classList.add('hidden'), 3500);
           } else {
-            alert(`⚔️ DUEL LINK COPIED TO CLIPBOARD:\n\n${url}`);
+            alert(`Challenge link copied to clipboard:\n\n${url}`);
           }
         }).catch(() => {
           prompt("Copy your 1v1 Duel Challenge Link:", url);
@@ -2491,12 +2393,12 @@
         safeSetText('apex-runner-title', "TODAY'S APEX RUNNER");
         safeSetText('apex-runner-name', apex.name);
         safeSetText('apex-runner-time', `LVL ${lvl} • ${timeVal.toFixed(2)}s`);
-        if (bannerCta) bannerCta.innerHTML = 'DEFEAT RECORD ⚡';
+        if (bannerCta) bannerCta.innerHTML = 'Beat Record';
       } else {
         safeSetText('apex-runner-title', "TODAY'S APEX RUNNER");
         safeSetText('apex-runner-name', "NO RUNNERS YET");
         safeSetText('apex-runner-time', "LVL 1 • --.--s");
-        if (bannerCta) bannerCta.innerHTML = 'CLAIM #1 NOW ⚡';
+        if (bannerCta) bannerCta.innerHTML = 'Claim #1';
       }
     }
 
@@ -2634,7 +2536,7 @@
 
       if (currentLevel > 1) {
         const bankableLvl = currentLevel - 1;
-        safeSetText('overload-title', `CIRCUIT OVERLOAD AT LEVEL ${currentLevel}!`);
+        safeSetText('overload-title', `Time Expired at Level ${currentLevel}`);
         safeSetText('overload-subtitle', `Time expired on Node ${connectedCount}/25.`);
         safeSetText('overload-bank-stats', `LVL ${bankableLvl} • ${totalRunTime.toFixed(2)}s`);
         if (bankBox) bankBox.classList.remove('hidden');
@@ -2652,7 +2554,7 @@
         }
         if (retryBtnText) retryBtnText.innerText = 'START NEW RUN (LEVEL 1)';
       } else {
-        safeSetText('overload-title', 'CIRCUIT OVERLOAD!');
+        safeSetText('overload-title', "Time's Up");
         safeSetText('overload-subtitle', 'Time expired before completing Level 1.');
         if (bankBox) bankBox.classList.add('hidden');
         if (bankBtn) {
@@ -3021,8 +2923,8 @@
           loadNewCircuit(currentLevel);
           const lbl = document.getElementById('debug-reroll-text');
           if (lbl) {
-            lbl.innerText = `LVL ${currentLevel}! ⚡`;
-            setTimeout(() => { lbl.innerText = 'NEXT LVL 🎲'; }, 1500);
+            lbl.innerText = `Level ${currentLevel}`;
+            setTimeout(() => { lbl.innerText = 'Next Level'; }, 1500);
           }
         });
       }
@@ -3130,7 +3032,7 @@
 
           if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerText = 'SUBMIT TO LEADERBOARD ⚡';
+            submitBtn.innerText = 'Submit Score';
           }
 
           const crackedModal = document.getElementById('circuit-cracked-modal');
@@ -3148,7 +3050,7 @@
             const overlay = document.getElementById('benchmark-matched-overlay');
             const title = document.getElementById('benchmark-match-title');
             const detail = document.getElementById('benchmark-match-detail');
-            if (title) title.innerText = isApex ? '⚡ NEW #1 APEX RECORD!' : 'MATRIX BREACHED!';
+            if (title) title.innerText = isApex ? 'New Daily Record!' : 'Level Completed!';
             if (detail) {
               detail.innerText = `${name} REACHED LEVEL ${levelToSubmit} IN ${timeToSubmit.toFixed(2)}s! GLOBAL ARCHIVE UPDATED!`;
             }
@@ -3360,10 +3262,10 @@
           duelCard.classList.remove('hidden');
           if (levelTimeSec <= activeDuelTargetTime) {
             duelCard.className = 'mb-3 p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-400 text-emerald-300 font-orbitron text-xs block';
-            duelText.innerHTML = `🏆 DUEL CRUSHED! Beat ${activeDuelChallenger} (${activeDuelTargetTime.toFixed(2)}s) by ${(activeDuelTargetTime - levelTimeSec).toFixed(2)}s!`;
+            duelText.innerHTML = `Challenge Won: Beat ${activeDuelChallenger} (${activeDuelTargetTime.toFixed(2)}s) by ${(activeDuelTargetTime - levelTimeSec).toFixed(2)}s!`;
           } else {
             duelCard.className = 'mb-3 p-2.5 rounded-xl bg-rose-950/80 border border-rose-400 text-rose-300 font-orbitron text-xs block';
-            duelText.innerHTML = `💀 DUEL DEFEATED! ${activeDuelChallenger} (${activeDuelTargetTime.toFixed(2)}s) won by ${(levelTimeSec - activeDuelTargetTime).toFixed(2)}s.`;
+            duelText.innerHTML = `Challenge Missed: ${activeDuelChallenger} (${activeDuelTargetTime.toFixed(2)}s) was ${(levelTimeSec - activeDuelTargetTime).toFixed(2)}s faster.`;
           }
         } else {
           duelCard.classList.add('hidden');
@@ -3404,10 +3306,10 @@
     function showVictoryModal(level, totalTime) {
       const timeFormatted = `${Number(totalTime).toFixed(2)}s`;
       safeSetText('modal-time', timeFormatted);
-      safeSetText('modal-streak', `LVL ${level} 🔥`);
+      safeSetText('modal-streak', `Level ${level}`);
 
       const shareText = 
-`NEXUS ENDLESS STREAK ⚡
+`NEXUS Daily Challenge
 Conquered: LEVEL ${level}
 Total Run Time: ${timeFormatted}
 Rank Tier: APEX OPERATOR
@@ -3416,7 +3318,7 @@ Rank Tier: APEX OPERATOR
 🟩🟩🟨🟩🟩
 🟩🟩🟪🟩🟩
 🟩🟩🟩🟩🟩
-🟩🟩🟩🟩⚡
+🟩🟩🟩🟩🟩
 
 Can you beat my streak?
 https://nexusgame-website.vercel.app`;
@@ -3435,7 +3337,7 @@ https://nexusgame-website.vercel.app`;
       if (copyBtn) {
         copyBtn.onclick = () => {
           navigator.clipboard.writeText(shareText);
-          safeSetText('copy-btn-label', "COPIED TO CLIPBOARD! 🎉");
+          safeSetText('copy-btn-label', "Copied to Clipboard");
           setTimeout(() => {
             safeSetText('copy-btn-label', "COPY VIRAL SCORE CARD");
           }, 2500);
@@ -3451,8 +3353,8 @@ https://nexusgame-website.vercel.app`;
       const origText1 = btn1Text ? btn1Text.innerText : 'SHARE TO INSTAGRAM STORY';
       const origText2 = btn2 ? btn2.innerHTML : '';
 
-      if (btn1Text) btn1Text.innerText = 'GENERATING CARD... ⏳';
-      if (btn2) btn2.innerText = 'GENERATING CARD... ⏳';
+      if (btn1Text) btn1Text.innerText = 'Generating Card...';
+      if (btn2) btn2.innerText = 'Generating Card...';
 
       try {
         if (document.fonts && document.fonts.ready) {
@@ -3566,7 +3468,7 @@ https://nexusgame-website.vercel.app`;
         ctx.fillStyle = '#00F0FF';
         ctx.font = "bold 15px 'Orbitron', monospace";
         ctx.textAlign = 'center';
-        ctx.fillText('NEXUS // QUANTUM PROTOCOL', 540, 123);
+        ctx.fillText('NEXUS // DAILY CHALLENGE', 540, 123);
 
         // Sub-label
         ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
@@ -3609,7 +3511,7 @@ https://nexusgame-website.vercel.app`;
         const inputName = document.getElementById('cracked-name-input')?.value?.trim()?.toUpperCase();
         const playerName = inputName || localStorage.getItem('nexus_player_callsign') || 'OPERATOR';
         const isApex = entries.length > 0 && entries[0].name === playerName;
-        const rankLabel = isApex ? "👑 RANK #1 APEX RUNNER" : `⚡ LEVEL ${storyLvl} APEX RUNNER`;
+        const rankLabel = isApex ? "RANK #1 DAILY LEADER" : `LEVEL ${storyLvl} RUNNER`;
 
         roundRect(310, 495, 460, 46, 23, isApex ? 'rgba(255, 215, 0, 0.15)' : 'rgba(0, 240, 255, 0.12)', isApex ? '#FFD700' : '#00F0FF', 1.5);
         ctx.fillStyle = isApex ? '#FFD700' : '#00F0FF';
@@ -3779,7 +3681,7 @@ https://nexusgame-website.vercel.app`;
 
         ctx.fillStyle = '#FB923C';
         ctx.font = "900 32px 'Orbitron', sans-serif";
-        ctx.fillText(`LVL ${storyLvl} 🔥`, 680, 1485);
+        ctx.fillText(`Level ${storyLvl}`, 680, 1485);
 
         // 8. Footer Call To Action
         roundRect(90, 1555, 900, 205, 30, 'rgba(7, 10, 18, 0.96)', 'rgba(255, 42, 109, 0.45)', 2);
@@ -3796,7 +3698,7 @@ https://nexusgame-website.vercel.app`;
         roundRect(180, 1650, 720, 68, 34, 'rgba(0, 240, 255, 0.12)', 'rgba(0, 240, 255, 0.65)', 2);
         ctx.fillStyle = '#00F0FF';
         ctx.font = "bold 26px 'Orbitron', monospace";
-        ctx.fillText('🌐 nexusgame-website.vercel.app', 540, 1694);
+        ctx.fillText('nexusgame-website.vercel.app', 540, 1694);
 
         // Bottom Watermark
         ctx.fillStyle = '#64748B';
@@ -3831,8 +3733,8 @@ https://nexusgame-website.vercel.app`;
             }
           } catch (_) {}
 
-          if (btn1Text) btn1Text.innerText = 'STORY CARD EXPORTED! 🚀';
-          if (btn2) btn2.innerText = 'STORY CARD EXPORTED! 🚀';
+          if (btn1Text) btn1Text.innerText = 'Story Card Exported!';
+          if (btn2) btn2.innerText = 'Story Card Exported!';
 
           setTimeout(() => {
             if (btn1Text) btn1Text.innerText = origText1;
@@ -3862,7 +3764,7 @@ https://nexusgame-website.vercel.app`;
         // Clean empty state when no player has submitted yet
         container.innerHTML = `
           <div class="py-8 px-4 text-center border border-dashed border-[#00F0FF]/30 rounded-2xl bg-[#090C15]/80">
-            <div class="text-3xl mb-3 glow-crown">👑</div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center mb-3"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></div>
             <div class="text-sm font-black text-white font-orbitron tracking-wider uppercase mb-1">
               NO RUNNERS YET — CLAIM #1
             </div>
@@ -3871,12 +3773,12 @@ https://nexusgame-website.vercel.app`;
             </p>
             <button onclick="closeLeaderboardModal(); const g = document.getElementById('game-arena'); if (g) g.scrollIntoView({behavior: 'smooth'});"
               class="px-4 py-2.5 bg-[#00F0FF] hover:bg-[#33F3FF] text-black font-black text-xs rounded-xl font-orbitron tracking-wider transition shadow-lg shadow-[#00F0FF]/25 inline-flex items-center gap-1.5">
-              START CIRCUIT ⚡
+              Start Challenge
             </button>
           </div>
         `;
       } else {
-        const medals = ["👑 1ST", "🥈 2ND", "🥉 3RD", "⚡ 4TH", "⚡ 5TH", "⚡ 6TH", "⚡ 7TH", "⚡ 8TH", "⚡ 9TH", "⚡ 10TH"];
+        const medals = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
         const borders = [
           "border-amber-400 bg-amber-500/10 shadow-md shadow-amber-500/10",
           "border-slate-300 bg-slate-400/10",
@@ -4033,14 +3935,14 @@ https://nexusgame-website.vercel.app`;
       const performCopyFeedback = () => {
         sound.playStep(18);
         triggerHaptic([30, 50]);
-        if (icon) icon.innerText = '✓';
+        if (icon) icon.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
         if (text) text.innerText = 'COPIED!';
         if (btn) {
           btn.classList.remove('bg-amber-400', 'hover:bg-amber-300', 'text-black');
           btn.classList.add('bg-emerald-400', 'text-black', 'shadow-[0_0_15px_rgba(52,211,153,0.7)]');
         }
         setTimeout(() => {
-          if (icon) icon.innerText = '📋';
+          if (icon) icon.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
           if (text) text.innerText = 'COPY UPI ID';
           if (btn) {
             btn.classList.remove('bg-emerald-400', 'shadow-[0_0_15px_rgba(52,211,153,0.7)]');
@@ -4152,6 +4054,8 @@ https://nexusgame-website.vercel.app`;
     } else {
       initGame();
     }
+  
+  
   </script>
 </body>
 </html>
