@@ -3067,20 +3067,16 @@
       }
 
       const checkpoints = {};
-      if (typeof isLeapProtocol === 'function' && isLeapProtocol(puzzleNumber)) {
-        // Special advanced leap protocols (e.g. Level 3 or 5)
-        [0, 4, 9, 14, 19, 24].forEach(step => {
-          const pt = solvedPath[step];
-          if (pt) checkpoints[pt.y * GRID_SIZE + pt.x] = step + 1;
-        });
-      } else {
-        // Circuit #1 (Level 1) Standard Sequential Protocol:
-        // ALL 25 circles on the 5x5 grid MUST contain a visible numbered node from 1 to 25!
-        for (let step = 0; step < TOTAL_CELLS; step++) {
-          const pt = solvedPath[step];
-          if (pt) checkpoints[pt.y * GRID_SIZE + pt.x] = step + 1;
-        }
+      
+       
+// UNIVERSAL PROTOCOL: ONLY CHECKPOINTS [1, 5, 10, 15, 20, 25] ON ALL CIRCUITS
+    const targetSteps = [0, 4, 9, 14, 19, 24]; // 1st, 5th, 10th, 15th, 20th, and 25th step
+    targetSteps.forEach(stepIdx => {
+      const pt = solvedPath[stepIdx];
+      if (pt) {
+        checkpoints[pt.y * GRID_SIZE + pt.x] = stepIdx + 1; // Produces: 1, 5, 10, 15, 20, 25
       }
+    });
 
       return { seed: seedStr, dateKey, puzzleNumber, path: solvedPath, checkpoints };
     }
