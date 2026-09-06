@@ -7210,14 +7210,19 @@ ${shareData.url}`;
 
   window.addEventListener('DOMContentLoaded', initContinuousPathGame);
   setTimeout(initContinuousPathGame, 400);
-<!-- ================= NEXUS PATH FILL & DRAG ENGINE ================= -->
+<!-- ================= NEXUS TRUE DRAG & PATH FILL ENGINE ================= -->
 <style>
+  #circuit-grid, .circuit-grid, [id*="grid"], .node, [class*="node"] {
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
   .active-path-step {
     background: rgba(0, 229, 255, 0.45) !important;
     border-color: #00f3ff !important;
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.75) !important;
-    transform: scale(1.08);
-    transition: all 0.1s ease;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.8) !important;
+    transform: scale(1.08) !important;
+    transition: all 0.08s ease !important;
   }
   .shockwave-25 {
     animation: blast25 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
@@ -7233,45 +7238,45 @@ ${shareData.url}`;
 (function() {
   const MILESTONES = [1, 5, 10, 15, 20, 25];
   let isDragging = false;
-  let currentTargetIdx = 1; // Looking for 5 next
+  let currentTargetIdx = 1;
   let visitedNodes = [];
 
-  function attachDragOverride() {
+  function initRealDrag() {
     const grid = document.querySelector('.circuit-grid, #circuit-grid, [id*="grid"]');
     if (!grid) return;
-    const cells = Array.from(grid.children);
-    if (cells.length < 25) return;
 
-    cells.forEach((cell) => {
-      cell.addEventListener('pointerdown', (e) => {
-        const val = parseInt(cell.textContent.trim(), 10);
-        if (val === 1) {
-          isDragging = true;
-          visitedNodes = [cell];
-          currentTargetIdx = 1;
-          cell.classList.add('active-path-step');
-        }
-      });
+    grid.addEventListener('pointerdown', (e) => {
+      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node, [class*="node"], [id*="cell"]');
+      if (!target) return;
 
-      cell.addEventListener('pointerenter', (e) => {
-        if (!isDragging) return;
-        if (visitedNodes.includes(cell)) return;
+      const val = parseInt(target.textContent.trim(), 10);
+      if (val === 1) {
+        isDragging = true;
+        visitedNodes = [target];
+        currentTargetIdx = 1;
+        target.classList.add('active-path-step');
+        grid.setPointerCapture(e.pointerId);
+      }
+    });
 
-        const val = parseInt(cell.textContent.trim(), 10);
-        const nextTarget = MILESTONES[currentTargetIdx];
+    grid.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
 
-        if (val && MILESTONES.includes(val) && val !== nextTarget) {
-          return;
-        }
+      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node, [class*="node"], [id*="cell"]');
+      if (!target || visitedNodes.includes(target)) return;
 
-        cell.classList.add('active-path-step');
-        visitedNodes.push(cell);
+      const val = parseInt(target.textContent.trim(), 10);
+      const nextTarget = MILESTONES[currentTargetIdx];
+
+      if (!val || val === nextTarget) {
+        target.classList.add('active-path-step');
+        visitedNodes.push(target);
 
         if (val === nextTarget) {
           currentTargetIdx++;
           if (val === 25) {
             isDragging = false;
-            cell.classList.add('shockwave-25');
+            target.classList.add('shockwave-25');
 
             setTimeout(() => {
               const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, .level-cleared');
@@ -7284,19 +7289,24 @@ ${shareData.url}`;
             }, 600);
           }
         }
-      });
+      }
     });
 
-    window.addEventListener('pointerup', () => {
-      isDragging = false;
-    });
+    const stopDrag = (e) => {
+      if (isDragging) {
+        isDragging = false;
+        try { grid.releasePointerCapture(e.pointerId); } catch(err) {}
+      }
+    };
+
+    grid.addEventListener('pointerup', stopDrag);
+    grid.addEventListener('pointercancel', stopDrag);
   }
 
-  window.addEventListener('DOMContentLoaded', attachDragOverride);
-  setTimeout(attachDragOverride, 500);
+  window.addEventListener('DOMContentLoaded', initRealDrag);
+  setInterval(initRealDrag, 800);
 })();
 </script>
-<!-- ================= END NEXUS ENGINE ================= -->
-
+<!-- ================= END TRUE DRAG ENGINE ================= -->
 </body>
 </html>
