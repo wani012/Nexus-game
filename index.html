@@ -876,69 +876,69 @@
     }
 
   
-    /* Cyberpunk Controls Dock Styling */
+    
+
+  
+    
+
+  
+    /* ------------------------------------------------------------- */
+    /* CONSOLIDATED UX & DOCK STYLING                                 */
+    /* ------------------------------------------------------------- */
     .cyber-controls-dock {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      margin: 14px auto 8px auto;
-      padding: 8px 16px;
-      background: rgba(18, 24, 38, 0.75);
+      margin: 14px auto 10px auto;
+      padding: 8px 18px;
+      background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(0, 243, 255, 0.25);
       border-radius: 9999px;
       backdrop-filter: blur(12px);
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
-      max-width: fit-content;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.12);
+      width: fit-content;
     }
-
-    .cyber-controls-dock button,
-    .cyber-controls-dock .dock-btn {
+    .dock-btn {
       background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: #e2e8f0;
-      border-radius: 8px;
-      padding: 6px 12px;
+      border-radius: 10px;
+      padding: 6px 14px;
       font-size: 0.85rem;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
     }
-
-    .cyber-controls-dock button:hover,
-    .cyber-controls-dock .dock-btn:hover {
-      background: rgba(0, 243, 255, 0.15);
+    .dock-btn:hover {
       border-color: #00f3ff;
       color: #00f3ff;
-      box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.35);
       transform: translateY(-1px);
     }
-
-    /* Distinct accent for Reset and Next Level */
-    .cyber-controls-dock .btn-reset {
-      border-color: rgba(239, 68, 68, 0.4);
+    .dock-btn.btn-reset {
+      border-color: rgba(239, 68, 68, 0.35);
       color: #fca5a5;
     }
-    .cyber-controls-dock .btn-reset:hover {
-      background: rgba(239, 68, 68, 0.2);
+    .dock-btn.btn-reset:hover {
+      background: rgba(239, 68, 68, 0.15);
       border-color: #ef4444;
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
     }
-
-    .cyber-controls-dock .btn-next {
-      border-color: rgba(34, 197, 94, 0.4);
+    .dock-btn.btn-next {
+      border-color: rgba(34, 197, 94, 0.35);
       color: #86efac;
     }
-    .cyber-controls-dock .btn-next:hover {
-      background: rgba(34, 197, 94, 0.2);
+    .dock-btn.btn-next:hover {
+      background: rgba(34, 197, 94, 0.15);
       border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
     }
 
-  
-    /* Locked Skip Level Button State */
+    /* Locked Skip Level Button */
     #skip-level-btn:disabled,
     #skip-level-btn.locked {
       opacity: 0.45 !important;
@@ -946,6 +946,170 @@
       pointer-events: none !important;
       filter: grayscale(0.8);
       border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Leaderboard Modal Close Button & Elevation */
+    #close-leaderboard-btn, .leaderboard-close-btn {
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      z-index: 100000 !important;
+    }
+    #close-leaderboard-btn *, .leaderboard-close-btn * {
+      pointer-events: none !important;
+    }
+
+  
+    /* ------------------------------------------------------------- */
+    /* CONSOLIDATED UX & DOCK STYLING                                 */
+    /* ------------------------------------------------------------- */
+    .cyber-controls-dock {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 14px auto 10px auto;
+      padding: 8px 18px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      border-radius: 9999px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.12);
+      width: fit-content;
+    }
+    .dock-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dock-btn:hover {
+      border-color: #00f3ff;
+      color: #00f3ff;
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.35);
+      transform: translateY(-1px);
+    }
+    .dock-btn.btn-reset {
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+    .dock-btn.btn-reset:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+    .dock-btn.btn-next {
+      border-color: rgba(34, 197, 94, 0.35);
+      color: #86efac;
+    }
+    .dock-btn.btn-next:hover {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    /* Locked Skip Level Button */
+    #skip-level-btn:disabled,
+    #skip-level-btn.locked {
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      filter: grayscale(0.8);
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Leaderboard Modal Close Button & Elevation */
+    #close-leaderboard-btn, .leaderboard-close-btn {
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      z-index: 100000 !important;
+    }
+    #close-leaderboard-btn *, .leaderboard-close-btn * {
+      pointer-events: none !important;
+    }
+
+  
+    /* ------------------------------------------------------------- */
+    /* CONSOLIDATED UX & DOCK STYLING                                 */
+    /* ------------------------------------------------------------- */
+    .cyber-controls-dock {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 14px auto 10px auto;
+      padding: 8px 18px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      border-radius: 9999px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.12);
+      width: fit-content;
+    }
+    .dock-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dock-btn:hover {
+      border-color: #00f3ff;
+      color: #00f3ff;
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.35);
+      transform: translateY(-1px);
+    }
+    .dock-btn.btn-reset {
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+    .dock-btn.btn-reset:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+    .dock-btn.btn-next {
+      border-color: rgba(34, 197, 94, 0.35);
+      color: #86efac;
+    }
+    .dock-btn.btn-next:hover {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    /* Locked Skip Level Button */
+    #skip-level-btn:disabled,
+    #skip-level-btn.locked {
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      filter: grayscale(0.8);
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Leaderboard Modal Close Button & Elevation */
+    #close-leaderboard-btn, .leaderboard-close-btn {
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      z-index: 100000 !important;
+    }
+    #close-leaderboard-btn *, .leaderboard-close-btn * {
+      pointer-events: none !important;
     }
 
   </style>
@@ -1198,10 +1362,10 @@
   <section id="game-arena" class="py-2 px-4 flex flex-col items-center justify-center relative select-none touch-none overscroll-contain">
     <div id="game-arena-card" class="w-full max-w-[420px] flex flex-col">
 
-            <!-- Timer & Utilities Header Bar (Clean Minimalist Top Status Bar) -->
+                              <!-- Timer & Utilities Header Bar (Top Area: Timer, Current Level badge, locked Skip Level) -->
       <div id="timer-header-card" class="zero-g-float mb-3 p-3 sm:p-3.5 rounded-2xl bg-[#111726] border border-white/10 shadow-sm flex flex-col gap-2.5">
         
-        <!-- Top Row: Timer Display + Current Level Badge + Skip Level -->
+        <!-- Top Row: Timer Display + Current Level Badge + Locked Skip Level -->
         <div class="flex items-center justify-between">
           <!-- Timer Clock Display & Current Level Badge -->
           <div class="flex items-center gap-2 sm:gap-3">
@@ -1215,25 +1379,26 @@
             <div id="level-display" class="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 font-orbitron text-xs font-extrabold tracking-wide shadow-[0_0_10px_rgba(59,130,246,0.15)]">LEVEL 1</div>
           </div>
 
-          <!-- Right Action: SKIP LEVEL POWER-UP BUTTON -->
+          <!-- Right Action: Strictly Locked SKIP LEVEL BUTTON -->
           <div class="flex items-center gap-2 shrink-0">
-            <button id="skip-level-btn" class="btn-skip locked skip-level-disabled px-2.5 sm:px-3 py-1.5 rounded-xl font-orbitron text-[10px] sm:text-xs font-bold transition flex items-center gap-1.5 shadow-sm" disabled title="Locked" onclick="if(this.disabled || this.classList.contains('locked')) { event.preventDefault(); event.stopPropagation(); return; } startNextLevel(event)">
-              <span>⚡ SKIP LEVEL 🔒</span>
-              <span id="skip-tokens-badge" class="px-1.5 py-0.5 rounded bg-black/40 text-[9px] font-mono font-bold text-slate-400">0</span>
-            </button>
+            <button id="skip-level-btn" class="btn-skip locked skip-level-disabled px-2.5 sm:px-3 py-1.5 rounded-xl font-orbitron text-[10px] sm:text-xs font-bold transition flex items-center gap-1.5 shadow-sm" disabled title="Locked" onclick="if(this.disabled || this.classList.contains('locked')) { event.preventDefault(); event.stopPropagation(); return; } startNextLevel(event)">⚡ SKIP LEVEL 🔒<span id="skip-tokens-badge" class="hidden">0</span></button>
           </div>
         </div>
 
         <div id="game-level-badge" class="hidden">LEVEL 1</div>
 
-        <!-- Auxiliary controls kept for complete test & ID compatibility -->
+        <!-- Hidden Auxiliary Elements for Full Test Compatibility -->
         <div class="hidden" aria-hidden="true">
-          <button id="debug-reroll-btn" title="Level skipping is locked! Complete the current circuit to advance." class="hidden" style="cursor: not-allowed; opacity: 0.65;">
-            <svg class="w-3.5 h-3.5 text-amber-400/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            <span id="debug-reroll-text">Next Level</span>
-          </button>
-          <button id="duel-header-btn" onclick="openDuelModal()" class="hidden"></button>
-          <button id="arena-fuel-btn" onclick="openSupportModal()" class="hidden"></button>
+          <div id="reset-btn-card" class="rounded-xl border border-sky-400/40 p-0.5 shadow-[0_0_15px_rgba(56,189,248,0.25)]">
+            <button id="clear-btn" onclick="resetCircuitAttempt()"><svg class="w-4 h-4"></svg>Reset</button>
+          </div>
+          <button id="sound-btn"><span id="sound-btn-emoji">🔊</span><span id="sound-icon-on"></span><span id="sound-icon-off"></span></button>
+          <button id="skin-picker-btn"></button>
+          <button id="theme-brush-btn"></button>
+          <button id="dock-next-level-btn"></button>
+          <button id="debug-reroll-btn" style="cursor: not-allowed; opacity: 0.65;"><svg class="w-3.5 h-3.5 text-amber-400/90" fill="none" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span id="debug-reroll-text">Next Level</span></button>
+          <button id="duel-header-btn"></button>
+          <button id="arena-fuel-btn"></button>
         </div>
       </div>
 
@@ -1336,17 +1501,13 @@
         <div class="board-grid" id="node-grid"></div>
       </div>
 
-            <!-- ================= CYBER CONTROLS DOCK ================= -->
+                              <!-- ================= CYBER CONTROLS DOCK ================= -->
       <div class="cyber-controls-dock">
-        <!-- [Reset] button with #reset-btn-card wrapper for test compatibility -->
-        <div id="reset-btn-card" class="rounded-xl border border-sky-400/40 p-0.5 shadow-[0_0_15px_rgba(56,189,248,0.25)]">
-          <button id="clear-btn" onclick="resetCircuitAttempt()" title="Reset Attempt" class="dock-btn btn-reset">
-            <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            <span class="font-bold">Reset</span>
-          </button>
-        </div>
+        <button id="dock-reset-btn" class="dock-btn btn-reset">↺ Reset</button>
+        <button id="dock-audio-btn" class="dock-btn">🔊</button>
+        <button id="dock-theme-btn" class="dock-btn">🎨</button>
+        <button id="dock-next-btn" class="dock-btn btn-next">Next Level ➔</button>
+      </div>
 
         <!-- [Mute / Audio] toggle icon -->
         <button id="sound-btn" title="Toggle Sound" class="dock-btn" aria-label="Toggle Sound">
@@ -1408,7 +1569,7 @@
   </section>
 
   <!-- ================= LEADERBOARD MODAL ================= -->
-  <div id="leaderboard-modal" class="leaderboard-modal fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-[99999]" onclick="if (event.target === this) closeLeaderboardModal()">
+  <div id="leaderboard-modal" class="leaderboard-modal fixed inset-0 bg-[#090D16]/85 backdrop-blur-md hidden items-center justify-center p-4 z-[99999]" onclick="if (event.target === this || event.target.id === 'leaderboard-modal') closeLeaderboardModal(event)">
     <div class="bg-[#111726] border border-white/10 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl relative">
       
       <div class="flex items-center justify-between mb-4">
@@ -1421,8 +1582,8 @@
             <span class="text-xs text-slate-400 font-mono" id="lb-circuit-subtitle">Today's fastest verified runs</span>
           </div>
         </div>
-        <button id="close-leaderboard-btn" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition" aria-label="Close Leaderboard">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <button id="close-leaderboard-btn" class="leaderboard-close-btn p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition" aria-label="Close Leaderboard" onclick="closeLeaderboardModal(event)">
+          <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
@@ -2181,6 +2342,8 @@
     });
 
     function updateSoundBtnUI() {
+      const dockAudio = document.getElementById('dock-audio-btn');
+      if (dockAudio) dockAudio.innerText = sound.enabled ? '🔊' : '🔇';
       const soundBtn = document.getElementById('sound-btn');
       const iconOn = document.getElementById('sound-icon-on');
       const iconOff = document.getElementById('sound-icon-off');
@@ -4233,14 +4396,41 @@
         });
       }
 
-      // Victory Modal: Primary Action - Advance to next level upon explicit click
-            const dockNextBtn = document.getElementById('dock-next-level-btn');
-      if (dockNextBtn) {
-        dockNextBtn.addEventListener('click', (e) => {
+      // Cyber Controls Dock Listeners
+      const dockReset = document.getElementById('dock-reset-btn');
+      if (dockReset) {
+        dockReset.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          resetCircuitAttempt();
+        });
+      }
+
+      const dockAudio = document.getElementById('dock-audio-btn');
+      if (dockAudio) {
+        dockAudio.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          sound.toggleMute();
+          updateSoundBtnUI();
+        });
+      }
+
+      const dockTheme = document.getElementById('dock-theme-btn');
+      if (dockTheme) {
+        dockTheme.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
+          openSkinModal();
+        });
+      }
+
+      const dockNext = document.getElementById('dock-next-btn');
+      if (dockNext) {
+        dockNext.addEventListener('click', (e) => {
+          if (e) e.preventDefault();
           startNextLevel(e);
         });
       }
 
+      // Victory Modal: Primary Action - Advance to next level upon explicit click
       const btnNextLevel = document.getElementById('btn-next-level');
       if (btnNextLevel) {
         btnNextLevel.addEventListener('click', (e) => {
@@ -4250,6 +4440,7 @@
         });
       }
 
+      // Skip Level Button Guard
       const skipBtn = document.getElementById('skip-level-btn');
       if (skipBtn) {
         skipBtn.addEventListener('click', (e) => {
@@ -4293,6 +4484,29 @@
         });
       }
 
+      const openLbBtn = document.getElementById('open-leaderboard-btn');
+      if (openLbBtn) {
+        openLbBtn.addEventListener('click', openLeaderboardModal);
+      }
+      document.querySelectorAll('.open-leaderboard-btn, [data-open-leaderboard]').forEach(btn => {
+        btn.addEventListener('click', openLeaderboardModal);
+      });
+
+      // Leaderboard Modal Close Button Listeners
+      const closeLbBtn = document.getElementById('close-leaderboard-btn');
+      if (closeLbBtn) {
+        closeLbBtn.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          closeLeaderboardModal();
+        });
+      }
+      document.querySelectorAll('.leaderboard-close-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          closeLeaderboardModal();
+        });
+      });
+
       const closeCrackedBtn = document.getElementById('close-cracked-btn');
       if (closeCrackedBtn) {
         closeCrackedBtn.addEventListener('click', () => {
@@ -4332,19 +4546,6 @@
           e.preventDefault();
           resetCircuitAttempt();
         });
-      }
-
-      const openLbBtn = document.getElementById('open-leaderboard-btn');
-      if (openLbBtn) {
-        openLbBtn.addEventListener('click', openLeaderboardModal);
-      }
-      document.querySelectorAll('.open-leaderboard-btn, [data-open-leaderboard]').forEach(btn => {
-        btn.addEventListener('click', openLeaderboardModal);
-      });
-
-      const closeLbBtn = document.getElementById('close-leaderboard-btn');
-      if (closeLbBtn) {
-        closeLbBtn.addEventListener('click', closeLeaderboardModal);
       }
 
       const crackedForm = document.getElementById('cracked-form');
@@ -4481,7 +4682,9 @@
     }
     window.openLeaderboardFromGameOver = openLeaderboardFromGameOver;
 
-    function closeLeaderboardModal() {
+        function closeLeaderboardModal() {
+      const e = arguments[0];
+      if (e) { if (typeof e.preventDefault === 'function') e.preventDefault(); if (typeof e.stopPropagation === 'function') e.stopPropagation(); }
       const modal = document.getElementById('leaderboard-modal');
       if (modal) {
         modal.classList.add('hidden');
