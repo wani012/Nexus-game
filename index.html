@@ -2845,7 +2845,77 @@
       });
     }
 
-        function updateTargetApexUI(records) {
+            // --- Persistent All-Time Reigning Apex Champion & Daily Leaderboards ---
+    const DEFAULT_APEX_RECORD = {
+      name: 'FURKAN',
+      recordTime: 8.42,
+      totalTime: 8.42,
+      levelReached: 1,
+      timestamp: 1741243567890
+    };
+
+    function getActiveApexRecord() {
+      const mgr = window.lbManager || (typeof lbManager !== 'undefined' ? lbManager : null);
+      
+      // 1. If firestoreRecords or entries exist, the active #1 daily/all-time is records[0]
+      const entries = (firestoreRecords && firestoreRecords.length > 0) 
+        ? firestoreRecords 
+        : (mgr && mgr.getEntries ? mgr.getEntries() : []);
+      const topDaily = (entries && entries.length > 0) ? entries[0] : null;
+
+      // 2. Get persistent reigning apex
+      let reigning = (mgr && mgr.reigningApex) 
+        ? mgr.reigningApex 
+        : (mgr && mgr.loadPersistentApex ? mgr.loadPersistentApex() : null);
+
+      if (!reigning) {
+        try {
+          const saved = localStorage.getItem('nexus_apex_record');
+          if (saved) reigning = JSON.parse(saved);
+        } catch (_) {}
+      }
+
+      // 3. Select the true highest leader
+      let activeLeader = topDaily || reigning || { ...DEFAULT_APEX_RECORD };
+      if (topDaily && reigning) {
+        const topLvl = Number(topDaily.levelReached !== undefined ? topDaily.levelReached : (topDaily.level || 1));
+        const reignLvl = Number(reigning.levelReached !== undefined ? reigning.levelReached : (reigning.level || 1));
+        const topTime = typeof topDaily.recordTime === 'number' ? topDaily.recordTime : (typeof topDaily.totalTime === 'number' ? topDaily.totalTime : parseFloat(topDaily.recordTime || topDaily.totalTime || topDaily.time || 0));
+        const reignTime = typeof reigning.recordTime === 'number' ? reigning.recordTime : (typeof reigning.totalTime === 'number' ? reigning.totalTime : parseFloat(reigning.recordTime || reigning.totalTime || reigning.time || 9999));
+
+        if (topLvl > reignLvl || (topLvl === reignLvl && topTime <= reignTime)) {
+          activeLeader = topDaily;
+        } else {
+          activeLeader = reigning;
+        }
+      }
+
+      const lvl = activeLeader.levelReached !== undefined ? Number(activeLeader.levelReached) : (activeLeader.level !== undefined ? Number(activeLeader.level) : 1);
+      const timeVal = typeof activeLeader.recordTime === 'number' ? activeLeader.recordTime : (typeof activeLeader.totalTime === 'number' ? activeLeader.totalTime : parseFloat(activeLeader.recordTime || activeLeader.totalTime || activeLeader.time || 0));
+
+      const cleanRecord = {
+        name: String(activeLeader.name || 'FURKAN').trim().toUpperCase().slice(0, 12),
+        levelReached: lvl,
+        level: lvl,
+        recordTime: timeVal,
+        totalTime: timeVal,
+        time: `${timeVal.toFixed(2)}s`,
+        timestamp: activeLeader.timestamp || Date.now()
+      };
+
+      // Harmonize global window properties
+      window.apexRunner = cleanRecord;
+      if (!window.topApexTimes || window.topApexTimes.length === 0) {
+        window.topApexTimes = [cleanRecord];
+      } else {
+        window.topApexTimes[0] = cleanRecord;
+      }
+
+      return cleanRecord;
+    }
+    window.getActiveApexRecord = getActiveApexRecord;
+
+    function updateTargetApexUI(records) {
       const t1 = document.getElementById('target-apex-1');
       const t2 = document.getElementById('target-apex-2');
       const t3 = document.getElementById('target-apex-3');
@@ -2861,33 +2931,36 @@
         { timeEl: t3, nameEl: n3, rank: 2 },
       ];
 
+      const mgr = window.lbManager || (typeof lbManager !== 'undefined' ? lbManager : null);
+      const entries = (records && records.length > 0) 
+        ? records 
+        : (firestoreRecords && firestoreRecords.length > 0 ? firestoreRecords : (mgr ? mgr.getEntries() : []));
+
       targets.forEach(({ timeEl, nameEl, rank }) => {
-        let rec = records && records[rank];
-        // Rank 0 is the apex target: if today has no record yet, display the reigning apex champion
-        if (rank === 0 && !rec && window.lbManager) {
-          rec = window.lbManager.getApexRunner();
+        let rec = entries && entries[rank];
+        // Rank 0 is the apex target: dynamically pull from the exact same active #1 record object as apexRunner
+        if (rank === 0) {
+          rec = getActiveApexRecord();
         }
         if (rec) {
-          const lvl = rec.levelReached !== undefined ? rec.levelReached : (rec.level || 1);
+          const lvl = rec.levelReached !== undefined ? Number(rec.levelReached) : (rec.level !== undefined ? Number(rec.level) : 1);
           const timeVal = typeof rec.recordTime === 'number' ? rec.recordTime : (typeof rec.totalTime === 'number' ? rec.totalTime : parseFloat(rec.recordTime || rec.totalTime || rec.time || 0));
-          top3TargetTimes.push({ level: lvl, time: timeVal });
+          const recName = rec.name || 'OPERATOR';
+          top3TargetTimes.push({ level: lvl, time: timeVal, name: recName, recordTime: timeVal, totalTime: timeVal, levelReached: lvl });
           if (timeEl) timeEl.innerText = `LVL ${lvl} • ${timeVal.toFixed(2)}s`;
-          if (nameEl) nameEl.innerText = rec.name || 'OPERATOR';
+          if (nameEl) nameEl.innerText = recName;
         } else {
           if (timeEl) timeEl.innerText = '--:--';
-          if (nameEl) nameEl.innerText = 'Awaiting Run...'; // Awaiting Record...
+          if (nameEl) nameEl.innerText = 'Awaiting Run...';
         }
       });
-    }
 
-    // --- Persistent All-Time Reigning Apex Champion & Daily Leaderboards ---
-    const DEFAULT_APEX_RECORD = {
-      name: 'FURKAN',
-      recordTime: 8.42,
-      totalTime: 8.42,
-      levelReached: 1,
-      timestamp: 1741243567890
-    };
+      window.topApexTimes = top3TargetTimes;
+      try {
+        localStorage.setItem('nexus_top_apex_times', JSON.stringify(top3TargetTimes));
+      } catch (_) {}
+    }
+    window.updateTargetApexUI = updateTargetApexUI;
 
     class DailyLeaderboardManager {
       constructor(puzzle) {
@@ -2895,6 +2968,7 @@
         this.storageKey = `nexus_lb_progressive_${new Date().toISOString().slice(0, 10)}`;
         this.apexStorageKey = 'nexus_apex_record';
         this.reigningApex = this.loadPersistentApex();
+        window.lbManager = this;
       }
 
       loadPersistentApex() {
@@ -2902,7 +2976,7 @@
           const saved = localStorage.getItem(this.apexStorageKey);
           if (saved) {
             const parsed = JSON.parse(saved);
-            if (parsed && parsed.name && (parsed.recordTime || parsed.totalTime)) {
+            if (parsed && parsed.name && (parsed.recordTime !== undefined || parsed.totalTime !== undefined || parsed.time !== undefined)) {
               const rTime = typeof parsed.recordTime === 'number' ? parsed.recordTime : (typeof parsed.totalTime === 'number' ? parsed.totalTime : parseFloat(parsed.recordTime || parsed.totalTime || parsed.time || 8.42));
               return {
                 name: String(parsed.name).trim().toUpperCase().slice(0, 12),
@@ -2941,6 +3015,9 @@
       }
 
       getApexRunner() {
+        if (typeof getActiveApexRecord === 'function') {
+          return getActiveApexRecord();
+        }
         if (!this.reigningApex) {
           this.reigningApex = this.loadPersistentApex();
         }
@@ -2948,7 +3025,7 @@
         const champion = currentApexRecord || { name: "FURKAN", time: "08.42s", level: 1 };
         return {
           name: champion.name || "FURKAN",
-          time: champion.time || (champion.recordTime ? `${Number(champion.recordTime).toFixed(2)}s` : "08.42s"),
+          time: champion.time || (champion.recordTime !== undefined ? `${Number(champion.recordTime).toFixed(2)}s` : "08.42s"),
           recordTime: typeof champion.recordTime === 'number' ? champion.recordTime : parseFloat(champion.time || champion.totalTime || 8.42),
           totalTime: typeof champion.totalTime === 'number' ? champion.totalTime : parseFloat(champion.time || champion.recordTime || 8.42),
           level: champion.level || champion.levelReached || 1,
@@ -2973,19 +3050,41 @@
       }
 
       updateReigningApex(newRecord) {
+        if (!newRecord) return;
         const rTime = typeof newRecord.recordTime === 'number' ? newRecord.recordTime : (typeof newRecord.totalTime === 'number' ? newRecord.totalTime : parseFloat(newRecord.recordTime || newRecord.totalTime || newRecord.time || 0));
-        this.reigningApex = {
-          name: String(newRecord.name).trim().toUpperCase().slice(0, 12),
+        const lvl = Number(newRecord.levelReached !== undefined ? newRecord.levelReached : (newRecord.level || 1));
+        const champion = {
+          name: String(newRecord.name || 'FURKAN').trim().toUpperCase().slice(0, 12),
           recordTime: rTime,
           totalTime: rTime,
-          levelReached: Number(newRecord.levelReached || newRecord.level || 1),
+          time: `${rTime.toFixed(2)}s`,
+          levelReached: lvl,
+          level: lvl,
           timestamp: newRecord.timestamp || Date.now()
         };
+
+        this.reigningApex = champion;
+        window.apexRunner = champion;
+        if (!window.topApexTimes || window.topApexTimes.length === 0) {
+          window.topApexTimes = [champion];
+        } else {
+          window.topApexTimes[0] = champion;
+        }
+
         try {
-          localStorage.setItem(this.apexStorageKey, JSON.stringify(this.reigningApex));
+          localStorage.setItem(this.apexStorageKey, JSON.stringify(champion));
+          localStorage.setItem('nexus_top_apex_times', JSON.stringify(window.topApexTimes));
         } catch (_) {}
+
+        if (firestoreDb) {
+          try {
+            firestoreDb.collection('nexus_apex_record').doc('reigning_champion').set(champion).catch(() => {});
+          } catch (_) {}
+        }
+
         syncApexBanner();
         syncLandingApexWinner();
+        updateTargetApexUI();
       }
 
       async submitScore(playerName, levelReached, totalTime) {
@@ -3041,7 +3140,7 @@
           .onSnapshot((doc) => {
             if (doc.exists) {
               const data = doc.data();
-              if (data && data.name && (data.recordTime || data.totalTime)) {
+              if (data && data.name && (data.recordTime !== undefined || data.totalTime !== undefined || data.time !== undefined)) {
                 const remoteApex = {
                   name: String(data.name).trim().toUpperCase().slice(0, 12),
                   recordTime: typeof data.recordTime === 'number' ? data.recordTime : parseFloat(data.recordTime || data.totalTime || 0),
@@ -3264,6 +3363,7 @@
 
     let activePuzzle = generatePuzzleFromSeed('nexus_init_lvl_1', 1, new Date().toISOString().slice(0, 10));
     let lbManager = new DailyLeaderboardManager(activePuzzle);
+    window.lbManager = lbManager;
     let playerPath = [];
     let connectedNodes = [];
     let linePath = [];
@@ -3924,14 +4024,15 @@
 
     
                 // --- Mandatory Landing Overlay Spaceship Launch & Winner Spotlight ---
-    function syncLandingApexWinner() {
-      const currentApexRecord = (window.lbManager && window.lbManager.getApexRunner && window.lbManager.getApexRunner());
-      const champion = currentApexRecord || { name: "FURKAN", time: "08.42s", level: 1 };
+        function syncLandingApexWinner() {
+      const champion = (typeof getActiveApexRecord === 'function') 
+        ? getActiveApexRecord() 
+        : ((window.lbManager && window.lbManager.getApexRunner && window.lbManager.getApexRunner()) || { name: "FURKAN", time: "08.42s", level: 1, levelReached: 1, recordTime: 8.42, totalTime: 8.42 });
       const apexNameEl = document.getElementById('landing-apex-name');
       const apexStatsEl = document.getElementById('landing-apex-stats');
       if (apexNameEl && apexStatsEl && champion) {
         const lvl = champion.levelReached !== undefined ? champion.levelReached : (champion.level || 1);
-        const timeVal = typeof champion.recordTime === 'number' ? champion.recordTime : (typeof champion.totalTime === 'number' ? champion.totalTime : parseFloat(champion.time || champion.recordTime || champion.totalTime || 8.42));
+        const timeVal = typeof champion.recordTime === 'number' ? champion.recordTime : (typeof champion.totalTime === 'number' ? champion.totalTime : parseFloat(champion.time || champion.recordTime || champion.totalTime || 0));
         apexNameEl.innerText = champion.name;
         apexStatsEl.innerText = `LVL ${lvl} • ${timeVal.toFixed(2)}s • REIGNING APEX RECORD`;
       }
@@ -3942,7 +4043,7 @@
         if (saved) playerInput.value = saved;
       }
       const overlay = document.getElementById('landing-launch-overlay');
-      if (overlay && overlay.style.display !== 'none' && !overlay.classList.contains('hidden')) {
+      if (overlay && !overlay.classList.contains('hidden')) {
         document.body.style.overflow = 'hidden';
       }
     }
@@ -4059,19 +4160,21 @@
     }
     window.handleSpaceshipLaunch = handleSpaceshipLaunch;
 
-        function syncApexBanner() {
-      const currentApexRecord = (window.lbManager && window.lbManager.getApexRunner && window.lbManager.getApexRunner());
-      const champion = currentApexRecord || { name: "FURKAN", time: "08.42s", level: 1 };
+            function syncApexBanner() {
+      const champion = (typeof getActiveApexRecord === 'function') 
+        ? getActiveApexRecord() 
+        : ((window.lbManager && window.lbManager.getApexRunner && window.lbManager.getApexRunner()) || { name: "FURKAN", time: "08.42s", level: 1, levelReached: 1, recordTime: 8.42, totalTime: 8.42 });
       const bannerCta = document.getElementById('apex-runner-cta');
       if (champion) {
         const lvl = champion.levelReached !== undefined ? champion.levelReached : (champion.level || 1);
-        const timeVal = typeof champion.recordTime === 'number' ? champion.recordTime : (typeof champion.totalTime === 'number' ? champion.totalTime : parseFloat(champion.time || champion.recordTime || champion.totalTime || 8.42));
+        const timeVal = typeof champion.recordTime === 'number' ? champion.recordTime : (typeof champion.totalTime === 'number' ? champion.totalTime : parseFloat(champion.time || champion.recordTime || champion.totalTime || 0));
         safeSetText('apex-runner-title', "TODAY'S APEX RUNNER");
         safeSetText('apex-runner-name', champion.name);
         safeSetText('apex-runner-time', `LVL ${lvl} • ${timeVal.toFixed(2)}s`);
         if (bannerCta) bannerCta.innerHTML = 'Beat Record';
       }
     }
+    window.syncApexBanner = syncApexBanner;
 
     // GUARANTEED 25-CELL DOM GRID RENDERER
     function renderDOMGrid() {
@@ -6154,7 +6257,9 @@ ${shareData.url}`;
       safeSetText('nav-streak', storedStreak);
       initPwaBanner();
       triggerCyberEntranceAnimation();
-      syncLandingApexWinner(); // init landing
+      syncApexBanner();
+      syncLandingApexWinner();
+      updateTargetApexUI();
     }
 
     if (document.readyState === 'loading') {
