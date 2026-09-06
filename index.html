@@ -4983,7 +4983,7 @@
 
       // 5. Sequence Completion: Strictly terminate at designated final target (Node [25] in this protocol)
       const finalTarget = activeLevelSequence[activeLevelSequence.length - 1];
-      if ((touchedNode.value === finalTarget && playerPath.length === activeLevelSequence.length) || connectedNodes.length === 25) {
+      if (touchedNode.value === finalTarget && playerPath.length === activeLevelSequence.length) {
         triggerVictory();
       }
     }
