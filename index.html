@@ -1374,7 +1374,7 @@
           <span id="retry-btn-text">Try Again</span>
         </button>
 
-        <button id="view-leaderboard-btn" onclick="document.getElementById('open-leaderboard-btn').click();" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] text-slate-300 hover:text-white font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1.5">
+        <button id="view-leaderboard-btn" onclick="openLeaderboardFromGameOver(event)" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] text-slate-300 hover:text-white font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
           <span>View Leaderboard</span>
         </button>
@@ -3263,8 +3263,12 @@ ${url}`);
         });
       }
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isSupportModalOpen) {
-          closeSupportModal();
+        if (e.key === 'Escape') {
+          if (isSupportModalOpen) closeSupportModal();
+          const lbModal = document.getElementById('leaderboard-modal');
+          if (lbModal && !lbModal.classList.contains('hidden')) {
+            closeLeaderboardModal();
+          }
         }
       });
 
@@ -3539,13 +3543,19 @@ ${url}`);
 
       const viewLbBtn = document.getElementById('view-leaderboard-btn');
       if (viewLbBtn) {
-        viewLbBtn.addEventListener('click', () => {
-          const victoryModal = document.getElementById('victory-modal');
-          if (victoryModal) {
-            victoryModal.classList.add('hidden');
-            victoryModal.classList.remove('flex');
+        viewLbBtn.addEventListener('click', (e) => {
+          openLeaderboardFromGameOver(e);
+        });
+      }
+
+      const lbModalEl = document.getElementById('leaderboard-modal');
+      if (lbModalEl) {
+        lbModalEl.addEventListener('click', (e) => {
+          if (e.target === lbModalEl) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeLeaderboardModal();
           }
-          renderLeaderboardModal();
         });
       }
 
@@ -3565,11 +3575,46 @@ ${url}`);
       });
     }
 
+    let openedFromGameOver = false;
+
+    function openLeaderboardFromGameOver(e) {
+      if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+      }
+      openedFromGameOver = true;
+
+      // 1. Hide or dismiss the current "Time's Up" (gameover-modal) cleanly
+      const gameoverModal = document.getElementById('gameover-modal');
+      if (gameoverModal) {
+        gameoverModal.classList.add('hidden');
+        gameoverModal.classList.remove('flex');
+      }
+
+      // 2. Trigger and render the main Leaderboard modal
+      renderLeaderboardModal();
+
+      // 3. Ensure z-index, overlay backdrop, and pointer-events are properly set
+      const lbModal = document.getElementById('leaderboard-modal');
+      if (lbModal) {
+        lbModal.classList.remove('hidden');
+        lbModal.classList.add('flex');
+        lbModal.style.zIndex = '60';
+        lbModal.style.pointerEvents = 'auto';
+      }
+    }
+    window.openLeaderboardFromGameOver = openLeaderboardFromGameOver;
+
     function closeLeaderboardModal() {
       const modal = document.getElementById('leaderboard-modal');
       if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        modal.style.zIndex = '';
+      }
+      if (openedFromGameOver || isTimeOver) {
+        openedFromGameOver = false;
+        resetCircuitAttempt();
       }
     }
     window.closeLeaderboardModal = closeLeaderboardModal;
