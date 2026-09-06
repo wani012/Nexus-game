@@ -825,6 +825,32 @@
       animation: exhaustPulse 0.15s ease-out infinite alternate;
     }
 
+  
+    /* ================= STRICT TOUCH & OVERSCROLL ISOLATION ================= */
+    #game-arena, #interactive-board, #node-grid, canvas, .board-frame, .board-grid {
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      overscroll-behavior: contain !important;
+    }
+
+    /* ================= QR CODE PULSE HIGHLIGHT ================= */
+    @keyframes qrPulseHighlight {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+        border-color: rgba(59, 130, 246, 0.4);
+      }
+      50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 45px rgba(6, 182, 212, 0.9), 0 0 20px #00f0ff;
+        border-color: #00f0ff;
+      }
+    }
+    .qr-highlight-anim {
+      animation: qrPulseHighlight 1.1s cubic-bezier(0.4, 0, 0.2, 1) 2 !important;
+    }
+
   </style>
 </head>
 
@@ -1072,7 +1098,7 @@
   </header>
 
   <!-- ================= GAME ARENA ================= -->
-  <section id="game-arena" class="py-2 px-4 flex flex-col items-center justify-center relative">
+  <section id="game-arena" class="py-2 px-4 flex flex-col items-center justify-center relative select-none touch-none overscroll-contain">
     <div id="game-arena-card" class="w-full max-w-[420px] flex flex-col">
 
       <!-- Timer & Utilities Header Bar (Zero-G Floating Card) -->
@@ -1118,7 +1144,7 @@
           <div class="flex items-center gap-1.5">
             <!-- Audio Toggle -->
             <button id="sound-btn" title="Toggle Sound" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center cursor-pointer" aria-label="Toggle Sound">
-              <svg id="sound-icon-on" class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span id="sound-btn-emoji" class="text-xs mr-1">🔊</span><svg id="sound-icon-on" class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
               </svg>
               <svg id="sound-icon-off" class="w-4 h-4 text-slate-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1183,26 +1209,26 @@
           <span class="text-[10px] font-medium text-slate-400 px-2 py-0.5 rounded-full bg-slate-800 border border-white/5">Top 3 Today</span>
         </div>
         <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="bg-[#161F33] border border-amber-500/30 rounded-xl p-2">
+          <div class="bg-[#161F33] border border-amber-500/30 rounded-xl p-2 min-h-[68px] flex flex-col justify-center">
             <div class="text-[10px] font-bold text-amber-400 flex items-center justify-center gap-1">
               <span>1st</span>
             </div>
-            <div id="target-apex-1" class="font-mono text-xs font-bold text-amber-300 mt-0.5 truncate">LVL 1 • --.--s</div>
-            <div id="target-apex-name-1" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Empty</div>
+            <div id="target-apex-1" class="font-mono text-xs font-bold text-amber-300 mt-0.5 truncate">--:--</div>
+            <div id="target-apex-name-1" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Record...</div>
           </div>
-          <div class="bg-[#161F33] border border-slate-400/20 rounded-xl p-2">
+          <div class="bg-[#161F33] border border-slate-400/20 rounded-xl p-2 min-h-[68px] flex flex-col justify-center">
             <div class="text-[10px] font-bold text-slate-300 flex items-center justify-center gap-1">
               <span>2nd</span>
             </div>
-            <div id="target-apex-2" class="font-mono text-xs font-bold text-slate-200 mt-0.5 truncate">LVL 1 • --.--s</div>
-            <div id="target-apex-name-2" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Empty</div>
+            <div id="target-apex-2" class="font-mono text-xs font-bold text-slate-200 mt-0.5 truncate">--:--</div>
+            <div id="target-apex-name-2" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Record...</div>
           </div>
-          <div class="bg-[#161F33] border border-amber-700/30 rounded-xl p-2">
+          <div class="bg-[#161F33] border border-amber-700/30 rounded-xl p-2 min-h-[68px] flex flex-col justify-center">
             <div class="text-[10px] font-bold text-amber-500 flex items-center justify-center gap-1">
               <span>3rd</span>
             </div>
-            <div id="target-apex-3" class="font-mono text-xs font-bold text-amber-400 mt-0.5 truncate">LVL 1 • --.--s</div>
-            <div id="target-apex-name-3" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Empty</div>
+            <div id="target-apex-3" class="font-mono text-xs font-bold text-amber-400 mt-0.5 truncate">--:--</div>
+            <div id="target-apex-name-3" class="text-[9px] text-slate-400 font-mono truncate mt-0.5">Awaiting Record...</div>
           </div>
         </div>
       </div>
@@ -1332,7 +1358,7 @@
       </div>
 
       <!-- 100% Scannable Real UPI QR Code Frame -->
-      <div class="relative w-52 h-52 mx-auto mb-3 rounded-2xl bg-white p-2.5 shadow-[0_0_25px_rgba(59,130,246,0.3)] border border-blue-400/40 flex items-center justify-center">
+      <div id="upi-qr-container" class="relative w-52 h-52 mx-auto mb-3 rounded-2xl bg-white p-2.5 shadow-[0_0_25px_rgba(59,130,246,0.3)] border border-blue-400/40 flex items-center justify-center transition-all">
         <img id="upi-qr-image" 
              src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dfurkanfarooq1%40ybl%26pn%3DFurkan%26am%3D29%26cu%3DINR&margin=10" 
              alt="Scan with GPay, PhonePe, Paytm, or any UPI App" 
@@ -1353,7 +1379,7 @@
       </div>
 
       <!-- Mobile Deep-Link Option ("Pay via UPI App") -->
-      <a id="mobile-upi-deeplink" href="upi://pay?pa=furkanfarooq1@ybl&pn=Furkan&am=29&cu=INR" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mb-3 cursor-pointer transition active:scale-[0.98]">
+      <a id="mobile-upi-deeplink" data-safez="zCSafez" href="upi://pay?pa=furkanfarooq1@ybl&pn=Furkan&am=29&cu=INR" onclick="handleUpiPaymentClick(event)" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mb-3 cursor-pointer transition active:scale-[0.98]">
         <span>🚀 Pay via Any UPI App (GPay / PhonePe / Paytm)</span>
       </a>
 
@@ -1844,12 +1870,12 @@
       return hash >>> 0;
     }
 
-    // --- 2. Cyberpunk Audio Synthesizer & Haptic Engine (Zero External MP3s) ---
-    class CyberAudioSynth {
+        // --- 2. Standalone Lightweight Web Audio API Synthesizer (SoundFX) & Haptic Engine ---
+    class SoundFX {
       constructor() {
         this.ctx = null;
         this.enabled = localStorage.getItem('nexus_audio_muted') !== 'true';
-        // Continuous exponential scale from 220Hz (A3) to 1174Hz (D6) across 25 nodes
+        // Base frequencies scale from 220Hz to 1174Hz across 25 nodes
         this.baseFrequencies = [];
         for (let i = 0; i < 25; i++) {
           this.baseFrequencies.push(220 * Math.pow(2, (i / 24) * 2.415));
@@ -1874,290 +1900,140 @@
         updateSoundBtnUI();
         if (this.enabled) {
           this.init();
-          this.playStep(0);
+          this.playNodeConnect(0);
         }
         return this.enabled;
       }
 
-      // 1. Crisp futuristic blip that pitches up with each successive node (0 to 24)
-      playStep(stepIndex) {
+      // Short, crisp high-frequency sine pulse (520Hz ramping to 780Hz for 0.06s).
+      // Pitch scales up slightly with each consecutive node (node 1 = base, node 25 = high chime).
+      playNodeConnect(nodeIndex = 0) {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-
         try {
-          const idx = Math.max(0, Math.min(24, stepIndex));
-          const targetFreq = this.baseFrequencies[idx] || 440;
           const now = this.ctx.currentTime;
+          const pitchMult = 1 + (Math.max(0, Math.min(24, nodeIndex)) / 24) * 0.85;
+          const startFreq = 520 * pitchMult;
+          const endFreq = 780 * pitchMult;
 
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(targetFreq * 1.35, now);
-          osc.frequency.exponentialRampToValueAtTime(targetFreq, now + 0.025);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.06);
 
           gain.gain.setValueAtTime(0.18, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-
           osc.start(now);
-          osc.stop(now + 0.12);
-
-          // Subtle bright harmonic shimmer
-          const harmonic = this.ctx.createOscillator();
-          const hGain = this.ctx.createGain();
-          harmonic.type = 'sine';
-          harmonic.frequency.setValueAtTime(targetFreq * 2, now);
-          hGain.gain.setValueAtTime(0.06, now);
-          hGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-
-          harmonic.connect(hGain);
-          hGain.connect(this.ctx.destination);
-          harmonic.start(now);
-          harmonic.stop(now + 0.08);
+          osc.stop(now + 0.065);
         } catch (_) {}
       }
 
-      // 2. Urgent, pulsating low-frequency heartbeat / alarm tick (last 5s warning)
-      playUrgentTick() {
+      // Soft low-frequency boop (200Hz)
+      playUndo() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-
         try {
           const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(200, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
 
-          // Sub-bass thump (75Hz -> 38Hz)
-          const subOsc = this.ctx.createOscillator();
-          const subGain = this.ctx.createGain();
-          subOsc.type = 'sine';
-          subOsc.frequency.setValueAtTime(75, now);
-          subOsc.frequency.exponentialRampToValueAtTime(38, now + 0.09);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
 
-          subGain.gain.setValueAtTime(0.35, now);
-          subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-
-          subOsc.connect(subGain);
-          subGain.connect(this.ctx.destination);
-          subOsc.start(now);
-          subOsc.stop(now + 0.09);
-
-          // Crisp metallic tick
-          const tickOsc = this.ctx.createOscillator();
-          const tickGain = this.ctx.createGain();
-          tickOsc.type = 'triangle';
-          tickOsc.frequency.setValueAtTime(1100, now);
-          tickGain.gain.setValueAtTime(0.09, now);
-          tickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
-
-          tickOsc.connect(tickGain);
-          tickGain.connect(this.ctx.destination);
-          tickOsc.start(now);
-          tickOsc.stop(now + 0.04);
-
-          // Secondary lub-dub pulse 95ms later
-          setTimeout(() => {
-            if (!this.enabled || !this.ctx) return;
-            try {
-              const t2 = this.ctx.currentTime;
-              const sub2 = this.ctx.createOscillator();
-              const sub2Gain = this.ctx.createGain();
-              sub2.type = 'sine';
-              sub2.frequency.setValueAtTime(62, t2);
-              sub2.frequency.exponentialRampToValueAtTime(32, t2 + 0.07);
-
-              sub2Gain.gain.setValueAtTime(0.22, t2);
-              sub2Gain.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.07);
-
-              sub2.connect(sub2Gain);
-              sub2Gain.connect(this.ctx.destination);
-              sub2.start(t2);
-              sub2.stop(t2 + 0.07);
-            } catch (_) {}
-          }, 95);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.085);
         } catch (_) {}
       }
 
-      // 3. Circuit Cracked (Win): Triumphant synth chime with a resonant bass swell
-      playVictory() {
+      // Euphoric 3-note neon chord arpeggio
+      playSuccess() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-
         try {
           const now = this.ctx.currentTime;
-
-          // Resonant Bass Swell
-          const bassOsc = this.ctx.createOscillator();
-          const bassFilter = this.ctx.createBiquadFilter();
-          const bassGain = this.ctx.createGain();
-
-          bassOsc.type = 'sawtooth';
-          bassOsc.frequency.setValueAtTime(55, now);
-          bassOsc.frequency.exponentialRampToValueAtTime(110, now + 0.45);
-
-          bassFilter.type = 'lowpass';
-          bassFilter.frequency.setValueAtTime(110, now);
-          bassFilter.frequency.exponentialRampToValueAtTime(460, now + 0.4);
-          bassFilter.Q.value = 5.0;
-
-          bassGain.gain.setValueAtTime(0.01, now);
-          bassGain.gain.linearRampToValueAtTime(0.26, now + 0.35);
-          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-
-          bassOsc.connect(bassFilter);
-          bassFilter.connect(bassGain);
-          bassGain.connect(this.ctx.destination);
-          bassOsc.start(now);
-          bassOsc.stop(now + 1.2);
-
-          // Triumphant Synth Chime Arpeggio
-          const chimeNotes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
-          chimeNotes.forEach((freq, idx) => {
-            setTimeout(() => {
-              if (!this.enabled || !this.ctx) return;
-              try {
-                const t = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, t);
-                gain.gain.setValueAtTime(0.22, t);
-                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(t);
-                osc.stop(t + 0.85);
-              } catch (_) {}
-            }, 60 + idx * 75);
+          const chord = [523.25, 659.25, 783.99]; // C5, E5, G5
+          chord.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            const t = now + i * 0.08;
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.16, t);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.36);
           });
         } catch (_) {}
       }
 
-      // 4. Failure / Timeout: Digital distorted glitch sound
-      playGlitchFailure() {
+      // Low descending saw/triangle buzz
+      playGameOver() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-
         try {
           const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(55, now + 0.35);
 
-          // Modulated FM synth for harsh digital cyber glitch
-          const carrier = this.ctx.createOscillator();
-          const modulator = this.ctx.createOscillator();
-          const modGain = this.ctx.createGain();
-          const masterGain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
-          carrier.type = 'sawtooth';
-          carrier.frequency.setValueAtTime(320, now);
-          carrier.frequency.exponentialRampToValueAtTime(38, now + 0.38);
-
-          modulator.type = 'square';
-          modulator.frequency.setValueAtTime(85, now);
-          modulator.frequency.linearRampToValueAtTime(22, now + 0.38);
-
-          modGain.gain.setValueAtTime(360, now);
-          modGain.gain.exponentialRampToValueAtTime(10, now + 0.38);
-
-          modulator.connect(carrier.frequency);
-
-          masterGain.gain.setValueAtTime(0.25, now);
-          masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
-
-          carrier.connect(masterGain);
-          masterGain.connect(this.ctx.destination);
-
-          carrier.start(now);
-          modulator.start(now);
-          carrier.stop(now + 0.38);
-          modulator.stop(now + 0.38);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.36);
         } catch (_) {}
       }
 
-      // 5. Short error buzz for illegal drag
+      // Error buzz for invalid moves
       playErrorBuzz() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-
         try {
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(140, now);
-          osc.frequency.exponentialRampToValueAtTime(60, now + 0.16);
-
-          gain.gain.setValueAtTime(0.16, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-
+          osc.frequency.setValueAtTime(120, now);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.16);
+          osc.stop(now + 0.1);
         } catch (_) {}
       }
 
-      // 6. Cyber Phoenix Breakout: Majestic soaring synth sweep + resonant harmonic falcon cry
-      playPhoenixBreakout() {
-        if (!this.enabled) return;
-        this.init();
-        if (!this.ctx) return;
+      // Backwards-compatible aliases
+      playStep(stepIndex) { this.playNodeConnect(stepIndex); }
+      playVictory() { this.playSuccess(); }
+      playGlitchFailure() { this.playGameOver(); }
+      playCountdownTick() { this.playNodeConnect(0); }
 
-        try {
-          const now = this.ctx.currentTime;
-          
-          // Ascending majestic chord arpeggio
-          const chord = [329.63, 440.00, 659.25, 880.00, 1318.51];
-          chord.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
-            osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + idx * 0.07 + 0.4);
-
-            gain.gain.setValueAtTime(0.001, now);
-            gain.gain.linearRampToValueAtTime(0.14, now + idx * 0.07);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.07 + 0.5);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(now + idx * 0.07);
-            osc.stop(now + idx * 0.07 + 0.52);
-          });
-
-          // Soaring Falcon sweep
-          const leadOsc = this.ctx.createOscillator();
-          const leadGain = this.ctx.createGain();
-          leadOsc.type = 'sawtooth';
-          leadOsc.frequency.setValueAtTime(380, now);
-          leadOsc.frequency.exponentialRampToValueAtTime(1450, now + 0.45);
-          leadOsc.frequency.exponentialRampToValueAtTime(1850, now + 0.7);
-
-          leadGain.gain.setValueAtTime(0.05, now);
-          leadGain.gain.exponentialRampToValueAtTime(0.18, now + 0.35);
-          leadGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.75);
-
-          leadOsc.connect(leadGain);
-          leadGain.connect(this.ctx.destination);
-          leadOsc.start(now);
-          leadOsc.stop(now + 0.76);
-        } catch (_) {}
-      }
-
-      // 7. Golden Mystery Node discovery bell
+      // Secret Mystery Node discovery bell
       playMysteryNode() {
         if (!this.enabled) return;
         this.init();
         if (!this.ctx) return;
-
         try {
           const now = this.ctx.currentTime;
           [523.25, 659.25, 783.99, 1046.50, 1567.98].forEach((freq, i) => {
@@ -2176,30 +2052,76 @@
       }
     }
 
-    const sound = new CyberAudioSynth();
+    const sound = new SoundFX();
+    window.sound = sound;
+    window.SoundFX = SoundFX;
+    window.CyberAudioSynth = SoundFX;
+
+    // Automatically resume AudioContext on first user interaction/click
+    const unlockAudioContext = () => {
+      if (sound && sound.ctx && sound.ctx.state === 'suspended') {
+        sound.ctx.resume().catch(() => {});
+      } else if (sound) {
+        sound.init();
+      }
+      ['click', 'keydown', 'touchstart', 'pointerdown'].forEach(evt => {
+        window.removeEventListener(evt, unlockAudioContext);
+      });
+    };
+    ['click', 'keydown', 'touchstart', 'pointerdown'].forEach(evt => {
+      window.addEventListener(evt, unlockAudioContext, { passive: true, once: true });
+    });
 
     function updateSoundBtnUI() {
       const soundBtn = document.getElementById('sound-btn');
       const iconOn = document.getElementById('sound-icon-on');
       const iconOff = document.getElementById('sound-icon-off');
+      const soundEmoji = document.getElementById('sound-btn-emoji');
       if (!soundBtn) return;
 
       if (sound.enabled) {
         if (iconOn) iconOn.classList.remove('hidden');
         if (iconOff) iconOff.classList.add('hidden');
+        if (soundEmoji) soundEmoji.innerText = '🔊';
         soundBtn.classList.remove('border-white/10', 'bg-slate-800/40', 'text-slate-500');
         soundBtn.classList.add('border-[#00F0FF]/40', 'bg-[#00F0FF]/10', 'text-[#00F0FF]');
-        soundBtn.setAttribute('title', 'Mute Audio');
+        soundBtn.setAttribute('title', 'Sound Effects: ON (🔊)');
+        soundBtn.setAttribute('aria-label', 'Sound Effects: ON (🔊)');
       } else {
         if (iconOn) iconOn.classList.add('hidden');
         if (iconOff) iconOff.classList.remove('hidden');
+        if (soundEmoji) soundEmoji.innerText = '🔇';
         soundBtn.classList.remove('border-[#00F0FF]/40', 'bg-[#00F0FF]/10', 'text-[#00F0FF]');
         soundBtn.classList.add('border-white/10', 'bg-slate-800/40', 'text-slate-500');
-        soundBtn.setAttribute('title', 'Unmute Audio');
+        soundBtn.setAttribute('title', 'Sound Effects: MUTED (🔇)');
+        soundBtn.setAttribute('aria-label', 'Sound Effects: MUTED (🔇)');
       }
     }
 
     // Safe Mobile Haptic Vibration Helper
+        // --- UPI Payment Button & Desktop Detection / QR Code Highlight ---
+    function isMobileBrowser() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || navigator.vendor || (window.opera && window.opera.toString()));
+    }
+    window.isMobileBrowser = isMobileBrowser;
+
+    function handleUpiPaymentClick(e) {
+      if (!isMobileBrowser()) {
+        if (e) e.preventDefault();
+        const qrContainer = document.getElementById('upi-qr-container') || (document.getElementById('upi-qr-image') && document.getElementById('upi-qr-image').parentElement);
+        if (qrContainer) {
+          qrContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          qrContainer.classList.remove('qr-highlight-anim');
+          void qrContainer.offsetWidth; // trigger reflow
+          qrContainer.classList.add('qr-highlight-anim');
+        }
+        showChallengeToast("On desktop? Scan the QR code above with your mobile UPI app! 📱");
+        if (typeof sound !== 'undefined' && sound.playStep) sound.playStep(15);
+        return false;
+      }
+    }
+    window.handleUpiPaymentClick = handleUpiPaymentClick;
+
     function triggerHaptic(pattern) {
       try {
         if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
@@ -2439,7 +2361,7 @@
       });
     }
 
-    function updateTargetApexUI(records) {
+        function updateTargetApexUI(records) {
       const t1 = document.getElementById('target-apex-1');
       const t2 = document.getElementById('target-apex-2');
       const t3 = document.getElementById('target-apex-3');
@@ -2468,8 +2390,8 @@
           if (timeEl) timeEl.innerText = `LVL ${lvl} • ${timeVal.toFixed(2)}s`;
           if (nameEl) nameEl.innerText = rec.name || 'OPERATOR';
         } else {
-          if (timeEl) timeEl.innerText = 'LVL 1 • --.--s';
-          if (nameEl) nameEl.innerText = 'EMPTY';
+          if (timeEl) timeEl.innerText = '--:--';
+          if (nameEl) nameEl.innerText = 'Awaiting Record...';
         }
       });
     }
@@ -3236,7 +3158,65 @@
     }
     window.showChallengeToast = showChallengeToast;
 
-        function getChallengeShareData() {
+            // --- Dynamic 5x5 Wordle-Style Circuit Grid & 1-Click WhatsApp/Web Share ---
+    function generateWordleCircuitGrid() {
+      const grid = [];
+      const checkpoints = (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints : {};
+      const pathSet = new Set(playerPath || []);
+      const isReverse = isReverseProtocol(currentLevel);
+      const startCp = isReverse ? 25 : 1;
+      const endCp = isReverse ? 1 : 25;
+
+      for (let r = 0; r < 5; r++) {
+        let row = '';
+        for (let c = 0; c < 5; c++) {
+          const idx = r * 5 + c;
+          const cp = checkpoints[idx];
+          if (cp === endCp && pathSet.has(idx)) {
+            row += '👑'; // Apex End Goal
+          } else if (cp === startCp) {
+            row += '🟦'; // Starting Node
+          } else if (cp !== undefined) {
+            row += '🔷'; // Milestone Checkpoint
+          } else if (idx === mysteryNodeIndex && mysteryNodeCollected) {
+            row += '🟪'; // Secret Mystery Node
+          } else if (pathSet.has(idx)) {
+            row += '🟩'; // Valid Connected Circuit
+          } else {
+            row += '⬛'; // Open Socket
+          }
+        }
+        grid.push(row);
+      }
+      return grid.join('\n');
+    }
+    window.generateWordleCircuitGrid = generateWordleCircuitGrid;
+
+    async function triggerWebOrWhatsAppShare() {
+      const shareData = getChallengeShareData();
+      const emojiGrid = generateWordleCircuitGrid();
+      const fullShareText = `⚡ NEXUS Protocol: Circuit Synchronized!\nLevel: ${currentLevel || 1} • Time: ${shareData.timeVal}s\nRank: APEX RUNNER\n\n${emojiGrid}\n\nDare to beat my circuit?\n${shareData.url}`;
+
+      if (navigator.share && isMobileBrowser()) {
+        try {
+          await navigator.share({
+            title: 'NEXUS: Daily Circuit Puzzle',
+            text: fullShareText,
+            url: shareData.url
+          });
+          showChallengeToast("Challenge shared successfully! 🚀");
+          return;
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+        }
+      }
+      // Fallback: WhatsApp direct share
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullShareText)}`;
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+    }
+    window.triggerWebOrWhatsAppShare = triggerWebOrWhatsAppShare;
+
+    function getChallengeShareData() {
       const timeVal = (typeof lastSolvedTimeSec === 'number' && lastSolvedTimeSec > 0)
         ? lastSolvedTimeSec.toFixed(2)
         : (lastSolvedTimeSec || (ROUND_DURATION_SEC - 5.00).toFixed(2));
@@ -3265,14 +3245,17 @@
       const { timeVal, message, url } = getChallengeShareData();
 
       // Update message preview
-      safeSetText('social-share-preview-text', `${message}
-
-${url}`);
+      const emojiGrid = generateWordleCircuitGrid();
+      const fullShareText = `${message}\n\n${emojiGrid}\n\n${url}`;
+      safeSetText('social-share-preview-text', fullShareText);
 
       // 1. WhatsApp intent
       const waBtn = document.getElementById('share-btn-whatsapp');
       if (waBtn) {
-        waBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(message + " " + url)}`;
+        const emojiGrid = generateWordleCircuitGrid();
+        const fullShareText = `${message}\n\n${emojiGrid}\n\n${url}`;
+        waBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullShareText)}`;
+        waBtn.onclick = (e) => { e.preventDefault(); triggerWebOrWhatsAppShare(); };
       }
 
       // 2. Twitter / X intent
@@ -3684,8 +3667,8 @@ ${url}`);
       clearInterval(timerTimer);
       isTimeOver = true;
       isDragging = false;
-      sound.playGlitchFailure();
-      triggerHaptic([80, 50, 80]);
+      sound.playGameOver();
+      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
 
       if (timerEl) timerEl.innerText = "00:00";
       if (timerBarEl) timerBarEl.style.width = "0%";
@@ -3889,7 +3872,7 @@ ${url}`);
         setTimeout(() => node.classList.remove('shake-error'), 240);
       }
       sound.playErrorBuzz();
-      triggerHaptic(35);
+      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
     }
 
     // --- 7. Smooth Drag, Relaxed Milestone Validation & Multi-Step Backtracking ---
@@ -3905,8 +3888,8 @@ ${url}`);
           playerPath.push(cellIndex);
           didLiftFinger = false;
           start20sTimer();
-          sound.playStep(0);
-          triggerHaptic(12);
+          sound.playNodeConnect(0);
+          if (navigator.vibrate) navigator.vibrate(8);
           updateActiveStates();
           if (currentLevel >= 3 && boardFrameEl) {
             boardFrameEl.classList.add('fog-active');
@@ -3923,8 +3906,8 @@ ${url}`);
         if (existingIdx === playerPath.length - 1) return;
         playerPath = playerPath.slice(0, existingIdx + 1);
         updateActiveStates();
-        sound.playStep(playerPath.length - 1);
-        triggerHaptic(12);
+        sound.playUndo();
+        if (navigator.vibrate) navigator.vibrate(8);
         return;
       }
 
@@ -3965,8 +3948,8 @@ ${url}`);
 
       // 6. Valid Move
       playerPath.push(cellIndex);
-      sound.playStep(playerPath.length - 1);
-      triggerHaptic(12);
+      sound.playNodeConnect(playerPath.length - 1);
+      if (navigator.vibrate) navigator.vibrate(8);
       updateActiveStates();
 
       // 7. Win Condition Check
@@ -4479,7 +4462,8 @@ ${url}`);
       // Cyber Phoenix Breakout & Confetti
       triggerCyberPhoenixBreakout(finalNodeIndex, () => {
         confetti.burst();
-        sound.playVictory();
+        sound.playSuccess();
+        if (navigator.vibrate) navigator.vibrate([15, 30, 60]);
         showLevelClearedModal(levelTimeSec, totalRunTime, currentLevel);
       });
     }
@@ -4553,24 +4537,23 @@ ${url}`);
       safeSetText('modal-time', timeFormatted);
       safeSetText('modal-streak', `Level ${level}`);
 
-      const shareText = 
-`NEXUS Daily Challenge
-Conquered: LEVEL ${level}
-Total Run Time: ${timeFormatted}
-Rank Tier: APEX OPERATOR
+      const emojiGrid = generateWordleCircuitGrid();
+      const shareData = getChallengeShareData();
+      const shareText = `⚡ NEXUS Protocol: Circuit Synchronized!
+Level: ${level} • Time: ${timeFormatted}
+Rank: APEX OPERATOR
 
-🟩🟩🟩🟩🟩
-🟩🟩🟨🟩🟩
-🟩🟩🟪🟩🟩
-🟩🟩🟩🟩🟩
-🟩🟩🟩🟩🟩
+${emojiGrid}
 
-Can you beat my streak?
-https://nexusgame-website.vercel.app`;
+Can you beat my speedrun?
+${shareData.url}`;
 
       safeSetText('share-card-text', shareText);
       const waBtn = document.getElementById('whatsapp-share-btn');
-      if (waBtn) waBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+      if (waBtn) {
+        waBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+        waBtn.onclick = (e) => { e.preventDefault(); triggerWebOrWhatsAppShare(); };
+      }
 
       const victoryModal = document.getElementById('victory-modal');
       if (victoryModal) {
@@ -4999,39 +4982,57 @@ https://nexusgame-website.vercel.app`;
     }
 
     // --- 9. Real Leaderboard Modal Display (Only Real Submitted Entries) ---
+        // --- 9. Real Leaderboard Modal Display (Only Real Submitted Entries) ---
     function renderLeaderboardModal() {
       const entries = lbManager.getEntries();
       const container = document.getElementById('leaderboard-list');
       if (!container) return;
       container.innerHTML = '';
 
-      if (entries.length === 0) {
-        // Clean empty state when no player has submitted yet
-        container.innerHTML = `
-          <div class="py-8 px-4 text-center border border-dashed border-[#00F0FF]/30 rounded-2xl bg-[#090C15]/80">
-            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center mb-3"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg></div>
-            <div class="text-sm font-black text-white font-orbitron tracking-wider uppercase mb-1">
-              NO RUNNERS YET — CLAIM #1
+      const medals = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+      const borders = [
+        "border-amber-400 bg-amber-500/10 shadow-md shadow-amber-500/10",
+        "border-slate-300 bg-slate-400/10",
+        "border-amber-600 bg-amber-700/10",
+        "border-white/10 bg-slate-900/60",
+        "border-white/10 bg-slate-900/60"
+      ];
+
+      const renderOpenSlotRow = (rankIdx) => `
+        <div class="flex items-center justify-between p-3 rounded-2xl border border-white/5 bg-slate-900/30 font-orbitron transition min-h-[48px]">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-slate-500 w-14 shrink-0">${medals[rankIdx] || `${rankIdx + 1}TH`}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium text-slate-400 font-mono">Awaiting Record...</span>
+              <span class="px-1.5 py-0.5 rounded bg-slate-800/80 border border-white/10 text-slate-400 text-[9px] font-mono tracking-wider">[OPEN SLOT]</span>
             </div>
-            <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4 font-mono">
-              Be the first operator globally to crack today's circuit and set the Apex record in Firestore.
+          </div>
+          <div class="font-mono text-xs font-bold text-slate-500">--:--</div>
+        </div>
+      `;
+
+      if (entries.length === 0) {
+        // Render 5 cyber open-slot rows and challenge CTA with zero layout shift
+        let slotHtml = '';
+        for (let i = 0; i < 5; i++) {
+          slotHtml += renderOpenSlotRow(i);
+        }
+        slotHtml += `
+          <div class="mt-3 py-4 px-4 text-center border border-dashed border-[#00F0FF]/30 rounded-2xl bg-[#090C15]/80">
+            <div class="text-xs font-black text-white font-orbitron tracking-wider uppercase mb-1">
+              [SYNCING] NO RUNNERS YET — CLAIM #1
+            </div>
+            <p class="text-[11px] text-slate-400 max-w-xs mx-auto mb-3 font-mono">
+              Be the first operator globally to crack today's circuit and lock the Apex record.
             </p>
             <button onclick="closeLeaderboardModal(); const g = document.getElementById('game-arena'); if (g) g.scrollIntoView({behavior: 'smooth'});"
-              class="px-4 py-2.5 bg-[#00F0FF] hover:bg-[#33F3FF] text-black font-black text-xs rounded-xl font-orbitron tracking-wider transition shadow-lg shadow-[#00F0FF]/25 inline-flex items-center gap-1.5">
+              class="px-4 py-2 bg-[#00F0FF] hover:bg-[#33F3FF] text-black font-black text-xs rounded-xl font-orbitron tracking-wider transition shadow-lg shadow-[#00F0FF]/25 inline-flex items-center gap-1.5">
               Start Challenge
             </button>
           </div>
         `;
+        container.innerHTML = slotHtml;
       } else {
-        const medals = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
-        const borders = [
-          "border-amber-400 bg-amber-500/10 shadow-md shadow-amber-500/10",
-          "border-slate-300 bg-slate-400/10",
-          "border-amber-600 bg-amber-700/10",
-          "border-white/10 bg-slate-900/60",
-          "border-white/10 bg-slate-900/60"
-        ];
-
         entries.slice(0, 10).forEach((entry, idx) => {
           const row = document.createElement('div');
           row.className = `flex items-center justify-between p-3 rounded-2xl border ${borders[idx] || 'border-white/10 bg-slate-900/40'} font-orbitron transition`;
@@ -5063,12 +5064,15 @@ https://nexusgame-website.vercel.app`;
           `;
           container.appendChild(row);
         });
-      }
 
-      const modal = document.getElementById('leaderboard-modal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        // Fill up to 5 rows if fewer than 5 entries
+        if (entries.length < 5) {
+          for (let i = entries.length; i < 5; i++) {
+            const div = document.createElement('div');
+            div.innerHTML = renderOpenSlotRow(i);
+            container.appendChild(div.firstElementChild);
+          }
+        }
       }
     }
 
@@ -5181,6 +5185,10 @@ https://nexusgame-website.vercel.app`;
       const deeplink = document.getElementById('mobile-upi-deeplink');
       if (deeplink) {
         deeplink.href = upiUri;
+      }
+      const zcBtn = document.querySelector('#zCSafez') || document.querySelector('[data-safez="zCSafez"]');
+      if (zcBtn) {
+        zcBtn.href = upiUri;
       }
 
       // 3. Update hint text
