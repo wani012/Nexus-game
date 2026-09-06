@@ -7210,26 +7210,26 @@ ${shareData.url}`;
 
   window.addEventListener('DOMContentLoaded', initContinuousPathGame);
   setTimeout(initContinuousPathGame, 400);
-<!-- ================= NEXUS TRUE DRAG & PATH FILL ENGINE ================= -->
+<!-- ================= NEXUS TRUE INTERACTIVE DRAG ENGINE ================= -->
 <style>
-  #circuit-grid, .circuit-grid, [id*="grid"], .node, [class*="node"] {
+  #interactive-circuit-board, #interactive-circuit-board * {
     touch-action: none !important;
     user-select: none !important;
     -webkit-user-select: none !important;
   }
-  .active-path-step {
+  .active-node-glow {
     background: rgba(0, 229, 255, 0.45) !important;
     border-color: #00f3ff !important;
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.8) !important;
+    box-shadow: 0 0 16px rgba(0, 243, 255, 0.85) !important;
     transform: scale(1.08) !important;
-    transition: all 0.08s ease !important;
+    transition: transform 0.08s ease !important;
   }
-  .shockwave-25 {
-    animation: blast25 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+  .blast-node-25 {
+    animation: blast25Anim 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
   }
-  @keyframes blast25 {
+  @keyframes blast25Anim {
     0% { transform: scale(1); filter: brightness(1); }
-    40% { transform: scale(1.4); filter: brightness(2) drop-shadow(0 0 40px #00f3ff) drop-shadow(0 0 80px #38bdf8); }
+    40% { transform: scale(1.4); filter: brightness(2) drop-shadow(0 0 35px #00f3ff); }
     100% { transform: scale(1.1); filter: drop-shadow(0 0 20px #00e5ff); }
   }
 </style>
@@ -7238,48 +7238,53 @@ ${shareData.url}`;
 (function() {
   const MILESTONES = [1, 5, 10, 15, 20, 25];
   let isDragging = false;
-  let currentTargetIdx = 1;
+  let targetIdx = 1; // Looking for 5 next
   let visitedNodes = [];
 
-  function initRealDrag() {
-    const grid = document.querySelector('.circuit-grid, #circuit-grid, [id*="grid"]');
-    if (!grid) return;
+  function initBoardDrag() {
+    const board = document.getElementById('interactive-circuit-board') || document.querySelector('[id*="interactive"]');
+    if (!board || board.dataset.dragAttached) return;
+    board.dataset.dragAttached = "true";
 
-    grid.addEventListener('pointerdown', (e) => {
-      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node, [class*="node"], [id*="cell"]');
-      if (!target) return;
+    board.addEventListener('pointerdown', (e) => {
+      const node = document.elementFromPoint(e.clientX, e.clientY)?.closest('button, [class*="node"], [class*="cell"], div');
+      if (!node || !board.contains(node)) return;
 
-      const val = parseInt(target.textContent.trim(), 10);
+      const txt = node.textContent.trim();
+      const val = parseInt(txt, 10);
+
       if (val === 1) {
         isDragging = true;
-        visitedNodes = [target];
-        currentTargetIdx = 1;
-        target.classList.add('active-path-step');
-        grid.setPointerCapture(e.pointerId);
+        visitedNodes = [node];
+        targetIdx = 1;
+        node.classList.add('active-node-glow');
+        board.setPointerCapture(e.pointerId);
       }
     });
 
-    grid.addEventListener('pointermove', (e) => {
+    board.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
 
-      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.node, [class*="node"], [id*="cell"]');
-      if (!target || visitedNodes.includes(target)) return;
+      const node = document.elementFromPoint(e.clientX, e.clientY)?.closest('button, [class*="node"], [class*="cell"], div');
+      if (!node || !board.contains(node) || visitedNodes.includes(node) || node === board) return;
 
-      const val = parseInt(target.textContent.trim(), 10);
-      const nextTarget = MILESTONES[currentTargetIdx];
+      const txt = node.textContent.trim();
+      const val = parseInt(txt, 10);
+      const nextTarget = MILESTONES[targetIdx];
 
-      if (!val || val === nextTarget) {
-        target.classList.add('active-path-step');
-        visitedNodes.push(target);
+      // Agar blank node hai ya required milestone hai
+      if (isNaN(val) || val === 0 || val === nextTarget) {
+        node.classList.add('active-node-glow');
+        visitedNodes.push(node);
 
         if (val === nextTarget) {
-          currentTargetIdx++;
+          targetIdx++;
           if (val === 25) {
             isDragging = false;
-            target.classList.add('shockwave-25');
+            node.classList.add('blast-node-25');
 
             setTimeout(() => {
-              const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, .level-cleared');
+              const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
               if (winModal) {
                 winModal.style.display = 'flex';
               } else {
@@ -7295,18 +7300,17 @@ ${shareData.url}`;
     const stopDrag = (e) => {
       if (isDragging) {
         isDragging = false;
-        try { grid.releasePointerCapture(e.pointerId); } catch(err) {}
+        try { board.releasePointerCapture(e.pointerId); } catch(err) {}
       }
     };
 
-    grid.addEventListener('pointerup', stopDrag);
-    grid.addEventListener('pointercancel', stopDrag);
+    board.addEventListener('pointerup', stopDrag);
+    board.addEventListener('pointercancel', stopDrag);
   }
 
-  window.addEventListener('DOMContentLoaded', initRealDrag);
-  setInterval(initRealDrag, 800);
+  window.addEventListener('DOMContentLoaded', initBoardDrag);
+  setInterval(initBoardDrag, 800);
 })();
 </script>
-<!-- ================= END TRUE DRAG ENGINE ================= -->
 </body>
 </html>
