@@ -288,7 +288,7 @@
       color: #FFFFFF;
       font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
       font-weight: 700;
-      font-size: clamp(0.85rem, 3.2vw, 1.15rem);
+      font-size: clamp(0.72rem, 2.8vw, 1.05rem);
       letter-spacing: -0.02em;
     }
 
@@ -1984,7 +1984,7 @@
         <span id="instruction-tip-text">Touch <strong class="text-blue-400 font-bold">[1]</strong> to begin. Drag backward to undo.</span>
         <div class="flex items-center gap-1 font-mono font-bold text-white shrink-0 ml-2">
           <span>Connected:</span>
-          <span id="nodes-progress" class="text-blue-400">0/6</span>
+          <span id="nodes-progress" class="text-blue-400">0/25</span>
         </div>
       </div>
 
@@ -3067,10 +3067,20 @@
       }
 
       const checkpoints = {};
-      [0, 4, 9, 14, 19, 24].forEach(step => {
-        const pt = solvedPath[step];
-        if (pt) checkpoints[pt.y * GRID_SIZE + pt.x] = step + 1;
-      });
+      if (typeof isLeapProtocol === 'function' && isLeapProtocol(puzzleNumber)) {
+        // Special advanced leap protocols (e.g. Level 3 or 5)
+        [0, 4, 9, 14, 19, 24].forEach(step => {
+          const pt = solvedPath[step];
+          if (pt) checkpoints[pt.y * GRID_SIZE + pt.x] = step + 1;
+        });
+      } else {
+        // Circuit #1 (Level 1) Standard Sequential Protocol:
+        // ALL 25 circles on the 5x5 grid MUST contain a visible numbered node from 1 to 25!
+        for (let step = 0; step < TOTAL_CELLS; step++) {
+          const pt = solvedPath[step];
+          if (pt) checkpoints[pt.y * GRID_SIZE + pt.x] = step + 1;
+        }
+      }
 
       return { seed: seedStr, dateKey, puzzleNumber, path: solvedPath, checkpoints };
     }
@@ -3749,10 +3759,25 @@
       return (Number(level) % 2 === 0);
     }
 
-    // 1. Target Sequence Definition & Forward / Reverse Leap Protocols
-    let targetSequence = [1, 5, 10, 15, 20, 25];
+    // 1. Protocol Mode & Target Sequence Definitions
+    function isLeapProtocol(level = currentLevel) {
+      // Restrict custom leap protocols (like multiples of 5) ONLY to special advanced levels (e.g. Level 3 or 5), NOT Circuit #1
+      const lvl = Number(level);
+      return (lvl === 3 || lvl === 5);
+    }
+    window.isLeapProtocol = isLeapProtocol;
+
+    let targetSequence = Array.from({ length: 25 }, (_, i) => i + 1);
     function getTargetSequence(level = currentLevel) {
-      return isReverseProtocol(level) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25];
+      const lvl = Number(level);
+      if (isLeapProtocol(lvl)) {
+        return isReverseProtocol(lvl) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25];
+      }
+      // Circuit #1 (Level 1) Standard Sequential Protocol: strictly [1, 2, 3, 4, ... 25]
+      if (isReverseProtocol(lvl)) {
+        return Array.from({ length: 25 }, (_, i) => 25 - i);
+      }
+      return Array.from({ length: 25 }, (_, i) => i + 1);
     }
     window.targetSequence = targetSequence;
     window.getTargetSequence = getTargetSequence;
@@ -4763,7 +4788,7 @@
         const pct = (remainingSec / ROUND_DURATION_SEC) * 100;
         if (timerBarEl) timerBarEl.style.width = `${pct}%`;
 
-        // Urgency Alert (< 5s)
+        // Urgency Alert (< 5s): DOES NOT break, return early, or clear interval
         if (remainingSec <= 5.0 && remainingSec > 0) {
           if (timerEl) timerEl.classList.add('timer-critical');
           if (timerBarEl) timerBarEl.style.backgroundColor = '#FF2A6D';
@@ -4771,14 +4796,18 @@
           const currentIntSec = Math.floor(remainingSec);
           if (currentIntSec !== lastTickSecond) {
             lastTickSecond = currentIntSec;
-            sound.playUrgentTick();
+            try {
+              if (sound && typeof sound.playUrgentTick === 'function') {
+                sound.playUrgentTick();
+              }
+            } catch (_) {}
           }
         } else {
           if (timerEl) timerEl.classList.remove('timer-critical');
           if (timerBarEl) timerBarEl.style.backgroundColor = '#00F0FF';
         }
 
-        // Check if timeRemaining <= 0 (or 00:00)
+        // Check if time strictly reaches <= 0 (00:00)
         const timeRemaining = remainingSec;
         if (timeRemaining <= 0 || remainingSec <= 0) {
           if (timerEl) timerEl.innerText = "00:00";
@@ -4786,7 +4815,7 @@
           stopTimerLoop();
           if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
           if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
-          triggerTimeoutOverload();
+          handleGameOver();
           return;
         }
 
@@ -4812,6 +4841,11 @@
         start20sTimer();
       }
     }
+
+    function handleGameOver() {
+      triggerTimeoutOverload();
+    }
+    window.handleGameOver = handleGameOver;
 
     function triggerTimeoutOverload() {
       // 1. Clear all active countdown timers/intervals immediately
@@ -5112,13 +5146,30 @@
         return;
       }
 
-      // 2. Strict Sequence Enforcement (No Random Drag Filling / Direct Jumps Only):
+      // 2. Strict Sequence Enforcement (No Random Drag Filling):
       // Nodes must ONLY be activated if they match the exact current step of the level's sequence array
       const currentStepIndex = playerPath.length;
       if (currentStepIndex >= activeLevelSequence.length) return;
 
       const expectedNodeValue = activeLevelSequence[currentStepIndex];
       if (touchedNode.value !== expectedNodeValue) return; // Ignore any other node completely
+
+      // Prevent Direct Skip Wires:
+      // On Circuit #1 (Standard Sequential Protocol), only allow connection between node N and node N+1.
+      // Drawing a wire must only succeed if the finger/cursor moves onto the exact next adjacent numerical step.
+      if (typeof isLeapProtocol === 'function' && !isLeapProtocol(currentLevel) && currentStepIndex > 0) {
+        const prevCellIndex = playerPath[playerPath.length - 1];
+        const prevX = prevCellIndex % GRID_SIZE;
+        const prevY = Math.floor(prevCellIndex / GRID_SIZE);
+        const currX = cellIndex % GRID_SIZE;
+        const currY = Math.floor(cellIndex / GRID_SIZE);
+        const isGridAdjacent = Math.abs(currX - prevX) + Math.abs(currY - prevY) === 1;
+
+        if (!isGridAdjacent) {
+          triggerInvalidNodeFeedback(cellIndex);
+          return;
+        }
+      }
 
       // 3. Initial Step: Must start on initial sequence milestone (e.g. [1])
       if (currentStepIndex === 0) {
