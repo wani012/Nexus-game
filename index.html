@@ -2153,19 +2153,19 @@
         </button>
 
         <!-- Secondary Action: REPLAY CIRCUIT -->
-        <button id="btn-replay-circuit" class="victory-btn-secondary cursor-pointer w-full py-2.5 transition flex items-center justify-center gap-1.5" style="background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px !important; color: #cbd5e1 !important; font-weight: 600 !important;">
+        <button id="btn-replay-circuit" class="victory-btn-secondary cursor-pointer w-full py-2.5 transition flex items-center justify-center gap-1.5" style="background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px !important; color: #cbd5e1 !important; font-weight: 600 !important; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           <span>REPLAY CIRCUIT</span>
         </button>
 
         <!-- Secondary Action: Save Score to Leaderboard -->
-        <button id="btn-bank-score" class="victory-btn-secondary cursor-pointer w-full py-2.5 transition flex items-center justify-center gap-1.5" style="background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px !important; color: #cbd5e1 !important; font-weight: 600 !important;">
+        <button id="btn-bank-score" class="victory-btn-secondary cursor-pointer w-full py-2.5 transition flex items-center justify-center gap-1.5" style="background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px !important; color: #cbd5e1 !important; font-weight: 600 !important; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
           <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V7a2 2 0 012-2h2m12 0h2a2 2 0 012 2v7a2 2 0 01-2 2h-2m-8 3v4m-4 0h8m-8-7a4 4 0 008 0V2H8v9z"/></svg>
           <span>Save Score to Leaderboard</span>
         </button>
 
         <!-- Cross-Platform Share: Challenge a Friend -->
-        <button id="btn-duel-share" class="victory-btn-secondary cursor-pointer w-full py-2.5 transition flex items-center justify-center gap-1.5" style="background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px !important; color: #cbd5e1 !important; font-weight: 600 !important;">
+        <button id="btn-duel-share" class="victory-btn-secondary cursor-pointer w-full py-2.5 transition flex items-center justify-center gap-1.5" style="background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; border-radius: 12px !important; color: #cbd5e1 !important; font-weight: 600 !important; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
           <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6-1.4 1.4-1.6-1.6a1 1 0 00-1.4 0l-7 7a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l7-7a1 1 0 000-1.4l-1.6-1.6 1.4-1.4 1.6 1.6a1 1 0 001.4 0l1.3-1.3a1 1 0 000-1.4l-3-3a1 1 0 00-1.4 0l-1.5 1.5z"/></svg>
           <span>Challenge a Friend</span>
         </button>
@@ -4057,23 +4057,152 @@
     }
     window.copyInstagramChallengeLink = copyInstagramChallengeLink;
 
+    // Resilient Dual-Action Share Handler for "Challenge a Friend"
+    async function handleChallengeFriendShare(e) {
+      if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+      }
+
+      // 1. Determine current level run time
+      let currentLevelTime = "8.42";
+      const clearedTimeEl = document.getElementById('cleared-level-time');
+      if (clearedTimeEl && clearedTimeEl.innerText) {
+        const cleaned = clearedTimeEl.innerText.replace(/[^0-9.]/g, '').trim();
+        if (cleaned) currentLevelTime = cleaned;
+      } else if (typeof lastSolvedTimeSec === 'number' && lastSolvedTimeSec > 0) {
+        currentLevelTime = lastSolvedTimeSec.toFixed(2);
+      } else if (typeof lastSolvedTimeSec === 'string') {
+        const cleaned = lastSolvedTimeSec.replace(/[^0-9.]/g, '').trim();
+        if (cleaned) currentLevelTime = cleaned;
+      } else if (typeof remainingTime === 'number') {
+        currentLevelTime = Math.max(0, 20 - remainingTime).toFixed(2);
+      }
+
+      const shareTitle = "Nexus Circuit Challenge";
+      const shareText = "Beat my time of " + currentLevelTime + "s on Nexus Game!";
+      const shareUrl = window.location.href;
+      const combinedText = `${shareText} ${shareUrl}`;
+
+      const fallbackCopyToClipboard = async (textToCopy) => {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            showChallengeToast("Challenge link copied to clipboard!");
+            sound.playStep(12);
+            triggerHaptic(25);
+            return;
+          } catch (err) {
+            console.warn("navigator.clipboard error:", err);
+          }
+        }
+        copyViaTextarea(textToCopy);
+      };
+
+      const copyViaTextarea = (textToCopy) => {
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          textArea.style.position = "fixed";
+          textArea.style.top = "-9999px";
+          textArea.style.left = "-9999px";
+          textArea.setAttribute("readonly", "");
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          if (successful) {
+            showChallengeToast("Challenge link copied to clipboard!");
+            sound.playStep(12);
+            triggerHaptic(25);
+            return;
+          }
+        } catch (err) {
+          console.warn("execCommand fallback failed:", err);
+        }
+        try {
+          prompt("Copy your challenge link:", textToCopy);
+        } catch (_) {}
+        showChallengeToast("Challenge link copied to clipboard!");
+      };
+
+      // 2. Dual-action share trigger
+      if (navigator.share && typeof navigator.share === 'function') {
+        try {
+          await navigator.share({
+            title: "Nexus Circuit Challenge",
+            text: "Beat my time of " + currentLevelTime + "s on Nexus Game!",
+            url: window.location.href
+          });
+          showChallengeToast("Challenge link copied to clipboard!");
+        } catch (err) {
+          // If user manually cancelled the share dialog, do not force clipboard
+          if (err && err.name === 'AbortError') {
+            return;
+          }
+          await fallbackCopyToClipboard(combinedText);
+        }
+      } else {
+        await fallbackCopyToClipboard(combinedText);
+      }
+    }
+    window.handleChallengeFriendShare = handleChallengeFriendShare;
+
     function replayCurrentCircuit() {
-      // Clean reset of active attempt without reloading page
-      playerPath = [];
-      isCompleted = false;
-      isTimeOver = false;
-      isDragging = false;
-      didLiftFinger = false;
-
-      resetTimerDisplay();
-      updateActiveStates();
-      renderSVGLine();
-
+      // 1. Completely hide/dismiss the win modal
       const modal = document.getElementById('level-cleared-modal');
       if (modal) {
+        modal.style.display = 'none';
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        modal.classList.remove('active');
       }
+
+      // 2. Stop any active interval timers and reset circuit timer to 20s
+      stopTimerLoop();
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+      if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
+      timerStart = null;
+      timerAccumulatedMs = 0;
+      isTimerPaused = false;
+      isGameActive = false;
+      isTimeOver = false;
+      resetTimerDisplay();
+
+      // 3. Unlock node interaction and lock progression button
+      isCompleted = false;
+      isDragging = false;
+      didLiftFinger = false;
+      lockNextLevelBtn();
+      if (window.gameState) {
+        window.gameState.levelCompleted = false;
+      }
+
+      // 4. Re-initializes the circuit generator for the CURRENT level (strictly retains currentLevel, not resetting to level 1)
+      const lvlToReplay = (typeof currentLevel === 'number' && currentLevel >= 1) ? currentLevel : 1;
+      loadNewCircuit(lvlToReplay);
+
+      // 5. Clears all drawn laser/wire SVG paths and connected node states from the board
+      playerPath = [];
+      connectedNodes = [];
+      linePath = [];
+      if (svgGlowBeam) {
+        svgGlowBeam.setAttribute('d', '');
+        svgGlowBeam.classList.remove('wire-surge');
+      }
+      if (svgCoreBeam) {
+        svgCoreBeam.setAttribute('d', '');
+        svgCoreBeam.classList.remove('wire-surge');
+      }
+      if (typeof phoenixLayer !== 'undefined' && phoenixLayer) {
+        phoenixLayer.innerHTML = '';
+      }
+      updateActiveStates();
+      renderSVGLine();
+      safeSetText('nav-nodes-connected', '0/25');
+      safeSetText('connected-counter', '0/25');
+      resetTimerDisplay();
 
       sound.playStep(0);
       triggerHaptic(25);
@@ -4849,9 +4978,27 @@
         duelHeaderBtn.addEventListener('click', openSocialShareModal);
       }
 
+      // Cross-Platform Share: Challenge a Friend (Dual-Action Share Handler)
+      // Compatibility: btnDuelShare.addEventListener('click', openSocialShareModal)
       const btnDuelShare = document.getElementById('btn-duel-share');
       if (btnDuelShare) {
-        btnDuelShare.addEventListener('click', openSocialShareModal);
+        let lastShareTap = 0;
+        const triggerDuelShare = (e) => {
+          if (e) {
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+          }
+          const now = Date.now();
+          if (now - lastShareTap < 350) return;
+          lastShareTap = now;
+          handleChallengeFriendShare(e);
+        };
+        btnDuelShare.addEventListener('click', triggerDuelShare);
+        btnDuelShare.addEventListener('pointerdown', (e) => {
+          if (e && e.pointerType === 'touch') {
+            triggerDuelShare(e);
+          }
+        });
       }
 
       const supportModal = document.getElementById('support-modal');
@@ -4961,12 +5108,25 @@
         }
       });
 
-      // Victory Modal: Replay Circuit without page reload
+      // Victory Modal: Replay Circuit without page reload (with touch compatibility)
       const btnReplayCircuit = document.getElementById('btn-replay-circuit');
       if (btnReplayCircuit) {
-        btnReplayCircuit.addEventListener('click', (e) => {
-          if (e) e.preventDefault();
+        let lastReplayTap = 0;
+        const triggerReplay = (e) => {
+          if (e) {
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+          }
+          const now = Date.now();
+          if (now - lastReplayTap < 350) return;
+          lastReplayTap = now;
           replayCurrentCircuit();
+        };
+        btnReplayCircuit.addEventListener('click', triggerReplay);
+        btnReplayCircuit.addEventListener('pointerdown', (e) => {
+          if (e && e.pointerType === 'touch') {
+            triggerReplay(e);
+          }
         });
       }
 
