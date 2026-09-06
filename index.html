@@ -7107,144 +7107,135 @@ ${shareData.url}`;
   
   
   </script>
-  <!-- ================= NEXUS 1-5-10-15-20-25 PERMANENT CORE PATCH ================= -->
+<!-- ================= NEXUS PATH-FILL [1->5->10->15->20->25] CONTROLLER ================= -->
 <style>
-  /* Electric Thunder Shockwave Effect for Node 25 */
-  @keyframes thunderBlast {
-    0% { transform: scale(1); box-shadow: 0 0 10px #00e5ff; }
-    30% { transform: scale(1.4); box-shadow: 0 0 45px #00f3ff, 0 0 80px #38bdf8; filter: brightness(1.6); }
-    70% { transform: scale(1.25); box-shadow: 0 0 35px #00e5ff, 0 0 60px #0284c7; }
-    100% { transform: scale(1); box-shadow: 0 0 15px #00e5ff; }
+  /* Intermediate path fill glow */
+  .node.path-filled {
+    background: rgba(0, 229, 255, 0.4) !important;
+    border-color: #00f3ff !important;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.6) !important;
+    transition: all 0.15s ease;
   }
-  .thunder-burst-active {
-    animation: thunderBlast 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
-    border-color: #ffffff !important;
+  /* Node 25 Thunder Climax */
+  @keyframes thunderPop {
+    0% { transform: scale(1); filter: brightness(1); }
+    30% { transform: scale(1.4); filter: brightness(2) drop-shadow(0 0 35px #00f3ff) drop-shadow(0 0 70px #38bdf8); }
+    70% { transform: scale(1.2); filter: drop-shadow(0 0 25px #00e5ff); }
+    100% { transform: scale(1.05); filter: drop-shadow(0 0 15px #00e5ff); }
+  }
+  .thunder-finish {
+    animation: thunderPop 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+    background: #00f3ff !important;
+    color: #000 !important;
   }
 </style>
 
 <script>
 (function() {
-  const TARGET_SEQUENCE = [1, 5, 10, 15, 20, 25];
-  let currentTargetIndex = 0;
+  const CHECKPOINTS = [1, 5, 10, 15, 20, 25];
+  let currentTargetIndex = 0; // Starts at target 1, next is 5
+  let isDragging = false;
+  let activePath = [];
 
-  // 1. RE-ARCHITECT GRID: STRICTLY SHOW [1, 5, 10, 15, 20, 25]
-  function setupQuantumLeapGrid() {
+  function initContinuousPathGame() {
     const grid = document.querySelector('.circuit-grid, #circuit-grid, .grid-container');
     if (!grid) return;
     const nodes = Array.from(grid.querySelectorAll('.node, .circle, [class*="node"]'));
     if (nodes.length < 25) return;
 
-    // Seed/Level based predictable positions for the 6 targets
-    const targetSlots = [12, 4, 6, 18, 21, 9]; // Clean geometric spacing across the 5x5 grid
+    // Enable interaction on EVERY dot so dragging fills every circle along the way
+    nodes.forEach((node) => {
+      node.style.pointerEvents = 'auto';
+      node.style.cursor = 'pointer';
 
-    nodes.forEach((node, index) => {
-      const targetPos = targetSlots.indexOf(index);
-      if (targetPos !== -1) {
-        const val = TARGET_SEQUENCE[targetPos];
-        node.textContent = val;
-        node.setAttribute('data-target-val', val);
-        node.setAttribute('data-val', val);
-        node.style.display = 'flex';
-        node.style.visibility = 'visible';
-        node.style.opacity = '1';
-        node.style.pointerEvents = 'auto';
-        node.style.fontWeight = 'bold';
-        node.style.fontSize = '1.15rem';
-        node.style.cursor = 'pointer';
-      } else {
-        // Unnumbered intermediate dots: ignore pointer events so drag never drops
-        node.textContent = '';
-        node.removeAttribute('data-target-val');
-        node.removeAttribute('data-val');
-        node.style.pointerEvents = 'none';
-        node.style.opacity = '0.2';
-      }
+      // Drag event listeners
+      node.onpointerenter = function(e) {
+        if (!isDragging) return;
+        handleNodeDragEnter(node);
+      };
+      node.onpointerdown = function(e) {
+        const val = parseInt(node.textContent.trim(), 10);
+        // Start only at [1]
+        if (val === 1) {
+          isDragging = true;
+          activePath = [node];
+          currentTargetIndex = 1; // Looking for 5 next
+          node.classList.add('active', 'path-filled');
+        }
+      };
     });
 
-    // Sync HUD text
-    const hud = document.querySelector('[class*="connected"], #connected-count');
-    if (hud && hud.textContent.includes('/25')) {
-      hud.textContent = hud.textContent.replace('/25', '/6');
+    window.onpointerup = function() {
+      isDragging = false;
+    };
+  }
+
+  function handleNodeDragEnter(node) {
+    if (activePath.includes(node)) return; // Already filled
+
+    const val = parseInt(node.textContent.trim(), 10);
+    const expectedTarget = CHECKPOINTS[currentTargetIndex];
+
+    // If touching a numbered node that is NOT the next expected milestone, ignore
+    if (val && CHECKPOINTS.includes(val) && val !== expectedTarget) {
+      return;
+    }
+
+    // Fill this node/circle as part of the line
+    node.classList.add('path-filled');
+    activePath.push(node);
+
+    // If we reached the next milestone (5, 10, 15, 20, 25)
+    if (val === expectedTarget) {
+      node.classList.add('active');
+      currentTargetIndex++;
+
+      // When final node [25] is reached
+      if (val === 25) {
+        isDragging = false;
+        node.classList.add('thunder-finish');
+
+        // Stop timer
+        const timerElem = document.querySelector('.timer, #timer, [class*="timer"]');
+        
+        // 600ms electric blast delay before showing level cleared modal
+        setTimeout(() => {
+          const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, .level-cleared');
+          if (winModal) {
+            winModal.style.display = 'flex';
+          } else {
+            const nextBtn = document.querySelector('[class*="next"], #next-level');
+            if (nextBtn) nextBtn.click();
+          }
+        }, 650);
+      }
     }
   }
 
-  // 2. NODE 25 THUNDER CLIMAX & NEXT TRIGGER
-  document.addEventListener('pointerup', function() {
-    const node25 = document.querySelector('[data-val="25"].active, [data-val="25"].connected, [data-target-val="25"].active');
-    if (node25 && !node25.classList.contains('thunder-burst-active')) {
-      node25.classList.add('thunder-burst-active');
-      
-      // Stop timer interval
-      const timerElem = document.querySelector('.timer, #timer, [class*="timer"]');
-      
-      // 600ms visual blast delay before win modal
-      setTimeout(function() {
-        const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, .level-cleared');
-        if (winModal) winModal.style.display = 'flex';
-      }, 600);
-    }
-  });
+  window.addEventListener('DOMContentLoaded', initContinuousPathGame);
+  setTimeout(initContinuousPathGame, 400);
 
-  // 3. UNFREEZE TIMER (<5s FIX) & PREVENT HALTING
-  const originalInterval = window.setInterval;
-  window.setInterval = function(callback, delay) {
-    return originalInterval(function() {
+  // STRICT TIMER OUT (<5s & 00:00)
+  const origInterval = window.setInterval;
+  window.setInterval = function(fn, t) {
+    return origInterval(function() {
       try {
-        const timerElem = document.querySelector('.timer, #timer, [class*="timer"]');
-        if (timerElem) {
-          const timeText = timerElem.textContent.trim();
-          // If strictly zero, fire game over
-          if (timeText === '00:00' || timeText === '0s' || timeText === '0.00s') {
+        const timer = document.querySelector('.timer, #timer, [class*="timer"]');
+        if (timer) {
+          const txt = timer.textContent.trim();
+          if (txt === '00:00' || txt === '0s' || txt === '0.00s') {
             const grid = document.querySelector('.circuit-grid, #circuit-grid');
             if (grid) grid.style.pointerEvents = 'none';
-            const failModal = document.getElementById('fail-modal') || document.querySelector('.game-over-modal');
-            if (failModal) failModal.style.display = 'flex';
+            const fail = document.getElementById('fail-modal') || document.querySelector('.game-over-modal');
+            if (fail) fail.style.display = 'flex';
           }
         }
-        callback();
+        fn();
       } catch (err) {}
-    }, delay);
+    }, t);
   };
-
-  // 4. WIRE ACTION BUTTONS
-  function wireAllButtons() {
-    document.querySelectorAll('button, a').forEach(btn => {
-      // Fuel rename
-      if (btn.textContent.includes('Support Development')) {
-        btn.innerHTML = '⚡ Fuel the Furu';
-        btn.onclick = function(e) {
-          e.preventDefault();
-          const fuelModal = document.getElementById('fuel-modal') || document.querySelector('.fuel-modal');
-          if (fuelModal) fuelModal.style.display = 'flex';
-          else document.querySelector('[class*="fuel"]')?.click();
-        };
-      }
-      // Replay
-      if (btn.textContent.includes('REPLAY CIRCUIT')) {
-        btn.onclick = function(e) { e.preventDefault(); location.reload(); };
-      }
-      // Challenge
-      if (btn.textContent.includes('Challenge a Friend')) {
-        btn.onclick = function(e) {
-          e.preventDefault();
-          const link = window.location.href;
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText("Play Nexus: " + link).then(() => alert("Link Copied!"));
-          }
-        };
-      }
-    });
-  }
-
-  // Initializers
-  window.addEventListener('DOMContentLoaded', () => {
-    setupQuantumLeapGrid();
-    wireAllButtons();
-  });
-  setInterval(setupQuantumLeapGrid, 600);
-  setInterval(wireAllButtons, 600);
 })();
 </script>
-<!-- ================= END PERMANENT CORE PATCH ================= -->
+<!-- ================= END CONTROLLER ================= -->
 </body>
 </html>
