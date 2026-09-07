@@ -3622,6 +3622,7 @@
       // 1. Procedurally recalculate completely new sequence and positions of all 25 nodes
       const newPuzzle = generatePuzzleFromSeed(seed, level, dateKey);
       activePuzzle = newPuzzle;
+      window.activePuzzle = activePuzzle;
       currentCircuitSeed = seed;
 
       // 2. Secret Mystery Node & Continuous Stroke Tracking
@@ -4595,7 +4596,7 @@
       }
       const overlay = document.getElementById('landing-launch-overlay');
       if (overlay && !overlay.classList.contains('hidden')) {
-        document.body.style.overflow = 'hidden';
+        if (document.body && document.body.style) document.body.style.overflow = 'hidden';
       }
     }
     window.syncLandingApexWinner = syncLandingApexWinner;
