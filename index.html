@@ -1565,7 +1565,29 @@
       }
     }
 
-  </style>
+  
+  /* High Stacking Contexts for Modals & Interactive Overlays */
+  #level-cleared-modal,
+  #victory-modal,
+  #gameover-modal,
+  #leaderboard-modal,
+  #support-modal,
+  #social-share-modal,
+  #skin-modal,
+  #how-to-play-modal,
+  .modal-overlay,
+  .cleared-modal {
+    z-index: 99999 !important;
+    pointer-events: auto !important;
+  }
+  .modal-overlay *,
+  #level-cleared-modal *,
+  #victory-modal *,
+  #leaderboard-modal * {
+    pointer-events: auto !important;
+  }
+
+</style>
 </head>
 
 <body class="min-h-screen flex flex-col bg-[#090D16] text-[#F8FAFC]">
@@ -4702,7 +4724,7 @@
           node.innerHTML = `<span class="mystery-glyph">?</span>`;
         } else {
           node.className = 'circuit-node empty grid-cell';
-          node.style.pointerEvents = 'none';
+          node.style.pointerEvents = 'auto';
         }
         nodeGridEl.appendChild(node);
       }
@@ -7114,7 +7136,7 @@ ${shareData.url}`;
   }
 </style>
 
-<!-- ================= NEXUS TRUE INTERACTIVE DRAG ENGINE ================= -->
+<!-- ================= NEXUS TRUE INTERACTIVE DRAG & THUNDER BLAST ENGINE ================= -->
 <style>
   #interactive-circuit-board,
   #interactive-board,
@@ -7127,6 +7149,12 @@ ${shareData.url}`;
     user-select: none !important;
     -webkit-user-select: none !important;
   }
+  .circuit-node,
+  .node-circle,
+  .grid-cell {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
   .active-node-glow {
     background: rgba(0, 229, 255, 0.45) !important;
     border-color: #00f3ff !important;
@@ -7135,12 +7163,25 @@ ${shareData.url}`;
     transition: transform 0.08s ease !important;
   }
   .blast-node-25 {
-    animation: blast25Anim 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+    animation: blast25Anim 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+    background: #00f3ff !important;
+    color: #000 !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 35px #00f3ff, 0 0 60px rgba(56, 189, 248, 0.9) !important;
   }
   @keyframes blast25Anim {
     0% { transform: scale(1); filter: brightness(1); }
-    40% { transform: scale(1.4); filter: brightness(2) drop-shadow(0 0 35px #00f3ff); }
-    100% { transform: scale(1.1); filter: drop-shadow(0 0 20px #00e5ff); }
+    35% { transform: scale(1.45); filter: brightness(2.5) drop-shadow(0 0 40px #00f3ff); }
+    70% { transform: scale(1.2); filter: brightness(1.8) drop-shadow(0 0 25px #38bdf8); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 20px #00e5ff); }
+  }
+  .board-thunder-flash {
+    animation: boardThunderStrobe 0.5s ease-out !important;
+  }
+  @keyframes boardThunderStrobe {
+    0% { filter: brightness(2.2) contrast(1.4) drop-shadow(0 0 30px #00f3ff); }
+    40% { filter: brightness(1.5) contrast(1.2); }
+    100% { filter: brightness(1) contrast(1); }
   }
 </style>
 
@@ -7148,10 +7189,57 @@ ${shareData.url}`;
 (function() {
   const MILESTONES = [1, 5, 10, 15, 20, 25];
   let isDragging = false;
-  let targetIdx = 1; // Milestone index 1 corresponds to target node [5]
+  let targetMilestoneIndex = 1; // Looking for milestone [5] next
   let visitedNodes = [];
 
-  // Helper: Extract grid cell index or coordinates
+  // Web Audio API Synthesizer for electric zap / thunder blast
+  function playElectricThunderSFX() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      // 1. White Noise burst (Thunder crack)
+      const bufferSize = ctx.sampleRate * 0.45;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.12));
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1200;
+      filter.Q.value = 2.5;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.8, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start();
+
+      // 2. High voltage electric zap tone
+      const osc = ctx.createOscillator();
+      const oscGain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.35);
+
+      oscGain.gain.setValueAtTime(0.5, ctx.currentTime);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+      osc.connect(oscGain);
+      oscGain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch (_) {}
+  }
+
+  // Helper: Extract grid cell index from node element
   function getNodeIndex(node, allNodes) {
     if (!node) return -1;
     if (node.dataset && node.dataset.index !== undefined) {
@@ -7168,7 +7256,7 @@ ${shareData.url}`;
 
   // Helper: Enforce strict orthogonal 5x5 adjacency
   function isAdjacent(idx1, idx2) {
-    if (idx1 < 0 || idx2 < 0) return true; // Fallback if index not defined
+    if (idx1 < 0 || idx2 < 0) return true;
     const r1 = Math.floor(idx1 / 5), c1 = idx1 % 5;
     const r2 = Math.floor(idx2 / 5), c2 = idx2 % 5;
     return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
@@ -7184,22 +7272,28 @@ ${shareData.url}`;
       ...document.querySelectorAll('.connected-count, [id*="counter"], [id*="nodes-connected"]')
     ];
     labels.forEach(el => {
-      if (el) el.innerText = `${safeCount}/25`;
+      if (el) el.innerText = `Connected: ${safeCount}/25`;
     });
   }
 
-  // 2. State Initialization: Clear all glowing nodes, activate ONLY Node [1], reset visitedNodes = [node1], targetIdx = 1, counter = "Connected: 1/25"
+  // 1. Clean Initial State & Reset:
+  // - Clear all active/filled/glow classes from every circle
+  // - ONLY Node [1] starts active with .active-node-glow
+  // - visitedNodes = [node1], targetMilestoneIndex = 1, counter = "Connected: 1/25"
   function resetGame() {
     isDragging = false;
-    targetIdx = 1;
+    targetMilestoneIndex = 1;
     const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
     if (!board) return;
+
+    board.classList.remove('board-thunder-flash');
 
     const allNodes = board.querySelectorAll('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
     let startNode = null;
 
     allNodes.forEach((node) => {
       node.classList.remove('active-node-glow', 'active', 'completed', 'path-filled', 'blast-node-25', 'thunder-finish');
+      node.style.pointerEvents = 'auto';
       const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
       if (val === 1 || node.getAttribute('data-checkpoint') === '1' || node.getAttribute('data-node') === '1') {
@@ -7220,7 +7314,7 @@ ${shareData.url}`;
 
     updateCounterDisplay(1);
 
-    // Lock Next Level button until complete
+    // Lock Next Level button
     const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
     if (nextBtn) {
       nextBtn.disabled = true;
@@ -7230,6 +7324,45 @@ ${shareData.url}`;
   }
   window.resetGame = resetGame;
 
+  // 4. Modals & UI Responsiveness: Attach listeners for Leaderboard, How to Play, Reset, and Modal Closes
+  function wireModalTriggers() {
+    const lbBtn = document.getElementById('open-leaderboard-btn') || document.getElementById('view-leaderboard-btn') || document.querySelector('[id*="leaderboard"]');
+    const lbModal = document.getElementById('leaderboard-modal');
+    if (lbBtn && lbModal) {
+      lbBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        lbModal.classList.remove('hidden');
+        lbModal.classList.add('flex');
+        lbModal.style.display = 'flex';
+      };
+    }
+
+    const clearBtn = document.getElementById('clear-btn') || document.getElementById('dock-reset-btn') || document.querySelector('[id*="reset"]');
+    if (clearBtn) {
+      clearBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        if (typeof window.resetCircuitAttempt === 'function') {
+          window.resetCircuitAttempt();
+        } else {
+          resetGame();
+        }
+      };
+    }
+
+    // Modal Close buttons
+    document.querySelectorAll('[id*="close-"], .modal-close-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        if (e) e.preventDefault();
+        const modal = btn.closest('.modal-overlay, [class*="modal"], [id*="modal"]');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex', 'active');
+          modal.style.display = 'none';
+        }
+      };
+    });
+  }
+
   function initBoardDrag() {
     const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
     if (!board || board.dataset.dragAttached) return;
@@ -7237,7 +7370,7 @@ ${shareData.url}`;
 
     const getAllBoardNodes = () => board.querySelectorAll('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
 
-    // 3. Robust Touch & Drag Detection: pointerdown / touchstart strictly on Node [1]
+    // 2. Drag & Mobile Touch Detection: pointerdown / touchstart on Node [1]
     function handleDragStart(clientX, clientY) {
       const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
       if (!node || !board.contains(node)) return;
@@ -7245,11 +7378,11 @@ ${shareData.url}`;
       const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
 
-      // Only begin path tracing on Node [1]
+      // Start drag strictly on Node [1]
       if (val === 1 || node.getAttribute('data-checkpoint') === '1' || node.getAttribute('data-node') === '1' || (!visitedNodes.length && val === 1)) {
         isDragging = true;
         visitedNodes = [node];
-        targetIdx = 1;
+        targetMilestoneIndex = 1;
 
         const allNodes = getAllBoardNodes();
         allNodes.forEach(n => n.classList.remove('active-node-glow', 'path-filled', 'blast-node-25', 'thunder-finish'));
@@ -7258,7 +7391,7 @@ ${shareData.url}`;
       }
     }
 
-    // 4. Move & Fill Logic: handle pointermove / touchmove dynamically mapping elements under finger
+    // Move Handler: Dynamically detect elements under finger via elementFromPoint
     function handleDragMove(clientX, clientY, e) {
       if (!isDragging) return;
       if (e && e.cancelable && typeof e.preventDefault === 'function') {
@@ -7268,19 +7401,19 @@ ${shareData.url}`;
       const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
       if (!node || !board.contains(node) || node === board) return;
 
-      // Undo support: if moving back to the previous node (visitedNodes[visitedNodes.length - 2])
+      // Undo support: if moving back to the previous visited node
       if (visitedNodes.length >= 2 && node === visitedNodes[visitedNodes.length - 2]) {
         const removed = visitedNodes.pop();
         if (removed) removed.classList.remove('active-node-glow', 'path-filled', 'active');
         const lastVal = parseInt((removed.textContent || '').trim(), 10);
-        if (MILESTONES.includes(lastVal) && targetIdx > 1) {
-          targetIdx--;
+        if (MILESTONES.includes(lastVal) && targetMilestoneIndex > 1) {
+          targetMilestoneIndex--;
         }
         updateCounterDisplay(visitedNodes.length);
         return;
       }
 
-      // Prevent double counting already visited nodes
+      // Prevent double-counting already visited nodes
       if (visitedNodes.includes(node)) return;
 
       const allNodes = getAllBoardNodes();
@@ -7295,10 +7428,10 @@ ${shareData.url}`;
 
       const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
-      const nextTarget = MILESTONES[targetIdx];
+      const nextTarget = MILESTONES[targetMilestoneIndex];
       const isMilestone = !isNaN(val) && MILESTONES.includes(val);
 
-      // Intermediate blank node (no milestone number): immediately fill & glow
+      // Intermediate blank node: immediately fill & glow
       if (!isMilestone) {
         node.classList.add('active-node-glow');
         visitedNodes.push(node);
@@ -7308,12 +7441,27 @@ ${shareData.url}`;
         node.classList.add('active-node-glow');
         visitedNodes.push(node);
         updateCounterDisplay(visitedNodes.length);
-        targetIdx++;
+        targetMilestoneIndex++;
 
-        // 5. Win Condition: When visitedNodes.length === 25 and last node is 25
+        // 3. Node 25 Electric Thunder Blast & Win Sequence:
         if (val === 25 || visitedNodes.length >= 25) {
           isDragging = false;
+          
+          // Stop timer immediately
+          if (typeof window.stopTimerLoop === 'function') window.stopTimerLoop();
+          if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+          if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
+
+          updateCounterDisplay(25);
+
+          // Apply electric blast & board thunder flash
           node.classList.add('blast-node-25');
+          board.classList.add('board-thunder-flash');
+          playElectricThunderSFX();
+          if (window.sound && typeof window.sound.playVictory === 'function') {
+            try { window.sound.playVictory(); } catch (_) {}
+          }
+          if (navigator.vibrate) navigator.vibrate([40, 60, 120]);
 
           // Enable Next Level button
           const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
@@ -7323,7 +7471,7 @@ ${shareData.url}`;
             nextBtn.style.animation = 'pulse 1.5s infinite';
           }
 
-          // Show victory/win modal
+          // Show victory modal after brief 500ms electric blast
           setTimeout(() => {
             const winModal = document.getElementById('level-cleared-modal') || document.getElementById('victory-modal') || document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
             if (winModal) {
@@ -7336,7 +7484,6 @@ ${shareData.url}`;
           }, 500);
         }
       }
-      // If out-of-order milestone, connection is cleanly blocked
     }
 
     function handleDragStop() {
@@ -7375,8 +7522,9 @@ ${shareData.url}`;
     window.addEventListener('touchend', handleDragStop);
     window.addEventListener('touchcancel', handleDragStop);
 
-    // Initialize initial state: 1/25 with node 1 glowing
+    // Initialize initial state & wire modals
     resetGame();
+    wireModalTriggers();
   }
 
   window.addEventListener('DOMContentLoaded', initBoardDrag);
