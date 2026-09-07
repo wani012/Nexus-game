@@ -7198,6 +7198,8 @@ ${shareData.url}`;
 
   window.addEventListener('DOMContentLoaded', initContinuousPathGame);
   setTimeout(initContinuousPathGame, 400);
+})();
+</script>
 <!-- ================= NEXUS TRUE INTERACTIVE DRAG ENGINE ================= -->
 <style>
   #interactive-circuit-board, #interactive-circuit-board * {
@@ -7229,75 +7231,221 @@ ${shareData.url}`;
   let targetIdx = 1; // Looking for 5 next
   let visitedNodes = [];
 
+  // Helper: Get cell index or grid coordinates from node element
+  function getNodeIndex(node, allNodes) {
+    if (!node) return -1;
+    if (node.dataset && node.dataset.index !== undefined) {
+      const idx = parseInt(node.dataset.index, 10);
+      if (!isNaN(idx)) return idx;
+    }
+    const idxAttr = node.getAttribute('data-index');
+    if (idxAttr !== null) {
+      const idx = parseInt(idxAttr, 10);
+      if (!isNaN(idx)) return idx;
+    }
+    return Array.from(allNodes).indexOf(node);
+  }
+
+  // Helper: Check orthogonal adjacency on 5x5 grid
+  function isAdjacent(idx1, idx2) {
+    if (idx1 < 0 || idx2 < 0) return true; // fallback if index unavailable
+    const r1 = Math.floor(idx1 / 5), c1 = idx1 % 5;
+    const r2 = Math.floor(idx2 / 5), c2 = idx2 % 5;
+    return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
+  }
+
+  // Update HUD counter
+  function updateCounterDisplay(count) {
+    const safeCount = Math.max(1, Math.min(25, count));
+    const labels = [
+      document.getElementById('connected-counter'),
+      document.getElementById('nav-nodes-connected'),
+      document.getElementById('nodes-progress'),
+      ...document.querySelectorAll('.connected-count, [id*="counter"], [id*="nodes-connected"]')
+    ];
+    labels.forEach(el => {
+      if (el) el.innerText = `${safeCount}/25`;
+    });
+  }
+
+  // Robust Reset Game
+  function resetGame() {
+    isDragging = false;
+    targetIdx = 1;
+    const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
+    if (!board) return;
+
+    const allNodes = board.querySelectorAll('.circuit-node, .grid-cell, button, [class*="node"]');
+    let startNode = null;
+
+    allNodes.forEach((node) => {
+      node.classList.remove('active-node-glow', 'active', 'completed', 'blast-node-25');
+      const txt = (node.textContent || '').trim();
+      const val = parseInt(txt, 10);
+      if (val === 1 || node.getAttribute('data-checkpoint') === '1') {
+        startNode = node;
+      }
+    });
+
+    if (!startNode && allNodes.length > 0) {
+      startNode = allNodes[0];
+    }
+
+    if (startNode) {
+      startNode.classList.add('active-node-glow');
+      visitedNodes = [startNode];
+    } else {
+      visitedNodes = [];
+    }
+
+    updateCounterDisplay(1);
+
+    // Lock Next Level button
+    const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
+    if (nextBtn) {
+      nextBtn.disabled = true;
+      nextBtn.classList.add('locked');
+      nextBtn.style.animation = '';
+    }
+  }
+  window.resetGame = resetGame;
+
   function initBoardDrag() {
-    const board = document.getElementById('interactive-circuit-board') || document.querySelector('[id*="interactive"]');
+    const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
     if (!board || board.dataset.dragAttached) return;
     board.dataset.dragAttached = "true";
 
-    board.addEventListener('pointerdown', (e) => {
-      const node = document.elementFromPoint(e.clientX, e.clientY)?.closest('button, [class*="node"], [class*="cell"], div');
+    const getAllBoardNodes = () => board.querySelectorAll('.circuit-node, .grid-cell, button, [class*="node"]');
+
+    // 1. Unified Pointer & Touch Down
+    function handleDragStart(clientX, clientY) {
+      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .grid-cell, button, [class*="node"]');
       if (!node || !board.contains(node)) return;
 
-      const txt = node.textContent.trim();
+      const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
 
-      if (val === 1) {
+      // Only begin path tracing on Node [1]
+      if (val === 1 || node.getAttribute('data-checkpoint') === '1' || (!visitedNodes.length && val === 1)) {
         isDragging = true;
         visitedNodes = [node];
         targetIdx = 1;
+
+        const allNodes = getAllBoardNodes();
+        allNodes.forEach(n => n.classList.remove('active-node-glow', 'blast-node-25'));
         node.classList.add('active-node-glow');
-        board.setPointerCapture(e.pointerId);
+        updateCounterDisplay(1);
       }
-    });
+    }
 
-    board.addEventListener('pointermove', (e) => {
+    // 2. Continuous Move Tracking (elementFromPoint without setPointerCapture lock)
+    function handleDragMove(clientX, clientY, e) {
       if (!isDragging) return;
+      if (e && e.cancelable && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+      }
 
-      const node = document.elementFromPoint(e.clientX, e.clientY)?.closest('button, [class*="node"], [class*="cell"], div');
+      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .grid-cell, button, [class*="node"]');
       if (!node || !board.contains(node) || visitedNodes.includes(node) || node === board) return;
 
-      const txt = node.textContent.trim();
+      const allNodes = getAllBoardNodes();
+      const lastNode = visitedNodes[visitedNodes.length - 1];
+      const prevIdx = getNodeIndex(lastNode, allNodes);
+      const currIdx = getNodeIndex(node, allNodes);
+
+      // Adjacency check: Must be an immediate orthogonal neighbor
+      if (!isAdjacent(prevIdx, currIdx)) {
+        return;
+      }
+
+      const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
       const nextTarget = MILESTONES[targetIdx];
+      const isBlank = isNaN(val) || val === 0 || !node.hasAttribute('data-checkpoint');
 
-      // Agar blank node hai ya required milestone hai
-      if (isNaN(val) || val === 0 || val === nextTarget) {
+      // Intermediate blank node OR exact next milestone checkpoint
+      if (isBlank || val === nextTarget) {
         node.classList.add('active-node-glow');
         visitedNodes.push(node);
+        updateCounterDisplay(visitedNodes.length);
 
         if (val === nextTarget) {
           targetIdx++;
-          if (val === 25) {
+
+          // Level Completion: Node 25 reached and all 25 nodes filled
+          if (val === 25 || visitedNodes.length >= 25) {
             isDragging = false;
             node.classList.add('blast-node-25');
 
+            // Unlock Next Level button
+            const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
+            if (nextBtn) {
+              nextBtn.disabled = false;
+              nextBtn.classList.remove('locked');
+              nextBtn.style.animation = 'pulse 1.5s infinite';
+            }
+
+            // Trigger victory modal
             setTimeout(() => {
-              const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
+              const winModal = document.getElementById('level-cleared-modal') || document.getElementById('victory-modal') || document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
               if (winModal) {
                 winModal.style.display = 'flex';
-              } else {
-                const nextBtn = document.querySelector('#next-level, [class*="next"]');
-                if (nextBtn) nextBtn.click();
+                winModal.classList.remove('hidden');
+                winModal.classList.add('flex', 'active');
+              } else if (nextBtn) {
+                nextBtn.click();
               }
-            }, 600);
+            }, 500);
           }
         }
       }
-    });
+    }
 
-    const stopDrag = (e) => {
+    function handleDragStop() {
       if (isDragging) {
         isDragging = false;
-        try { board.releasePointerCapture(e.pointerId); } catch(err) {}
       }
-    };
+    }
 
-    board.addEventListener('pointerup', stopDrag);
-    board.addEventListener('pointercancel', stopDrag);
+    // Pointer Events
+    board.addEventListener('pointerdown', (e) => {
+      handleDragStart(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (isDragging) {
+        handleDragMove(e.clientX, e.clientY, e);
+      }
+    }, { passive: false });
+
+    window.addEventListener('pointerup', handleDragStop);
+    window.addEventListener('pointercancel', handleDragStop);
+
+    // Touch Events (Mobile Support)
+    board.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) {
+        handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches && e.touches[0]) {
+        handleDragMove(e.touches[0].clientX, e.touches[0].clientY, e);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', handleDragStop);
+    window.addEventListener('touchcancel', handleDragStop);
+
+    // Initialize initial state: 1/25 with node 1 glowing
+    resetGame();
   }
 
   window.addEventListener('DOMContentLoaded', initBoardDrag);
-  setInterval(initBoardDrag, 800);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(initBoardDrag, 100);
+  }
+  setInterval(initBoardDrag, 1000);
 })();
 </script>
 
