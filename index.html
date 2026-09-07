@@ -5234,9 +5234,14 @@
       const nextExpectedMilestone = MILESTONES[targetMilestoneIndex];
       const isMilestone = touchedVal && MILESTONES.includes(touchedVal);
 
-      // 4. Blank Node OR Expected Milestone Check
+      // 4. Blank Node OR Expected Milestone Check with Strict Step Validation
+      const isReverse = isReverseProtocol(currentLevel);
+      const expectedStep = isReverse ? (26 - touchedVal) : touchedVal;
+      const nextCandidateStep = playerPath.length + 1;
+
       if (!isMilestone) {
-        // Intermediate blank node: connect, mark active glow, advance count
+        // Intermediate blank node: connect, mark active glow, advance step count
+        if (playerPath.length >= TOTAL_CELLS) return;
         playerPath.push(cellIndex);
         visitedNodes = playerPath;
         connectedNodes = playerPath;
@@ -5244,8 +5249,8 @@
         sound.playNodeConnect(playerPath.length - 1);
         if (navigator.vibrate) navigator.vibrate(8);
         updateActiveStates();
-      } else if (touchedVal === nextExpectedMilestone) {
-        // Milestone reached in exact required sequential order
+      } else if (touchedVal === nextExpectedMilestone && nextCandidateStep === expectedStep) {
+        // Milestone reached in exact required sequential order and step count!
         playerPath.push(cellIndex);
         visitedNodes = playerPath;
         connectedNodes = playerPath;
@@ -5255,12 +5260,12 @@
         if (navigator.vibrate) navigator.vibrate(12);
         updateActiveStates();
 
-        // 5. Win Trigger: Reaching Node 25 with all 25 nodes filled
-        if (touchedVal === 25 || playerPath.length >= 25) {
+        // 5. Win Trigger: Reaching final milestone with all 25 nodes filled
+        if (playerPath.length >= 25 || (isReverse ? touchedVal === 1 : touchedVal === 25)) {
           triggerVictory();
         }
       } else {
-        // Out-of-order milestone
+        // Out-of-order milestone or step count mismatch
         triggerInvalidNodeFeedback(cellIndex);
       }
     }
