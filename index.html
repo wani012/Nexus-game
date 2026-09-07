@@ -1587,6 +1587,42 @@
     pointer-events: auto !important;
   }
 
+
+  /* Master Pointer & Touch Action Enforcements */
+  .circuit-svg-layer,
+  .circuit-svg-layer *,
+  #circuit-svg-layer,
+  #svg-glow-beam,
+  #svg-core-beam,
+  #thunder-vfx-layer,
+  #phoenix-layer,
+  .wire-layer,
+  .board-grid-bg,
+  canvas {
+    pointer-events: none !important;
+  }
+  #interactive-circuit-board,
+  #interactive-board,
+  #node-grid,
+  .board-grid,
+  .circuit-grid,
+  .grid-container {
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+  .circuit-node,
+  .node-circle,
+  .grid-cell,
+  [data-node-index],
+  [data-index] {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
 </style>
 </head>
 
@@ -4704,7 +4740,9 @@
         const isMystery = (i === mysteryNodeIndex);
         const node = document.createElement('div');
         node.dataset.index = i;
+        node.dataset.nodeIndex = i;
         node.setAttribute('data-index', i);
+        node.setAttribute('data-node-index', i);
         node.setAttribute('data-row', Math.floor(i / GRID_SIZE));
         node.setAttribute('data-col', i % GRID_SIZE);
         
@@ -5154,13 +5192,42 @@
       return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
     }
 
+    function getOrthogonalPathBetween(fromIdx, toIdx) {
+      if (fromIdx === toIdx || fromIdx === null || toIdx === null) return [toIdx];
+      const r1 = Math.floor(fromIdx / GRID_SIZE), c1 = fromIdx % GRID_SIZE;
+      const r2 = Math.floor(toIdx / GRID_SIZE), c2 = toIdx % GRID_SIZE;
+      const dr = r2 - r1;
+      const dc = c2 - c1;
+
+      // Straight horizontal line
+      if (r1 === r2) {
+        const stepC = dc > 0 ? 1 : -1;
+        const path = [];
+        for (let c = c1 + stepC; c !== c2 + stepC; c += stepC) {
+          path.push(r1 * GRID_SIZE + c);
+        }
+        return path;
+      }
+      // Straight vertical line
+      if (c1 === c2) {
+        const stepR = dr > 0 ? 1 : -1;
+        const path = [];
+        for (let r = r1 + stepR; r !== r2 + stepR; r += stepR) {
+          path.push(r * GRID_SIZE + c1);
+        }
+        return path;
+      }
+      return [toIdx];
+    }
+
     function getNodeIndexFromPoint(x, y) {
       if (typeof x !== 'number' || typeof y !== 'number') return null;
-      const elem = document.elementFromPoint(x, y);
-      if (elem) {
-        const node = elem.closest('.circuit-node, .node-circle, [data-index], .grid-cell');
+      const elements = (document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)]);
+      for (const elem of elements) {
+        if (!elem) continue;
+        const node = elem.closest('.circuit-node, .node-circle, [data-node-index], [data-index], .grid-cell');
         if (node) {
-          const idxAttr = node.getAttribute('data-index') || node.dataset.index;
+          const idxAttr = node.getAttribute('data-node-index') || node.getAttribute('data-index') || node.dataset.nodeIndex || node.dataset.index;
           if (idxAttr !== null && idxAttr !== undefined) {
             const parsed = parseInt(idxAttr, 10);
             if (!isNaN(parsed) && parsed >= 0 && parsed < TOTAL_CELLS) return parsed;
@@ -5170,42 +5237,24 @@
       return null;
     }
 
-    function handlePointerOnIndex(cellIndex) {
-      if (isCompleted || isTimeOver || cellIndex === null || cellIndex === undefined || cellIndex < 0 || cellIndex >= TOTAL_CELLS) return;
+    const REVERSE_MILESTONES = [25, 20, 15, 10, 5, 1];
+
+    function attemptConnectNode(targetIndex) {
+      if (isCompleted || isTimeOver || targetIndex === null || targetIndex === undefined || targetIndex < 0 || targetIndex >= TOTAL_CELLS) return;
 
       const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
-      const nodeEl = nodes[cellIndex] || null;
-      let touchedVal = null;
-      if (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[cellIndex] !== undefined) {
-        touchedVal = activePuzzle.checkpoints[cellIndex];
-      } else if (nodeEl && (nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'))) {
-        touchedVal = parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10);
-      }
 
-      // 1. Undo Support: Dragging backwards onto previous node
-      if (playerPath.includes(cellIndex)) {
-        if (playerPath.length >= 2 && cellIndex === playerPath[playerPath.length - 2]) {
-          const removedIdx = playerPath.pop();
-          visitedNodes = playerPath;
-          connectedNodes = playerPath;
-          linePath = playerPath;
-
-          const removedEl = nodes[removedIdx];
-          const removedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[removedIdx]) || (removedEl && parseInt(removedEl.dataset.checkpoint, 10));
-          if (removedVal && MILESTONES.includes(removedVal) && targetMilestoneIndex > 1) {
-            targetMilestoneIndex--;
-          }
-          updateActiveStates();
-          sound.playUndo();
-          if (navigator.vibrate) navigator.vibrate(8);
-        }
-        return;
-      }
-
-      // 2. Initial Step: Must begin on Node [1]
+      // 1. Initial Step: Must begin on Node [1] (or [25] in reverse protocol)
       if (playerPath.length === 0) {
-        if (touchedVal === 1 || (nodeEl && nodeEl.getAttribute('data-checkpoint') === '1')) {
-          playerPath = [cellIndex];
+        const isReverse = isReverseProtocol(currentLevel);
+        const startVal = isReverse ? 25 : 1;
+        const nodeEl = nodes[targetIndex];
+        const touchedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[targetIndex] !== undefined)
+          ? activePuzzle.checkpoints[targetIndex]
+          : (nodeEl ? parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10) : null);
+
+        if (touchedVal === startVal || nodeEl?.getAttribute('data-checkpoint') === String(startVal)) {
+          playerPath = [targetIndex];
           visitedNodes = playerPath;
           connectedNodes = playerPath;
           linePath = playerPath;
@@ -5219,60 +5268,100 @@
             boardFrameEl.classList.add('fog-active');
           }
         } else {
-          triggerInvalidNodeFeedback(cellIndex);
+          triggerInvalidNodeFeedback(targetIndex);
         }
         return;
       }
 
-      // 3. Adjacency Validation: Must be an immediate orthogonal neighbor
       const prevIndex = playerPath[playerPath.length - 1];
-      if (!isAdjacentCells(prevIndex, cellIndex)) {
-        triggerInvalidNodeFeedback(cellIndex);
+      if (prevIndex === targetIndex) return;
+
+      // 2. Undo / Backtracking Support: rewinds cleanly along existing path
+      if (playerPath.includes(targetIndex)) {
+        const existingPos = playerPath.indexOf(targetIndex);
+        if (existingPos >= 0 && existingPos < playerPath.length - 1) {
+          while (playerPath.length > existingPos + 1) {
+            const removedIdx = playerPath.pop();
+            const removedEl = nodes[removedIdx];
+            const removedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[removedIdx] !== undefined)
+              ? activePuzzle.checkpoints[removedIdx]
+              : (removedEl ? parseInt(removedEl.dataset.checkpoint || removedEl.getAttribute('data-checkpoint'), 10) : null);
+            if (removedVal && MILESTONES.includes(removedVal) && targetMilestoneIndex > 1) {
+              targetMilestoneIndex--;
+            }
+          }
+          visitedNodes = playerPath;
+          connectedNodes = playerPath;
+          linePath = playerPath;
+          updateActiveStates();
+          sound.playUndo();
+          if (navigator.vibrate) navigator.vibrate(8);
+        }
         return;
       }
 
-      const nextExpectedMilestone = MILESTONES[targetMilestoneIndex];
-      const isMilestone = touchedVal && MILESTONES.includes(touchedVal);
+      // 3. Fast drag & straight-line interpolation between last visited node and target
+      const intermediateSteps = getOrthogonalPathBetween(prevIndex, targetIndex);
 
-      // 4. Blank Node OR Expected Milestone Check with Strict Step Validation
-      const isReverse = isReverseProtocol(currentLevel);
-      const expectedStep = isReverse ? (26 - touchedVal) : touchedVal;
-      const nextCandidateStep = playerPath.length + 1;
-
-      if (!isMilestone) {
-        // Intermediate blank node: connect, mark active glow, advance step count
-        if (playerPath.length >= TOTAL_CELLS) return;
-        playerPath.push(cellIndex);
-        visitedNodes = playerPath;
-        connectedNodes = playerPath;
-        linePath = playerPath;
-        sound.playNodeConnect(playerPath.length - 1);
-        if (navigator.vibrate) navigator.vibrate(8);
-        updateActiveStates();
-      } else if (touchedVal === nextExpectedMilestone && nextCandidateStep === expectedStep) {
-        // Milestone reached in exact required sequential order and step count!
-        playerPath.push(cellIndex);
-        visitedNodes = playerPath;
-        connectedNodes = playerPath;
-        linePath = playerPath;
-        targetMilestoneIndex++;
-        sound.playNodeConnect(playerPath.length - 1);
-        if (navigator.vibrate) navigator.vibrate(12);
-        updateActiveStates();
-
-        // 5. Win Trigger: Reaching final milestone with all 25 nodes filled
-        if (playerPath.length >= 25 || (isReverse ? touchedVal === 1 : touchedVal === 25)) {
-          triggerVictory();
+      for (const stepIdx of intermediateSteps) {
+        if (playerPath.includes(stepIdx)) continue;
+        const curPrev = playerPath[playerPath.length - 1];
+        if (!isAdjacentCells(curPrev, stepIdx)) {
+          triggerInvalidNodeFeedback(stepIdx);
+          break;
         }
-      } else {
-        // Out-of-order milestone or step count mismatch
-        triggerInvalidNodeFeedback(cellIndex);
+
+        const stepNodeEl = nodes[stepIdx];
+        const touchedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[stepIdx] !== undefined)
+          ? activePuzzle.checkpoints[stepIdx]
+          : (stepNodeEl ? parseInt(stepNodeEl.dataset.checkpoint || stepNodeEl.getAttribute('data-checkpoint'), 10) : null);
+
+        const isReverse = isReverseProtocol(currentLevel);
+        const expectedStep = isReverse ? (26 - touchedVal) : touchedVal;
+        const nextExpectedMilestone = isReverse ? REVERSE_MILESTONES[targetMilestoneIndex] : MILESTONES[targetMilestoneIndex];
+        const isMilestone = touchedVal && (isReverse ? REVERSE_MILESTONES.includes(touchedVal) : MILESTONES.includes(touchedVal));
+        const nextCandidateStep = playerPath.length + 1;
+
+        if (!isMilestone) {
+          // Intermediate blank dot: connect smoothly, glow active, draw line
+          if (playerPath.length >= TOTAL_CELLS) break;
+          playerPath.push(stepIdx);
+          visitedNodes = playerPath;
+          connectedNodes = playerPath;
+          linePath = playerPath;
+          sound.playNodeConnect(playerPath.length - 1);
+          if (navigator.vibrate) navigator.vibrate(8);
+          updateActiveStates();
+        } else if (touchedVal === nextExpectedMilestone && nextCandidateStep === expectedStep) {
+          // Milestone reached in exact required sequential step count!
+          playerPath.push(stepIdx);
+          visitedNodes = playerPath;
+          connectedNodes = playerPath;
+          linePath = playerPath;
+          targetMilestoneIndex++;
+          sound.playNodeConnect(playerPath.length - 1);
+          if (navigator.vibrate) navigator.vibrate(14);
+          updateActiveStates();
+
+          if (playerPath.length >= 25 || (isReverse ? touchedVal === 1 : touchedVal === 25)) {
+            triggerVictory();
+            break;
+          }
+        } else {
+          // Step count mismatch or out-of-order milestone
+          triggerInvalidNodeFeedback(stepIdx);
+          break;
+        }
       }
     }
 
+    const handlePointerOnIndex = attemptConnectNode;
+    window.attemptConnectNode = attemptConnectNode;
+    window.handlePointerOnIndex = handlePointerOnIndex;
+
     function attachEventListeners() {
       lockNextLevelBtn();
-      // Support Modal Backdrop & ESC Listeners
+      
       const supportModalEl = document.getElementById('support-modal');
       if (supportModalEl) {
         supportModalEl.addEventListener('click', (e) => {
@@ -5289,308 +5378,106 @@
         }
       });
 
+      const handlePointerMove = (e) => {
+        if (!isDragging || isCompleted || isTimeOver) return;
+        if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
+        const idx = getNodeIndexFromPoint(e.clientX, e.clientY);
+        if (idx !== null) {
+          attemptConnectNode(idx);
+        }
+        if (currentLevel >= 3) {
+          updateFogOfWar(e.clientX, e.clientY);
+        }
+      };
+
+      const handlePointerEnd = (e) => {
+        isDragging = false;
+        setMobileAnimationsPaused(false);
+        if (playerPath.length > 0 && playerPath.length < TOTAL_CELLS) {
+          didLiftFinger = true;
+        }
+        if (boardFrameEl) {
+          boardFrameEl.classList.remove('fog-active');
+          boardFrameEl.querySelectorAll('.circuit-node').forEach(n => n.classList.remove('in-spotlight'));
+          try { if (e && e.pointerId) boardFrameEl.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      };
+
       if (boardFrameEl) {
         boardFrameEl.addEventListener('pointerdown', (e) => {
           sound.init();
           if (isCompleted || isTimeOver) return;
-          if (e.cancelable) e.preventDefault();
+          if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
           isDragging = true;
           setMobileAnimationsPaused(true);
           try { boardFrameEl.setPointerCapture(e.pointerId); } catch (_) {}
           const idx = getNodeIndexFromPoint(e.clientX, e.clientY);
-          handlePointerOnIndex(idx);
+          if (idx !== null) {
+            attemptConnectNode(idx);
+          }
           if (currentLevel >= 3) {
             boardFrameEl.classList.add('fog-active');
             updateFogOfWar(e.clientX, e.clientY);
           }
         });
 
-        boardFrameEl.addEventListener('pointermove', (e) => {
-          if (!isDragging || isCompleted || isTimeOver) return;
-          if (e.cancelable) e.preventDefault();
-          const idx = getNodeIndexFromPoint(e.clientX, e.clientY);
-          handlePointerOnIndex(idx);
-          if (currentLevel >= 3) {
-            updateFogOfWar(e.clientX, e.clientY);
-          }
-        });
+        boardFrameEl.addEventListener('pointermove', handlePointerMove);
+        boardFrameEl.addEventListener('pointerup', handlePointerEnd);
+        boardFrameEl.addEventListener('pointercancel', handlePointerEnd);
 
-        boardFrameEl.addEventListener('pointerup', (e) => {
-          isDragging = false;
-          if (playerPath.length > 0 && playerPath.length < TOTAL_CELLS) {
-            didLiftFinger = true;
-          }
-          if (boardFrameEl) {
-            boardFrameEl.classList.remove('fog-active');
-            boardFrameEl.querySelectorAll('.circuit-node').forEach(n => n.classList.remove('in-spotlight'));
-          }
-          try { boardFrameEl.releasePointerCapture(e.pointerId); } catch (_) {}
-        });
-
-        boardFrameEl.addEventListener('pointercancel', () => {
-          isDragging = false;
-          if (playerPath.length > 0 && playerPath.length < TOTAL_CELLS) {
-            didLiftFinger = true;
-          }
-          if (boardFrameEl) {
-            boardFrameEl.classList.remove('fog-active');
-            boardFrameEl.querySelectorAll('.circuit-node').forEach(n => n.classList.remove('in-spotlight'));
-          }
-        });
-
+        // Touch event fallbacks for mobile browsers
         boardFrameEl.addEventListener('touchstart', (e) => {
           sound.init();
           if (isCompleted || isTimeOver) return;
-          if (e.cancelable) e.preventDefault();
-          isDragging = true;
-          setMobileAnimationsPaused(true);
           if (e.touches && e.touches[0]) {
-            const touch = e.touches[0];
-            const idx = getNodeIndexFromPoint(touch.clientX, touch.clientY);
-            if (idx !== null && idx !== undefined) {
-              handlePointerOnIndex(idx);
-            }
-            if (currentLevel >= 3) {
-              boardFrameEl.classList.add('fog-active');
-              updateFogOfWar(touch.clientX, touch.clientY);
-            }
+            if (e.cancelable) e.preventDefault();
+            isDragging = true;
+            setMobileAnimationsPaused(true);
+            const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+            if (idx !== null) attemptConnectNode(idx);
           }
         }, { passive: false });
 
-        // Direct mobile touchmove across empty grid slots
         boardFrameEl.addEventListener('touchmove', (e) => {
-          if (e.cancelable) e.preventDefault();
           if (!isDragging || isCompleted || isTimeOver) return;
           if (e.touches && e.touches[0]) {
-            const touch = e.touches[0];
-            const idx = getNodeIndexFromPoint(touch.clientX, touch.clientY);
-            if (idx !== null && idx !== undefined) {
-              handlePointerOnIndex(idx);
-            }
-            if (currentLevel >= 3) {
-              updateFogOfWar(touch.clientX, touch.clientY);
-            }
+            if (e.cancelable) e.preventDefault();
+            const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+            if (idx !== null) attemptConnectNode(idx);
           }
         }, { passive: false });
 
-        boardFrameEl.addEventListener('touchend', () => {
-          isDragging = false;
-          if (playerPath.length > 0 && playerPath.length < targetSequence.length) {
-            didLiftFinger = true;
-          }
-          if (boardFrameEl) {
-            boardFrameEl.classList.remove('fog-active');
-            boardFrameEl.querySelectorAll('.circuit-node').forEach(n => n.classList.remove('in-spotlight'));
-          }
-        });
+        boardFrameEl.addEventListener('touchend', handlePointerEnd);
+        boardFrameEl.addEventListener('touchcancel', handlePointerEnd);
       }
 
-      const skinPickerBtn = document.getElementById('skin-picker-btn');
-      if (skinPickerBtn) {
-        skinPickerBtn.addEventListener('click', openSkinModal);
+      window.addEventListener('pointermove', (e) => {
+        if (isDragging) handlePointerMove(e);
+      }, { passive: false });
+      window.addEventListener('pointerup', handlePointerEnd);
+      window.addEventListener('pointercancel', handlePointerEnd);
+
+      // Wire Modal triggers & Buttons
+      const nextBtn = document.getElementById('dock-next-btn') || document.getElementById('next-level-btn');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', startNextLevel);
       }
 
-      const closeSkinBtn = document.getElementById('close-skin-btn');
-      if (closeSkinBtn) {
-        closeSkinBtn.addEventListener('click', closeSkinModal);
+      const modalNextBtn = document.getElementById('modal-next-btn');
+      if (modalNextBtn) {
+        modalNextBtn.addEventListener('click', startNextLevel);
       }
 
-      const duelHeaderBtn = document.getElementById('duel-header-btn');
-      if (duelHeaderBtn) {
-        duelHeaderBtn.addEventListener('click', openSocialShareModal);
-      }
-
-      // Cross-Platform Share: Challenge a Friend (Dual-Action Share Handler)
-      // Compatibility: btnDuelShare.addEventListener('click', openSocialShareModal)
-      const btnDuelShare = document.getElementById('btn-duel-share');
-      if (btnDuelShare) {
-        let lastShareTap = 0;
-        const triggerDuelShare = (e) => {
-          if (e) {
-            if (typeof e.preventDefault === 'function') e.preventDefault();
-            if (typeof e.stopPropagation === 'function') e.stopPropagation();
-          }
-          const now = Date.now();
-          if (now - lastShareTap < 350) return;
-          lastShareTap = now;
-          handleChallengeFriendShare(e);
-        };
-        btnDuelShare.addEventListener('click', triggerDuelShare);
-        btnDuelShare.addEventListener('pointerdown', (e) => {
-          if (e && e.pointerType === 'touch') {
-            triggerDuelShare(e);
-          }
-        });
-      }
-
-      const supportModal = document.getElementById('support-modal');
-      if (supportModal) {
-        supportModal.addEventListener('click', (e) => {
-          if (e.target === supportModal) {
-            closeSupportModal();
-          }
-        });
-      }
-
-      const socialShareModal = document.getElementById('social-share-modal');
-      if (socialShareModal) {
-        socialShareModal.addEventListener('click', (e) => {
-          if (e.target === socialShareModal) {
-            closeSocialShareModal();
-          }
-        });
-      }
-
-      const soundBtn = document.getElementById('sound-btn');
-      if (soundBtn) {
-        soundBtn.addEventListener('click', () => {
-          sound.toggleMute();
-        });
-      }
-
-      // In-game HUD Next Level button: Strictly locked against level skipping
-      const debugRerollBtn = document.getElementById('debug-reroll-btn');
-      if (debugRerollBtn) {
-        debugRerollBtn.addEventListener('click', (e) => {
+      const modalSubmitBtn = document.getElementById('modal-submit-btn');
+      if (modalSubmitBtn) {
+        modalSubmitBtn.addEventListener('click', (e) => {
           if (e) e.preventDefault();
-          showChallengeToast("Level skipping is locked! Complete the current circuit to advance.");
-          sound.playErrorBuzz();
-          triggerHaptic(20);
-        });
-      }
-
-      // Cyber Controls Dock Listeners
-      const dockReset = document.getElementById('dock-reset-btn');
-      if (dockReset) {
-        dockReset.addEventListener('click', (e) => {
-          if (e) e.preventDefault();
-          resetCircuitAttempt();
-        });
-      }
-
-      const dockAudio = document.getElementById('dock-audio-btn');
-      if (dockAudio) {
-        dockAudio.addEventListener('click', (e) => {
-          if (e) e.preventDefault();
-          sound.toggleMute();
-          updateSoundBtnUI();
-        });
-      }
-
-      const dockTheme = document.getElementById('dock-theme-btn');
-      if (dockTheme) {
-        dockTheme.addEventListener('click', (e) => {
-          if (e) e.preventDefault();
-          openSkinModal();
-        });
-      }
-
-      const dockNext = document.getElementById('dock-next-btn');
-      if (dockNext) {
-        dockNext.addEventListener('click', (e) => {
-          if (dockNext.disabled || !gameState.levelCompleted) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
-            return;
-          }
-          if (e) e.preventDefault();
-          startNextLevel(e);
-        });
-      }
-
-      // Victory Modal: Primary Action - Advance to next level upon explicit click
-      const btnNextLevel = document.getElementById('btn-next-level');
-      if (btnNextLevel) {
-        btnNextLevel.addEventListener('click', (e) => {
-          currentLevel++;
-          loadNewCircuit(currentLevel);
-          startNextLevel(e);
-        });
-      }
-
-      // Skip Level Button Guard
-      const skipBtn = document.getElementById('skip-level-btn');
-      if (skipBtn) {
-        skipBtn.addEventListener('click', (e) => {
-          if (skipBtn.disabled || skipBtn.classList.contains('locked')) {
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-          }
-          // Skip logic only if unlocked...
-          startNextLevel(e);
-        });
-      }
-
-      ['target-apex-1', 'target-apex-2', 'target-apex-3'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el && el.parentElement) {
-          el.parentElement.addEventListener('click', (e) => {
-            openLeaderboardModal(e);
-          });
-        }
-      });
-
-      // Victory Modal: Replay Circuit without page reload (with touch compatibility)
-      const btnReplayCircuit = document.getElementById('btn-replay-circuit');
-      if (btnReplayCircuit) {
-        let lastReplayTap = 0;
-        const triggerReplay = (e) => {
-          if (e) {
-            if (typeof e.preventDefault === 'function') e.preventDefault();
-            if (typeof e.stopPropagation === 'function') e.stopPropagation();
-          }
-          const now = Date.now();
-          if (now - lastReplayTap < 350) return;
-          lastReplayTap = now;
-          replayCurrentCircuit();
-        };
-        btnReplayCircuit.addEventListener('click', triggerReplay);
-        btnReplayCircuit.addEventListener('pointerdown', (e) => {
-          if (e && e.pointerType === 'touch') {
-            triggerReplay(e);
-          }
-        });
-      }
-
-      const btnBankScore = document.getElementById('btn-bank-score');
-      if (btnBankScore) {
-        btnBankScore.addEventListener('click', () => {
           const modal = document.getElementById('level-cleared-modal');
           if (modal) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
           }
           showSubmitScoreModal(currentLevel, totalRunTime);
-        });
-      }
-
-      // Victory Modal: Fuel the Furu / Support Button
-      const btnFuelFuru = document.getElementById('btn-fuel-furu') || document.getElementById('btn-support-creator');
-      if (btnFuelFuru) {
-        btnFuelFuru.onclick = function(e) {
-          if (e) {
-            if (typeof e.preventDefault === 'function') e.preventDefault();
-            if (typeof e.stopPropagation === 'function') e.stopPropagation();
-          }
-          const fuelModal = document.getElementById('support-modal') || document.getElementById('fuel-modal') || document.querySelector('.fuel-modal');
-          if (fuelModal) {
-            fuelModal.style.display = 'flex';
-            fuelModal.style.zIndex = '100050';
-            fuelModal.classList.remove('hidden');
-            fuelModal.classList.add('active', 'show', 'flex');
-            if (typeof openSupportModal === 'function') {
-              try { openSupportModal(); } catch (_) {}
-            }
-          } else {
-            // Fallback if no modal: scroll to or trigger existing navbar Fuel handler
-            const navFuel = document.querySelector('[class*="fuel"], [id*="fuel"]');
-            if (navFuel) navFuel.click();
-          }
-        };
-        btnFuelFuru.addEventListener('pointerdown', function(e) {
-          if (e && e.pointerType === 'touch') {
-            if (btnFuelFuru.onclick) btnFuelFuru.onclick(e);
-          }
         });
       }
 
@@ -5602,49 +5489,22 @@
         btn.addEventListener('click', openLeaderboardModal);
       });
 
-      // Leaderboard Modal Close Button Listeners
       const closeLbBtn = document.getElementById('close-leaderboard-btn');
       if (closeLbBtn) {
-        closeLbBtn.addEventListener('click', (e) => {
-          if (e) { e.preventDefault(); e.stopPropagation(); }
-          closeLeaderboardModal();
-        });
+        closeLbBtn.addEventListener('click', closeLeaderboardModal);
       }
       document.querySelectorAll('.leaderboard-close-btn, .modal-close-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          if (e) { e.preventDefault(); e.stopPropagation(); }
-          closeLeaderboardModal();
-        });
+        btn.addEventListener('click', closeLeaderboardModal);
       });
 
-      const closeCrackedBtn = document.getElementById('close-cracked-btn');
-      if (closeCrackedBtn) {
-        closeCrackedBtn.addEventListener('click', () => {
-          const modal = document.getElementById('circuit-cracked-modal');
-          if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-          }
-        });
-      }
-
-      const igStoryBtn = document.getElementById('ig-story-btn');
-      if (igStoryBtn) {
-        igStoryBtn.addEventListener('click', generateInstagramStoryCard);
-      }
-
-      const igVictoryBtn = document.getElementById('ig-story-victory-btn');
-      if (igVictoryBtn) {
-        igVictoryBtn.addEventListener('click', generateInstagramStoryCard);
+      const viewLbBtn = document.getElementById('view-leaderboard-btn');
+      if (viewLbBtn) {
+        viewLbBtn.addEventListener('click', openLeaderboardFromGameOver);
       }
 
       const clearBtn = document.getElementById('clear-btn');
       if (clearBtn) {
         clearBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          resetCircuitAttempt();
-        });
-        clearBtn.addEventListener('touchend', (e) => {
           e.preventDefault();
           resetCircuitAttempt();
         });
@@ -5655,105 +5515,6 @@
         retryBtn.addEventListener('click', (e) => {
           e.preventDefault();
           resetCircuitAttempt();
-        });
-      }
-
-      const crackedForm = document.getElementById('cracked-form');
-      if (crackedForm) {
-        crackedForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const input = document.getElementById('cracked-name-input');
-          const submitBtn = document.getElementById('cracked-submit-btn');
-          const name = (input && input.value.trim().toUpperCase()) || 'OPERATOR';
-
-          localStorage.setItem('nexus_player_callsign', name);
-
-          if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'SYNCING TO FIRESTORE...';
-          }
-
-          const levelToSubmit = bankedLevel || currentLevel;
-          const timeToSubmit = bankedTotalTime || totalRunTime;
-
-          // Submit record to Firestore & local leaderboard via saveScoreToLeaderboard pipeline
-          let submitResult = null;
-          try {
-            submitResult = await saveScoreToLeaderboard(name, levelToSubmit, timeToSubmit);
-          } catch (err) {
-            console.error("Leaderboard pipeline submission error:", err);
-          }
-
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = 'Submit Score';
-          }
-
-          const crackedModal = document.getElementById('circuit-cracked-modal');
-          if (crackedModal) {
-            crackedModal.classList.add('hidden');
-            crackedModal.classList.remove('flex');
-          }
-
-          // Evaluate Top 3 / Matrix breach celebration
-          const entries = lbManager.getEntries();
-          const isApex = (submitResult && submitResult.dethroned) || (lbManager.getApexRunner()?.name === name && lbManager.getApexRunner()?.levelReached === levelToSubmit);
-          const isTop3 = entries.slice(0, 3).some(e => e.name === name && e.levelReached === levelToSubmit);
-
-          if (isApex || isTop3) {
-            const overlay = document.getElementById('benchmark-matched-overlay');
-            const title = document.getElementById('benchmark-match-title');
-            const detail = document.getElementById('benchmark-match-detail');
-            if (title) title.innerText = isApex ? '👑 NEW REIGNING APEX RECORD!' : 'Level Completed!';
-            if (detail) {
-              detail.innerText = `${name} REACHED LEVEL ${levelToSubmit} IN ${timeToSubmit.toFixed(2)}s! GLOBAL ARCHIVE UPDATED!`;
-            }
-            if (overlay) {
-              overlay.classList.remove('hidden');
-              overlay.classList.add('flex');
-            }
-            sound.playVictory();
-            triggerHaptic([100, 50, 100, 50, 200]);
-
-            setTimeout(() => {
-              if (overlay) {
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
-              }
-              showVictoryModal(levelToSubmit, timeToSubmit);
-            }, 2400);
-          } else {
-            showVictoryModal(levelToSubmit, timeToSubmit);
-          }
-        });
-      }
-
-      const viewLbBtn = document.getElementById('view-leaderboard-btn');
-      if (viewLbBtn) {
-        viewLbBtn.addEventListener('click', (e) => {
-          openLeaderboardFromGameOver(e);
-        });
-      }
-
-      const lbModalEl = document.getElementById('leaderboard-modal');
-      if (lbModalEl) {
-        lbModalEl.addEventListener('click', (e) => {
-          if (e.target === lbModalEl) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeLeaderboardModal();
-          }
-        });
-      }
-
-      const closeModalBtn = document.getElementById('close-modal-btn');
-      if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-          const victoryModal = document.getElementById('victory-modal');
-          if (victoryModal) {
-            victoryModal.classList.add('hidden');
-            victoryModal.classList.remove('flex');
-          }
         });
       }
 
