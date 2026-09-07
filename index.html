@@ -199,11 +199,12 @@
       z-index: 10;
     }
 
-        /* Unnumbered background dots ignore pointer events; direct sequential target jumps */
+        /* ALL circuit nodes need pointer-events:auto so elementsFromPoint can detect
+       them during drag. Previously pointer-events:none on blank nodes caused Chrome/Safari
+       to skip them in elementsFromPoint(), breaking drag across intermediate dots. */
+    .circuit-node,
     .circuit-node.empty,
-    .circuit-node:not([data-checkpoint]) {
-      pointer-events: none !important;
-    }
+    .circuit-node:not([data-checkpoint]),
     .circuit-node.anchor,
     .circuit-node.milestone-node,
     .circuit-node[data-checkpoint] {
@@ -4806,7 +4807,7 @@
           node.innerHTML = `<span class="mystery-glyph">?</span>`;
         } else {
           node.className = 'circuit-node empty grid-cell';
-          node.style.pointerEvents = 'auto';
+          node.style.setProperty('pointer-events', 'auto', 'important');
         }
         nodeGridEl.appendChild(node);
       }
@@ -5281,28 +5282,24 @@
       return null;
     }
 
-    const REVERSE_MILESTONES = [25, 20, 15, 10, 5, 1];
+    const MILESTONES_SEQUENCE = [1, 5, 10, 15, 20, 25];
+    const REVERSE_MILESTONES_SEQUENCE = [25, 20, 15, 10, 5, 1];
 
-    function attemptConnectNode(targetIndex) {
-      if (isCompleted || isTimeOver || targetIndex === null || targetIndex === undefined || targetIndex < 0 || targetIndex >= TOTAL_CELLS) return;
+    function handlePointerOnIndex(cellIndex) {
+      if (isCompleted || isTimeOver || cellIndex === null || cellIndex === undefined || cellIndex < 0 || cellIndex >= TOTAL_CELLS) return;
 
-      const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
+      const isReverse = isReverseProtocol(currentLevel);
+      const startVal = isReverse ? 25 : 1;
+      const expectedMilestones = isReverse ? REVERSE_MILESTONES_SEQUENCE : MILESTONES_SEQUENCE;
 
-      // 1. Initial Step: Must begin on Node [1] (or [25] in reverse protocol)
+      // 1. Initial Step: Must start on milestone [1] (or [25] in reverse protocol)
       if (playerPath.length === 0) {
-        const isReverse = isReverseProtocol(currentLevel);
-        const startVal = isReverse ? 25 : 1;
-        const nodeEl = nodes[targetIndex];
-        const touchedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[targetIndex] !== undefined)
-          ? activePuzzle.checkpoints[targetIndex]
-          : (nodeEl && (nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint')) ? parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10) : null);
-
-        if (touchedVal === startVal || nodeEl?.getAttribute('data-checkpoint') === String(startVal)) {
-          playerPath = [targetIndex];
+        const cp = (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints[cellIndex] : undefined;
+        if (cp === startVal) {
+          playerPath = [cellIndex];
           visitedNodes = playerPath;
           connectedNodes = playerPath;
           linePath = playerPath;
-          targetMilestoneIndex = 1;
           didLiftFinger = false;
           start20sTimer();
           sound.playNodeConnect(0);
@@ -5312,92 +5309,70 @@
             boardFrameEl.classList.add('fog-active');
           }
         } else {
-          // Disconnected start tap: soft shake
-          triggerInvalidNodeFeedback(targetIndex);
+          triggerInvalidNodeFeedback(cellIndex);
         }
         return;
       }
 
-      const prevIndex = playerPath[playerPath.length - 1];
-      if (prevIndex === targetIndex) return;
-
-      // 2. Smooth Undo / Backtracking Support: rewinds cleanly along existing path
-      if (playerPath.includes(targetIndex)) {
-        const existingPos = playerPath.indexOf(targetIndex);
-        if (existingPos >= 0 && existingPos < playerPath.length - 1) {
-          while (playerPath.length > existingPos + 1) {
-            const removedIdx = playerPath.pop();
-            const removedEl = nodes[removedIdx];
-            const removedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[removedIdx] !== undefined)
-              ? activePuzzle.checkpoints[removedIdx]
-              : (removedEl && (removedEl.dataset.checkpoint || removedEl.getAttribute('data-checkpoint')) ? parseInt(removedEl.dataset.checkpoint || removedEl.getAttribute('data-checkpoint'), 10) : null);
-            if (removedVal && (isReverseProtocol(currentLevel) ? REVERSE_MILESTONES.includes(removedVal) : MILESTONES.includes(removedVal)) && targetMilestoneIndex > 1) {
-              targetMilestoneIndex--;
-            }
-          }
-          visitedNodes = playerPath;
-          connectedNodes = playerPath;
-          linePath = playerPath;
-          updateActiveStates();
-          sound.playUndo();
-          triggerHaptic(8);
-        }
+      // 2. Multi-Step Backtracking / Undo
+      const existingIdx = playerPath.indexOf(cellIndex);
+      if (existingIdx !== -1) {
+        if (existingIdx === playerPath.length - 1) return;
+        playerPath = playerPath.slice(0, existingIdx + 1);
+        visitedNodes = playerPath;
+        connectedNodes = playerPath;
+        linePath = playerPath;
+        updateActiveStates();
+        sound.playUndo();
+        triggerHaptic(8);
         return;
       }
 
-      // 3. Fast drag & straight-line interpolation between last visited node and target
-      const intermediateSteps = getOrthogonalPathBetween(prevIndex, targetIndex);
+      // 3. Smooth Step / Path Interpolation for fast drags
+      const last = playerPath[playerPath.length - 1];
+      const steps = getOrthogonalPathBetween(last, cellIndex);
 
-      for (const stepIdx of intermediateSteps) {
-        if (playerPath.includes(stepIdx)) continue;
-        const curPrev = playerPath[playerPath.length - 1];
-        if (!isAdjacentCells(curPrev, stepIdx)) {
-          triggerInvalidNodeFeedback(stepIdx);
+      for (const stepIndex of steps) {
+        if (playerPath.includes(stepIndex)) continue;
+
+        const curLast = playerPath[playerPath.length - 1];
+        if (!isAdjacentCells(curLast, stepIndex)) {
+          triggerInvalidNodeFeedback(stepIndex);
           break;
         }
 
-        const stepNodeEl = nodes[stepIdx];
-        const touchedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[stepIdx] !== undefined)
-          ? activePuzzle.checkpoints[stepIdx]
-          : (stepNodeEl && (stepNodeEl.dataset.checkpoint || stepNodeEl.getAttribute('data-checkpoint')) ? parseInt(stepNodeEl.dataset.checkpoint || stepNodeEl.getAttribute('data-checkpoint'), 10) : null);
+        const cp = (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints[stepIndex] : undefined;
+        if (cp !== undefined) {
+          const visitedMilestones = playerPath
+            .map(idx => activePuzzle.checkpoints ? activePuzzle.checkpoints[idx] : undefined)
+            .filter(v => v !== undefined);
 
-        const isReverse = isReverseProtocol(currentLevel);
-        const nextExpectedMilestone = isReverse ? REVERSE_MILESTONES[targetMilestoneIndex] : MILESTONES[targetMilestoneIndex];
-        const isMilestone = (touchedVal !== null && touchedVal !== undefined && !isNaN(touchedVal)) && (isReverse ? REVERSE_MILESTONES.includes(touchedVal) : MILESTONES.includes(touchedVal));
+          const nextExpectedMilestone = expectedMilestones[visitedMilestones.length];
 
-        if (!isMilestone) {
-          // Intermediate blank dot: connect smoothly, glow active, draw laser line
-          if (playerPath.length >= TOTAL_CELLS) break;
-          playerPath.push(stepIdx);
-          visitedNodes = playerPath;
-          connectedNodes = playerPath;
-          linePath = playerPath;
-          sound.playNodeConnect(playerPath.length - 1);
-          triggerHaptic(8);
-          updateActiveStates();
-        } else if (touchedVal === nextExpectedMilestone) {
-          // Expected sequential milestone reached!
-          playerPath.push(stepIdx);
-          visitedNodes = playerPath;
-          connectedNodes = playerPath;
-          linePath = playerPath;
-          targetMilestoneIndex++;
-          sound.playNodeConnect(playerPath.length - 1);
-          triggerHaptic(14);
-          updateActiveStates();
-
-          if (playerPath.length >= 25 || (isReverse ? touchedVal === 1 : touchedVal === 25)) {
-            triggerVictory();
+          if (cp !== nextExpectedMilestone) {
+            // If touching non-expected milestone, soft ignore or stop
             break;
           }
-        } else {
-          // Out-of-order milestone or premature milestone touch: soft ignore (do not connect)
+        }
+
+        // 4. Valid Move
+        playerPath.push(stepIndex);
+        visitedNodes = playerPath;
+        connectedNodes = playerPath;
+        linePath = playerPath;
+        sound.playNodeConnect(playerPath.length - 1);
+        triggerHaptic(cp !== undefined ? 14 : 8);
+        updateActiveStates();
+
+        // 5. Win Condition Check
+        if (playerPath.length === TOTAL_CELLS) {
+          triggerVictory();
           break;
         }
       }
     }
 
-    const handlePointerOnIndex = attemptConnectNode;
+    const attemptConnectNode = handlePointerOnIndex;
     window.attemptConnectNode = attemptConnectNode;
     window.handlePointerOnIndex = handlePointerOnIndex;
 
