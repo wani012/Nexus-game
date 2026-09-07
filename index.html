@@ -7114,95 +7114,15 @@ ${shareData.url}`;
   }
 </style>
 
-<script>
-(function() {
-  const CHECKPOINTS = [1, 5, 10, 15, 20, 25];
-  let currentTargetIndex = 0; // Starts at target 1, next is 5
-  let isDragging = false;
-  let activePath = [];
-
-  function initContinuousPathGame() {
-    const grid = document.querySelector('.circuit-grid, #circuit-grid, .grid-container');
-    if (!grid) return;
-    const nodes = Array.from(grid.querySelectorAll('.node, .circle, [class*="node"]'));
-    if (nodes.length < 25) return;
-
-    // Enable interaction on EVERY dot so dragging fills every circle along the way
-    nodes.forEach((node) => {
-      node.style.pointerEvents = 'auto';
-      node.style.cursor = 'pointer';
-
-      // Drag event listeners
-      node.onpointerenter = function(e) {
-        if (!isDragging) return;
-        handleNodeDragEnter(node);
-      };
-      node.onpointerdown = function(e) {
-        const val = parseInt(node.textContent.trim(), 10);
-        // Start only at [1]
-        if (val === 1) {
-          isDragging = true;
-          activePath = [node];
-          currentTargetIndex = 1; // Looking for 5 next
-          node.classList.add('active', 'path-filled');
-        }
-      };
-    });
-
-    window.onpointerup = function() {
-      isDragging = false;
-    };
-  }
-
-  function handleNodeDragEnter(node) {
-    if (activePath.includes(node)) return; // Already filled
-
-    const val = parseInt(node.textContent.trim(), 10);
-    const expectedTarget = CHECKPOINTS[currentTargetIndex];
-
-    // If touching a numbered node that is NOT the next expected milestone, ignore
-    if (val && CHECKPOINTS.includes(val) && val !== expectedTarget) {
-      return;
-    }
-
-    // Fill this node/circle as part of the line
-    node.classList.add('path-filled');
-    activePath.push(node);
-
-    // If we reached the next milestone (5, 10, 15, 20, 25)
-    if (val === expectedTarget) {
-      node.classList.add('active');
-      currentTargetIndex++;
-
-      // When final node [25] is reached
-      if (val === 25) {
-        isDragging = false;
-        node.classList.add('thunder-finish');
-
-        // Stop timer
-        const timerElem = document.querySelector('.timer, #timer, [class*="timer"]');
-        
-        // 600ms electric blast delay before showing level cleared modal
-        setTimeout(() => {
-          const winModal = document.getElementById('win-modal') || document.querySelector('.cleared-modal, .level-cleared');
-          if (winModal) {
-            winModal.style.display = 'flex';
-          } else {
-            const nextBtn = document.querySelector('[class*="next"], #next-level');
-            if (nextBtn) nextBtn.click();
-          }
-        }, 650);
-      }
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', initContinuousPathGame);
-  setTimeout(initContinuousPathGame, 400);
-})();
-</script>
 <!-- ================= NEXUS TRUE INTERACTIVE DRAG ENGINE ================= -->
 <style>
-  #interactive-circuit-board, #interactive-circuit-board * {
+  #interactive-circuit-board,
+  #interactive-board,
+  #node-grid,
+  .circuit-grid,
+  .grid-container,
+  #interactive-circuit-board *,
+  #interactive-board * {
     touch-action: none !important;
     user-select: none !important;
     -webkit-user-select: none !important;
@@ -7228,10 +7148,10 @@ ${shareData.url}`;
 (function() {
   const MILESTONES = [1, 5, 10, 15, 20, 25];
   let isDragging = false;
-  let targetIdx = 1; // Looking for 5 next
+  let targetIdx = 1; // Milestone index 1 corresponds to target node [5]
   let visitedNodes = [];
 
-  // Helper: Get cell index or grid coordinates from node element
+  // Helper: Extract grid cell index or coordinates
   function getNodeIndex(node, allNodes) {
     if (!node) return -1;
     if (node.dataset && node.dataset.index !== undefined) {
@@ -7246,15 +7166,15 @@ ${shareData.url}`;
     return Array.from(allNodes).indexOf(node);
   }
 
-  // Helper: Check orthogonal adjacency on 5x5 grid
+  // Helper: Enforce strict orthogonal 5x5 adjacency
   function isAdjacent(idx1, idx2) {
-    if (idx1 < 0 || idx2 < 0) return true; // fallback if index unavailable
+    if (idx1 < 0 || idx2 < 0) return true; // Fallback if index not defined
     const r1 = Math.floor(idx1 / 5), c1 = idx1 % 5;
     const r2 = Math.floor(idx2 / 5), c2 = idx2 % 5;
     return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
   }
 
-  // Update HUD counter
+  // Update HUD counter dynamically
   function updateCounterDisplay(count) {
     const safeCount = Math.max(1, Math.min(25, count));
     const labels = [
@@ -7268,21 +7188,21 @@ ${shareData.url}`;
     });
   }
 
-  // Robust Reset Game
+  // 2. State Initialization: Clear all glowing nodes, activate ONLY Node [1], reset visitedNodes = [node1], targetIdx = 1, counter = "Connected: 1/25"
   function resetGame() {
     isDragging = false;
     targetIdx = 1;
     const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
     if (!board) return;
 
-    const allNodes = board.querySelectorAll('.circuit-node, .grid-cell, button, [class*="node"]');
+    const allNodes = board.querySelectorAll('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
     let startNode = null;
 
     allNodes.forEach((node) => {
-      node.classList.remove('active-node-glow', 'active', 'completed', 'blast-node-25');
+      node.classList.remove('active-node-glow', 'active', 'completed', 'path-filled', 'blast-node-25', 'thunder-finish');
       const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
-      if (val === 1 || node.getAttribute('data-checkpoint') === '1') {
+      if (val === 1 || node.getAttribute('data-checkpoint') === '1' || node.getAttribute('data-node') === '1') {
         startNode = node;
       }
     });
@@ -7300,7 +7220,7 @@ ${shareData.url}`;
 
     updateCounterDisplay(1);
 
-    // Lock Next Level button
+    // Lock Next Level button until complete
     const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
     if (nextBtn) {
       nextBtn.disabled = true;
@@ -7315,38 +7235,53 @@ ${shareData.url}`;
     if (!board || board.dataset.dragAttached) return;
     board.dataset.dragAttached = "true";
 
-    const getAllBoardNodes = () => board.querySelectorAll('.circuit-node, .grid-cell, button, [class*="node"]');
+    const getAllBoardNodes = () => board.querySelectorAll('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
 
-    // 1. Unified Pointer & Touch Down
+    // 3. Robust Touch & Drag Detection: pointerdown / touchstart strictly on Node [1]
     function handleDragStart(clientX, clientY) {
-      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .grid-cell, button, [class*="node"]');
+      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
       if (!node || !board.contains(node)) return;
 
       const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
 
       // Only begin path tracing on Node [1]
-      if (val === 1 || node.getAttribute('data-checkpoint') === '1' || (!visitedNodes.length && val === 1)) {
+      if (val === 1 || node.getAttribute('data-checkpoint') === '1' || node.getAttribute('data-node') === '1' || (!visitedNodes.length && val === 1)) {
         isDragging = true;
         visitedNodes = [node];
         targetIdx = 1;
 
         const allNodes = getAllBoardNodes();
-        allNodes.forEach(n => n.classList.remove('active-node-glow', 'blast-node-25'));
+        allNodes.forEach(n => n.classList.remove('active-node-glow', 'path-filled', 'blast-node-25', 'thunder-finish'));
         node.classList.add('active-node-glow');
         updateCounterDisplay(1);
       }
     }
 
-    // 2. Continuous Move Tracking (elementFromPoint without setPointerCapture lock)
+    // 4. Move & Fill Logic: handle pointermove / touchmove dynamically mapping elements under finger
     function handleDragMove(clientX, clientY, e) {
       if (!isDragging) return;
       if (e && e.cancelable && typeof e.preventDefault === 'function') {
         e.preventDefault();
       }
 
-      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .grid-cell, button, [class*="node"]');
-      if (!node || !board.contains(node) || visitedNodes.includes(node) || node === board) return;
+      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
+      if (!node || !board.contains(node) || node === board) return;
+
+      // Undo support: if moving back to the previous node (visitedNodes[visitedNodes.length - 2])
+      if (visitedNodes.length >= 2 && node === visitedNodes[visitedNodes.length - 2]) {
+        const removed = visitedNodes.pop();
+        if (removed) removed.classList.remove('active-node-glow', 'path-filled', 'active');
+        const lastVal = parseInt((removed.textContent || '').trim(), 10);
+        if (MILESTONES.includes(lastVal) && targetIdx > 1) {
+          targetIdx--;
+        }
+        updateCounterDisplay(visitedNodes.length);
+        return;
+      }
+
+      // Prevent double counting already visited nodes
+      if (visitedNodes.includes(node)) return;
 
       const allNodes = getAllBoardNodes();
       const lastNode = visitedNodes[visitedNodes.length - 1];
@@ -7361,44 +7296,47 @@ ${shareData.url}`;
       const txt = (node.textContent || '').trim();
       const val = parseInt(txt, 10);
       const nextTarget = MILESTONES[targetIdx];
-      const isBlank = isNaN(val) || val === 0 || !node.hasAttribute('data-checkpoint');
+      const isMilestone = !isNaN(val) && MILESTONES.includes(val);
 
-      // Intermediate blank node OR exact next milestone checkpoint
-      if (isBlank || val === nextTarget) {
+      // Intermediate blank node (no milestone number): immediately fill & glow
+      if (!isMilestone) {
         node.classList.add('active-node-glow');
         visitedNodes.push(node);
         updateCounterDisplay(visitedNodes.length);
+      } else if (val === nextTarget) {
+        // Milestone reached in exact required sequential order
+        node.classList.add('active-node-glow');
+        visitedNodes.push(node);
+        updateCounterDisplay(visitedNodes.length);
+        targetIdx++;
 
-        if (val === nextTarget) {
-          targetIdx++;
+        // 5. Win Condition: When visitedNodes.length === 25 and last node is 25
+        if (val === 25 || visitedNodes.length >= 25) {
+          isDragging = false;
+          node.classList.add('blast-node-25');
 
-          // Level Completion: Node 25 reached and all 25 nodes filled
-          if (val === 25 || visitedNodes.length >= 25) {
-            isDragging = false;
-            node.classList.add('blast-node-25');
-
-            // Unlock Next Level button
-            const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
-            if (nextBtn) {
-              nextBtn.disabled = false;
-              nextBtn.classList.remove('locked');
-              nextBtn.style.animation = 'pulse 1.5s infinite';
-            }
-
-            // Trigger victory modal
-            setTimeout(() => {
-              const winModal = document.getElementById('level-cleared-modal') || document.getElementById('victory-modal') || document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
-              if (winModal) {
-                winModal.style.display = 'flex';
-                winModal.classList.remove('hidden');
-                winModal.classList.add('flex', 'active');
-              } else if (nextBtn) {
-                nextBtn.click();
-              }
-            }, 500);
+          // Enable Next Level button
+          const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
+          if (nextBtn) {
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('locked');
+            nextBtn.style.animation = 'pulse 1.5s infinite';
           }
+
+          // Show victory/win modal
+          setTimeout(() => {
+            const winModal = document.getElementById('level-cleared-modal') || document.getElementById('victory-modal') || document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
+            if (winModal) {
+              winModal.style.display = 'flex';
+              winModal.classList.remove('hidden');
+              winModal.classList.add('flex', 'active');
+            } else if (nextBtn) {
+              nextBtn.click();
+            }
+          }, 500);
         }
       }
+      // If out-of-order milestone, connection is cleanly blocked
     }
 
     function handleDragStop() {
@@ -7421,7 +7359,7 @@ ${shareData.url}`;
     window.addEventListener('pointerup', handleDragStop);
     window.addEventListener('pointercancel', handleDragStop);
 
-    // Touch Events (Mobile Support)
+    // Touch Events (Mobile Drag Support)
     board.addEventListener('touchstart', (e) => {
       if (e.touches && e.touches[0]) {
         handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
