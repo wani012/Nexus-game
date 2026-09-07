@@ -5065,17 +5065,15 @@
       const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
       nodes.forEach((node, idx) => {
         if (playerPath.includes(idx)) {
-          node.classList.add('active', 'completed');
+          node.classList.add('active', 'completed', 'active-node-glow');
         } else {
-          node.classList.remove('active', 'completed');
+          node.classList.remove('active', 'completed', 'active-node-glow');
         }
       });
-      const activeLevelSequence = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence) && targetSequence.length > 0)
-        ? targetSequence
-        : (typeof getExpectedMilestones === 'function' ? getExpectedMilestones(currentLevel) : [1, 5, 10, 15, 20, 25]);
-      const totalTargets = activeLevelSequence.length;
-      const currentIndex = playerPath.length;
-      safeSetText('nodes-progress', `${currentIndex}/${totalTargets}`);
+      const count = Math.max(1, playerPath.length);
+      safeSetText('connected-counter', `Connected: ${count}/25`);
+      safeSetText('nav-nodes-connected', `Connected: ${count}/25`);
+      safeSetText('nodes-progress', `Connected: ${count}/25`);
       renderSVGLine();
     }
 
@@ -5132,13 +5130,35 @@
       if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
     }
 
-        // --- 7. Strict Target Sequence Validation & Sequential Direct Jumps ---
-    function handlePointerOnIndex(cellIndex) {
-      if (isCompleted || isTimeOver || cellIndex === null || cellIndex === undefined) return;
+        // --- 7. Full Unified Circuit Puzzle Engine (Adjacency, Blank Node Fill & Milestone Checking) ---
+    const MILESTONES = [1, 5, 10, 15, 20, 25];
+    let targetMilestoneIndex = 1; // Milestone index 1 corresponds to node [5]
 
-      const activeLevelSequence = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence))
-        ? targetSequence
-        : ((typeof getExpectedMilestones === 'function') ? getExpectedMilestones(currentLevel) : (isReverseProtocol(currentLevel) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25]));
+    function isAdjacentCells(idx1, idx2) {
+      if (idx1 === null || idx2 === null || idx1 === undefined || idx2 === undefined) return false;
+      const r1 = Math.floor(idx1 / GRID_SIZE), c1 = idx1 % GRID_SIZE;
+      const r2 = Math.floor(idx2 / GRID_SIZE), c2 = idx2 % GRID_SIZE;
+      return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
+    }
+
+    function getNodeIndexFromPoint(x, y) {
+      if (typeof x !== 'number' || typeof y !== 'number') return null;
+      const elem = document.elementFromPoint(x, y);
+      if (elem) {
+        const node = elem.closest('.circuit-node, .node-circle, [data-index], .grid-cell');
+        if (node) {
+          const idxAttr = node.getAttribute('data-index') || node.dataset.index;
+          if (idxAttr !== null && idxAttr !== undefined) {
+            const parsed = parseInt(idxAttr, 10);
+            if (!isNaN(parsed) && parsed >= 0 && parsed < TOTAL_CELLS) return parsed;
+          }
+        }
+      }
+      return null;
+    }
+
+    function handlePointerOnIndex(cellIndex) {
+      if (isCompleted || isTimeOver || cellIndex === null || cellIndex === undefined || cellIndex < 0 || cellIndex >= TOTAL_CELLS) return;
 
       const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
       const nodeEl = nodes[cellIndex] || null;
@@ -5148,106 +5168,88 @@
       } else if (nodeEl && (nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'))) {
         touchedVal = parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10);
       }
-      const touchedNode = { index: cellIndex, value: touchedVal, el: nodeEl };
 
-      // 1. Multi-Step Backtracking / Undo:
-      // If user drags backwards onto an already connected milestone in playerPath
-      const existingIdx = playerPath.indexOf(cellIndex);
-      if (existingIdx !== -1) {
-        if (existingIdx === playerPath.length - 1) return; // Already on current head node
-        playerPath = playerPath.slice(0, existingIdx + 1);
-        connectedNodes = playerPath;
-        linePath = playerPath;
-        updateActiveStates();
-        sound.playUndo();
-        if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
+      // 1. Undo Support: Dragging backwards onto previous node
+      if (playerPath.includes(cellIndex)) {
+        if (playerPath.length >= 2 && cellIndex === playerPath[playerPath.length - 2]) {
+          const removedIdx = playerPath.pop();
+          visitedNodes = playerPath;
+          connectedNodes = playerPath;
+          linePath = playerPath;
+
+          const removedEl = nodes[removedIdx];
+          const removedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[removedIdx]) || (removedEl && parseInt(removedEl.dataset.checkpoint, 10));
+          if (removedVal && MILESTONES.includes(removedVal) && targetMilestoneIndex > 1) {
+            targetMilestoneIndex--;
+          }
+          updateActiveStates();
+          sound.playUndo();
+          if (navigator.vibrate) navigator.vibrate(8);
+        }
         return;
       }
 
-      // 2. Strict Sequence Enforcement (No Random Drag Filling):
-      // Nodes must ONLY be activated if they match the exact current step of the level's sequence array
-      const currentStepIndex = playerPath.length;
-      if (currentStepIndex >= activeLevelSequence.length) return;
+      // 2. Initial Step: Must begin on Node [1]
+      if (playerPath.length === 0) {
+        if (touchedVal === 1 || (nodeEl && nodeEl.getAttribute('data-checkpoint') === '1')) {
+          playerPath = [cellIndex];
+          visitedNodes = playerPath;
+          connectedNodes = playerPath;
+          linePath = playerPath;
+          targetMilestoneIndex = 1;
+          didLiftFinger = false;
+          start20sTimer();
+          sound.playNodeConnect(0);
+          if (navigator.vibrate) navigator.vibrate(10);
+          updateActiveStates();
+          if (currentLevel >= 3 && boardFrameEl) {
+            boardFrameEl.classList.add('fog-active');
+          }
+        } else {
+          triggerInvalidNodeFeedback(cellIndex);
+        }
+        return;
+      }
 
-      //const expectedNodeValue = activeLevelSequence[currentStepIndex];
-      //if (touchedNode.value !== expectedNodeValue) return; // Ignore any other node completely
+      // 3. Adjacency Validation: Must be an immediate orthogonal neighbor
+      const prevIndex = playerPath[playerPath.length - 1];
+      if (!isAdjacentCells(prevIndex, cellIndex)) {
+        triggerInvalidNodeFeedback(cellIndex);
+        return;
+      }
 
-      // Prevent Direct Skip Wires:
-      // On Circuit #1 (Standard Sequential Protocol), only allow connection between node N and node N+1.
-      // Drawing a wire must only succeed if the finger/cursor moves onto the exact next adjacent numerical step.
-    
+      const nextExpectedMilestone = MILESTONES[targetMilestoneIndex];
+      const isMilestone = touchedVal && MILESTONES.includes(touchedVal);
 
-      // 3. Initial Step: Must start on initial sequence milestone (e.g. [1])
-      if (currentStepIndex === 0) {
+      // 4. Blank Node OR Expected Milestone Check
+      if (!isMilestone) {
+        // Intermediate blank node: connect, mark active glow, advance count
         playerPath.push(cellIndex);
+        visitedNodes = playerPath;
         connectedNodes = playerPath;
         linePath = playerPath;
-        didLiftFinger = false;
-        start20sTimer();
-        sound.playNodeConnect(0);
-        if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
+        sound.playNodeConnect(playerPath.length - 1);
+        if (navigator.vibrate) navigator.vibrate(8);
         updateActiveStates();
-        if (currentLevel >= 3 && boardFrameEl) {
-          boardFrameEl.classList.add('fog-active');
+      } else if (touchedVal === nextExpectedMilestone) {
+        // Milestone reached in exact required sequential order
+        playerPath.push(cellIndex);
+        visitedNodes = playerPath;
+        connectedNodes = playerPath;
+        linePath = playerPath;
+        targetMilestoneIndex++;
+        sound.playNodeConnect(playerPath.length - 1);
+        if (navigator.vibrate) navigator.vibrate(12);
+        updateActiveStates();
+
+        // 5. Win Trigger: Reaching Node 25 with all 25 nodes filled
+        if (touchedVal === 25 || playerPath.length >= 25) {
+          triggerVictory();
         }
-        return;
+      } else {
+        // Out-of-order milestone
+        triggerInvalidNodeFeedback(cellIndex);
       }
-
-      //4. Consecutive Sequential Target Activation (Direct Jumps between targets):
-      // As soon as touch/pointer hits the EXACT next target node ([20]), immediately draw the laser wire
-      // from [15] to [20], mark [20] as completed/green, and advance sequence index to [25].
-      playerPath.push(cellIndex);
-      connectedNodes = playerPath;
-      linePath = playerPath;
-      sound.playNodeConnect(playerPath.length - 1);
-      if (navigator.vibrate) { navigator.vibrate(10); navigator.vibrate(8); }
-      updateActiveStates();
-
-      // 5. Strict Final Completion at [25]:
-      // When sequence reaches the final target (e.g. [20] connects to [25] => 6/6):
-      const finalTarget = activeLevelSequence[activeLevelSequence.length - 1];
-      if ((touchedNode.value === finalTarget && playerPath.length === activeLevelSequence.length) || playerPath.length === activeLevelSequence.length || connectedNodes.length === 25) {
-        triggerVictory();
-      }
-    }
-
-    function getNodeIndexFromPoint(x, y) {
-      if (typeof x !== 'number' || typeof y !== 'number') return null;
-      const elem = document.elementFromPoint(x, y);
-      if (elem) {
-        const node = elem.closest('.circuit-node[data-checkpoint], .milestone-node[data-checkpoint], [data-checkpoint]');
-        if (node) {
-          const idxAttr = node.getAttribute('data-index') || node.dataset.index;
-          if (idxAttr !== null && idxAttr !== undefined) {
-            return parseInt(idxAttr, 10);
-          }
-        }
-      }
-
-      // Proximity detection for direct target jumps across empty grid slots on mobile & desktop
-      const activeSeq = (typeof targetSequence !== 'undefined' && Array.isArray(targetSequence))
-        ? targetSequence
-        : ((typeof getExpectedMilestones === 'function') ? getExpectedMilestones(currentLevel) : [1, 5, 10, 15, 20, 25]);
-      
-      const nextStepIdx = playerPath.length;
-      if (nextStepIdx < activeSeq.length && nodeGridEl) {
-        const expectedVal = activeSeq[nextStepIdx];
-        const targetNodeEl = nodeGridEl.querySelector(`[data-checkpoint="${expectedVal}"]`);
-        if (targetNodeEl) {
-          const rect = targetNodeEl.getBoundingClientRect();
-          const cx = rect.left + rect.width / 2;
-          const cy = rect.top + rect.height / 2;
-          const radius = Math.max(rect.width / 2 + 14, 34);
-          if (Math.hypot(x - cx, y - cy) <= radius) {
-            const idxAttr = targetNodeEl.getAttribute('data-index') || targetNodeEl.dataset.index;
-            if (idxAttr !== null && idxAttr !== undefined) {
-              return parseInt(idxAttr, 10);
-            }
-          }
-        }
-      }
-
-      return null;
     }
 
     function attachEventListeners() {
@@ -5960,6 +5962,35 @@
     window.triggerElectricThunderClimax = triggerElectricThunderClimax;
 
     function triggerVictory() {
+      if (isCompleted) return;
+      isCompleted = true;
+      isDragging = false;
+      stopTimerLoop();
+      safeSetText('connected-counter', 'Connected: 25/25');
+      safeSetText('nav-nodes-connected', 'Connected: 25/25');
+      safeSetText('nodes-progress', 'Connected: 25/25');
+
+      // 1. Electric Thunder Blast on Node 25 and board flash
+      if (nodeGridEl) {
+        const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
+        const lastCellIdx = playerPath[playerPath.length - 1];
+        if (nodes[lastCellIdx]) {
+          nodes[lastCellIdx].classList.add('blast-node-25', 'thunder-finish');
+        }
+      }
+      if (boardFrameEl) {
+        boardFrameEl.classList.add('board-thunder-flash');
+      }
+
+      // 2. Play Victory SFX
+      try {
+        if (typeof playElectricThunderSFX === 'function') playElectricThunderSFX();
+        if (sound && typeof sound.playVictory === 'function') sound.playVictory();
+      } catch (_) {}
+      if (navigator.vibrate) navigator.vibrate([40, 60, 120]);
+
+      // 3. Unlock Next Level button
+      unlockNextLevelBtn();
       if (isCompleted) return;
       isCompleted = true;
       unlockNextLevelBtn();
