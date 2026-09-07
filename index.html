@@ -1567,23 +1567,63 @@
 
   
   /* High Stacking Contexts for Modals & Interactive Overlays */
-  #level-cleared-modal,
-  #victory-modal,
-  #gameover-modal,
-  #leaderboard-modal,
-  #support-modal,
-  #social-share-modal,
-  #skin-modal,
-  #how-to-play-modal,
-  .modal-overlay,
-  .cleared-modal {
+  .hidden,
+  [hidden],
+  .modal-overlay.hidden,
+  #level-cleared-modal.hidden,
+  #victory-modal.hidden,
+  #gameover-modal.hidden,
+  #leaderboard-modal.hidden,
+  #support-modal.hidden,
+  #social-share-modal.hidden,
+  #skin-modal.hidden,
+  #how-to-play-modal.hidden,
+  #circuit-cracked-modal.hidden,
+  #matrix-breach-modal.hidden,
+  #benchmark-matched-overlay.hidden {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  .hidden *,
+  [hidden] *,
+  .modal-overlay.hidden *,
+  #level-cleared-modal.hidden *,
+  #victory-modal.hidden *,
+  #gameover-modal.hidden *,
+  #leaderboard-modal.hidden *,
+  #support-modal.hidden *,
+  #social-share-modal.hidden *,
+  #skin-modal.hidden *,
+  #how-to-play-modal.hidden * {
+    pointer-events: none !important;
+  }
+
+  /* Active / Visible Modals Only */
+  .modal-overlay:not(.hidden),
+  .modal-overlay.active,
+  .modal-overlay.flex,
+  #level-cleared-modal:not(.hidden),
+  #victory-modal:not(.hidden),
+  #gameover-modal:not(.hidden),
+  #leaderboard-modal:not(.hidden),
+  #support-modal:not(.hidden),
+  #social-share-modal:not(.hidden),
+  #skin-modal:not(.hidden),
+  #how-to-play-modal:not(.hidden),
+  #circuit-cracked-modal:not(.hidden),
+  #matrix-breach-modal:not(.hidden) {
     z-index: 99999 !important;
     pointer-events: auto !important;
   }
-  .modal-overlay *,
-  #level-cleared-modal *,
-  #victory-modal *,
-  #leaderboard-modal * {
+
+  .modal-overlay:not(.hidden) *,
+  #level-cleared-modal:not(.hidden) *,
+  #victory-modal:not(.hidden) *,
+  #leaderboard-modal:not(.hidden) *,
+  #gameover-modal:not(.hidden) *,
+  #support-modal:not(.hidden) * {
     pointer-events: auto !important;
   }
 
@@ -2944,13 +2984,16 @@
     }
     window.handleUpiPaymentClick = handleUpiPaymentClick;
 
-    function triggerHaptic(pattern) {
+    const triggerHaptic = (pattern = 50) => {
       try {
         if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
           navigator.vibrate(pattern);
         }
-      } catch (_) {}
-    }
+      } catch (err) {
+        // Gracefully ignore on unsupported devices / laptops / frames
+      }
+    };
+    window.triggerHaptic = triggerHaptic;
 
     // --- 3. Pure Canvas Confetti Explosion ---
     class ConfettiCannon {
@@ -4917,7 +4960,7 @@
       isGameActive = false;
       isDragging = false;
       sound.playGameOver();
-      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+      triggerHaptic([30, 40, 30]);
 
       if (timerEl) timerEl.innerText = "00:00";
       if (timerBarEl) timerBarEl.style.width = "0%";
@@ -5179,7 +5222,7 @@
         setTimeout(() => node.classList.remove('shake-error'), 240);
       }
       sound.playErrorBuzz();
-      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+      triggerHaptic([30, 40, 30]);
     }
 
         // --- 7. Full Unified Circuit Puzzle Engine (Adjacency, Blank Node Fill & Milestone Checking) ---
@@ -5263,7 +5306,7 @@
           didLiftFinger = false;
           start20sTimer();
           sound.playNodeConnect(0);
-          if (navigator.vibrate) navigator.vibrate(10);
+          triggerHaptic(10);
           updateActiveStates();
           if (currentLevel >= 3 && boardFrameEl) {
             boardFrameEl.classList.add('fog-active');
@@ -5296,7 +5339,7 @@
           linePath = playerPath;
           updateActiveStates();
           sound.playUndo();
-          if (navigator.vibrate) navigator.vibrate(8);
+          triggerHaptic(8);
         }
         return;
       }
@@ -5329,7 +5372,7 @@
           connectedNodes = playerPath;
           linePath = playerPath;
           sound.playNodeConnect(playerPath.length - 1);
-          if (navigator.vibrate) navigator.vibrate(8);
+          triggerHaptic(8);
           updateActiveStates();
         } else if (touchedVal === nextExpectedMilestone) {
           // Expected sequential milestone reached!
@@ -5339,7 +5382,7 @@
           linePath = playerPath;
           targetMilestoneIndex++;
           sound.playNodeConnect(playerPath.length - 1);
-          if (navigator.vibrate) navigator.vibrate(14);
+          triggerHaptic(14);
           updateActiveStates();
 
           if (playerPath.length >= 25 || (isReverse ? touchedVal === 1 : touchedVal === 25)) {
@@ -5671,9 +5714,7 @@
     function triggerElectricThunderClimax(finalNodeIndex) {
       // High-impact audio & haptic electric surge
       sound.playElectricThunder();
-      if (navigator.vibrate) {
-        navigator.vibrate([40, 60, 120, 80]);
-      }
+      triggerHaptic([40, 60, 120, 80]);
 
       // Wire surge pulse
       if (svgGlowBeam) svgGlowBeam.classList.add('wire-surge');
@@ -5814,7 +5855,7 @@
         if (typeof playElectricThunderSFX === 'function') playElectricThunderSFX();
         if (sound && typeof sound.playVictory === 'function') sound.playVictory();
       } catch (_) {}
-      if (navigator.vibrate) navigator.vibrate([40, 60, 120]);
+      triggerHaptic([40, 60, 120]);
 
       // 3. Unlock Next Level button
       unlockNextLevelBtn();
@@ -5842,10 +5883,8 @@
       localStorage.setItem('nexus_best_run_lvl_' + currentLevel, clearTime);
 
       // Trigger celebration / electric shockwave haptic feedback
-      if (navigator.vibrate) {
-        navigator.vibrate([20, 30, 80]);
-        navigator.vibrate([15, 30, 60]);
-      }
+      triggerHaptic([20, 30, 80]);
+      triggerHaptic([15, 30, 60]);
 
       totalRunTime += levelTimeSec;
       lastSolvedTimeSec = clearTime;
@@ -5935,7 +5974,7 @@
       }
 
       sound.playStep(0);
-      if (navigator.vibrate) navigator.vibrate(20);
+      triggerHaptic(20);
     }
     window.startNextLevel = startNextLevel;
 
