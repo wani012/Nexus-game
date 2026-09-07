@@ -5063,13 +5063,26 @@
     function updateActiveStates() {
       if (!nodeGridEl) return;
       const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
-      nodes.forEach((node, idx) => {
-        if (playerPath.includes(idx)) {
-          node.classList.add('active', 'completed', 'active-node-glow');
-        } else {
-          node.classList.remove('active', 'completed', 'active-node-glow');
-        }
-      });
+      if (playerPath.length === 0) {
+        const isReverse = isReverseProtocol(currentLevel);
+        const startVal = isReverse ? 25 : 1;
+        nodes.forEach((node, idx) => {
+          const cp = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[idx]) || (node.dataset.checkpoint ? parseInt(node.dataset.checkpoint, 10) : null);
+          if (cp === startVal) {
+            node.classList.add('active-node-glow');
+          } else {
+            node.classList.remove('active', 'completed', 'active-node-glow');
+          }
+        });
+      } else {
+        nodes.forEach((node, idx) => {
+          if (playerPath.includes(idx)) {
+            node.classList.add('active', 'completed', 'active-node-glow');
+          } else {
+            node.classList.remove('active', 'completed', 'active-node-glow');
+          }
+        });
+      }
       const count = Math.max(1, playerPath.length);
       safeSetText('connected-counter', `Connected: ${count}/25`);
       safeSetText('nav-nodes-connected', `Connected: ${count}/25`);
@@ -5757,7 +5770,8 @@
       const gameoverModal = document.getElementById('gameover-modal');
       if (gameoverModal) {
         gameoverModal.classList.add('hidden');
-        gameoverModal.classList.remove('flex');
+        gameoverModal.classList.remove('flex', 'active');
+        gameoverModal.style.display = 'none';
       }
 
       // 2. Trigger and render the main Leaderboard modal
@@ -5767,8 +5781,9 @@
       const lbModal = document.getElementById('leaderboard-modal');
       if (lbModal) {
         lbModal.classList.remove('hidden');
-        lbModal.classList.add('flex');
-        lbModal.style.zIndex = '60';
+        lbModal.classList.add('flex', 'active');
+        lbModal.style.display = 'flex';
+        lbModal.style.zIndex = '99999';
         lbModal.style.pointerEvents = 'auto';
       }
     }
@@ -5961,6 +5976,53 @@
     }
     window.triggerElectricThunderClimax = triggerElectricThunderClimax;
 
+    
+    function playElectricThunderSFX() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        
+        // White Noise burst (Thunder crack)
+        const bufferSize = ctx.sampleRate * 0.45;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.12));
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1200;
+        filter.Q.value = 2.5;
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.8, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start();
+
+        // High voltage electric zap tone
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.35);
+
+        oscGain.gain.setValueAtTime(0.5, ctx.currentTime);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+        osc.connect(oscGain);
+        oscGain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch (_) {}
+    }
+
     function triggerVictory() {
       if (isCompleted) return;
       isCompleted = true;
@@ -5990,9 +6052,6 @@
       if (navigator.vibrate) navigator.vibrate([40, 60, 120]);
 
       // 3. Unlock Next Level button
-      unlockNextLevelBtn();
-      if (isCompleted) return;
-      isCompleted = true;
       unlockNextLevelBtn();
       stopTimerLoop();
       if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
@@ -7216,355 +7275,7 @@ ${shareData.url}`;
   }
 </style>
 
-<script>
-(function() {
-  const MILESTONES = [1, 5, 10, 15, 20, 25];
-  let isDragging = false;
-  let targetMilestoneIndex = 1; // Looking for milestone [5] next
-  let visitedNodes = [];
 
-  // Web Audio API Synthesizer for electric zap / thunder blast
-  function playElectricThunderSFX() {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      
-      // 1. White Noise burst (Thunder crack)
-      const bufferSize = ctx.sampleRate * 0.45;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.12));
-      }
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 1200;
-      filter.Q.value = 2.5;
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.8, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      noise.start();
-
-      // 2. High voltage electric zap tone
-      const osc = ctx.createOscillator();
-      const oscGain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.35);
-
-      oscGain.gain.setValueAtTime(0.5, ctx.currentTime);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-
-      osc.connect(oscGain);
-      oscGain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.35);
-    } catch (_) {}
-  }
-
-  // Helper: Extract grid cell index from node element
-  function getNodeIndex(node, allNodes) {
-    if (!node) return -1;
-    if (node.dataset && node.dataset.index !== undefined) {
-      const idx = parseInt(node.dataset.index, 10);
-      if (!isNaN(idx)) return idx;
-    }
-    const idxAttr = node.getAttribute('data-index');
-    if (idxAttr !== null) {
-      const idx = parseInt(idxAttr, 10);
-      if (!isNaN(idx)) return idx;
-    }
-    return Array.from(allNodes).indexOf(node);
-  }
-
-  // Helper: Enforce strict orthogonal 5x5 adjacency
-  function isAdjacent(idx1, idx2) {
-    if (idx1 < 0 || idx2 < 0) return true;
-    const r1 = Math.floor(idx1 / 5), c1 = idx1 % 5;
-    const r2 = Math.floor(idx2 / 5), c2 = idx2 % 5;
-    return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
-  }
-
-  // Update HUD counter dynamically
-  function updateCounterDisplay(count) {
-    const safeCount = Math.max(1, Math.min(25, count));
-    const labels = [
-      document.getElementById('connected-counter'),
-      document.getElementById('nav-nodes-connected'),
-      document.getElementById('nodes-progress'),
-      ...document.querySelectorAll('.connected-count, [id*="counter"], [id*="nodes-connected"]')
-    ];
-    labels.forEach(el => {
-      if (el) el.innerText = `Connected: ${safeCount}/25`;
-    });
-  }
-
-  // 1. Clean Initial State & Reset:
-  // - Clear all active/filled/glow classes from every circle
-  // - ONLY Node [1] starts active with .active-node-glow
-  // - visitedNodes = [node1], targetMilestoneIndex = 1, counter = "Connected: 1/25"
-  function resetGame() {
-    isDragging = false;
-    targetMilestoneIndex = 1;
-    const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
-    if (!board) return;
-
-    board.classList.remove('board-thunder-flash');
-
-    const allNodes = board.querySelectorAll('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
-    let startNode = null;
-
-    allNodes.forEach((node) => {
-      node.classList.remove('active-node-glow', 'active', 'completed', 'path-filled', 'blast-node-25', 'thunder-finish');
-      node.style.pointerEvents = 'auto';
-      const txt = (node.textContent || '').trim();
-      const val = parseInt(txt, 10);
-      if (val === 1 || node.getAttribute('data-checkpoint') === '1' || node.getAttribute('data-node') === '1') {
-        startNode = node;
-      }
-    });
-
-    if (!startNode && allNodes.length > 0) {
-      startNode = allNodes[0];
-    }
-
-    if (startNode) {
-      startNode.classList.add('active-node-glow');
-      visitedNodes = [startNode];
-    } else {
-      visitedNodes = [];
-    }
-
-    updateCounterDisplay(1);
-
-    // Lock Next Level button
-    const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
-    if (nextBtn) {
-      nextBtn.disabled = true;
-      nextBtn.classList.add('locked');
-      nextBtn.style.animation = '';
-    }
-  }
-  window.resetGame = resetGame;
-
-  // 4. Modals & UI Responsiveness: Attach listeners for Leaderboard, How to Play, Reset, and Modal Closes
-  function wireModalTriggers() {
-    const lbBtn = document.getElementById('open-leaderboard-btn') || document.getElementById('view-leaderboard-btn') || document.querySelector('[id*="leaderboard"]');
-    const lbModal = document.getElementById('leaderboard-modal');
-    if (lbBtn && lbModal) {
-      lbBtn.onclick = (e) => {
-        if (e) e.preventDefault();
-        lbModal.classList.remove('hidden');
-        lbModal.classList.add('flex');
-        lbModal.style.display = 'flex';
-      };
-    }
-
-    const clearBtn = document.getElementById('clear-btn') || document.getElementById('dock-reset-btn') || document.querySelector('[id*="reset"]');
-    if (clearBtn) {
-      clearBtn.onclick = (e) => {
-        if (e) e.preventDefault();
-        if (typeof window.resetCircuitAttempt === 'function') {
-          window.resetCircuitAttempt();
-        } else {
-          resetGame();
-        }
-      };
-    }
-
-    // Modal Close buttons
-    document.querySelectorAll('[id*="close-"], .modal-close-btn').forEach(btn => {
-      btn.onclick = (e) => {
-        if (e) e.preventDefault();
-        const modal = btn.closest('.modal-overlay, [class*="modal"], [id*="modal"]');
-        if (modal) {
-          modal.classList.add('hidden');
-          modal.classList.remove('flex', 'active');
-          modal.style.display = 'none';
-        }
-      };
-    });
-  }
-
-  function initBoardDrag() {
-    const board = document.getElementById('interactive-circuit-board') || document.getElementById('interactive-board') || document.querySelector('[id*="interactive"]');
-    if (!board || board.dataset.dragAttached) return;
-    board.dataset.dragAttached = "true";
-
-    const getAllBoardNodes = () => board.querySelectorAll('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
-
-    // 2. Drag & Mobile Touch Detection: pointerdown / touchstart on Node [1]
-    function handleDragStart(clientX, clientY) {
-      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
-      if (!node || !board.contains(node)) return;
-
-      const txt = (node.textContent || '').trim();
-      const val = parseInt(txt, 10);
-
-      // Start drag strictly on Node [1]
-      if (val === 1 || node.getAttribute('data-checkpoint') === '1' || node.getAttribute('data-node') === '1' || (!visitedNodes.length && val === 1)) {
-        isDragging = true;
-        visitedNodes = [node];
-        targetMilestoneIndex = 1;
-
-        const allNodes = getAllBoardNodes();
-        allNodes.forEach(n => n.classList.remove('active-node-glow', 'path-filled', 'blast-node-25', 'thunder-finish'));
-        node.classList.add('active-node-glow');
-        updateCounterDisplay(1);
-      }
-    }
-
-    // Move Handler: Dynamically detect elements under finger via elementFromPoint
-    function handleDragMove(clientX, clientY, e) {
-      if (!isDragging) return;
-      if (e && e.cancelable && typeof e.preventDefault === 'function') {
-        e.preventDefault();
-      }
-
-      const node = document.elementFromPoint(clientX, clientY)?.closest('.circuit-node, .node-circle, [data-node], .grid-cell, button, [class*="node"]');
-      if (!node || !board.contains(node) || node === board) return;
-
-      // Undo support: if moving back to the previous visited node
-      if (visitedNodes.length >= 2 && node === visitedNodes[visitedNodes.length - 2]) {
-        const removed = visitedNodes.pop();
-        if (removed) removed.classList.remove('active-node-glow', 'path-filled', 'active');
-        const lastVal = parseInt((removed.textContent || '').trim(), 10);
-        if (MILESTONES.includes(lastVal) && targetMilestoneIndex > 1) {
-          targetMilestoneIndex--;
-        }
-        updateCounterDisplay(visitedNodes.length);
-        return;
-      }
-
-      // Prevent double-counting already visited nodes
-      if (visitedNodes.includes(node)) return;
-
-      const allNodes = getAllBoardNodes();
-      const lastNode = visitedNodes[visitedNodes.length - 1];
-      const prevIdx = getNodeIndex(lastNode, allNodes);
-      const currIdx = getNodeIndex(node, allNodes);
-
-      // Adjacency check: Must be an immediate orthogonal neighbor
-      if (!isAdjacent(prevIdx, currIdx)) {
-        return;
-      }
-
-      const txt = (node.textContent || '').trim();
-      const val = parseInt(txt, 10);
-      const nextTarget = MILESTONES[targetMilestoneIndex];
-      const isMilestone = !isNaN(val) && MILESTONES.includes(val);
-
-      // Intermediate blank node: immediately fill & glow
-      if (!isMilestone) {
-        node.classList.add('active-node-glow');
-        visitedNodes.push(node);
-        updateCounterDisplay(visitedNodes.length);
-      } else if (val === nextTarget) {
-        // Milestone reached in exact required sequential order
-        node.classList.add('active-node-glow');
-        visitedNodes.push(node);
-        updateCounterDisplay(visitedNodes.length);
-        targetMilestoneIndex++;
-
-        // 3. Node 25 Electric Thunder Blast & Win Sequence:
-        if (val === 25 || visitedNodes.length >= 25) {
-          isDragging = false;
-          
-          // Stop timer immediately
-          if (typeof window.stopTimerLoop === 'function') window.stopTimerLoop();
-          if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
-          if (typeof timerTimer !== 'undefined' && timerTimer) clearInterval(timerTimer);
-
-          updateCounterDisplay(25);
-
-          // Apply electric blast & board thunder flash
-          node.classList.add('blast-node-25');
-          board.classList.add('board-thunder-flash');
-          playElectricThunderSFX();
-          if (window.sound && typeof window.sound.playVictory === 'function') {
-            try { window.sound.playVictory(); } catch (_) {}
-          }
-          if (navigator.vibrate) navigator.vibrate([40, 60, 120]);
-
-          // Enable Next Level button
-          const nextBtn = document.getElementById('dock-next-btn') || document.querySelector('#next-level, .btn-next, [class*="next"]');
-          if (nextBtn) {
-            nextBtn.disabled = false;
-            nextBtn.classList.remove('locked');
-            nextBtn.style.animation = 'pulse 1.5s infinite';
-          }
-
-          // Show victory modal after brief 500ms electric blast
-          setTimeout(() => {
-            const winModal = document.getElementById('level-cleared-modal') || document.getElementById('victory-modal') || document.getElementById('win-modal') || document.querySelector('.cleared-modal, [class*="modal"]');
-            if (winModal) {
-              winModal.style.display = 'flex';
-              winModal.classList.remove('hidden');
-              winModal.classList.add('flex', 'active');
-            } else if (nextBtn) {
-              nextBtn.click();
-            }
-          }, 500);
-        }
-      }
-    }
-
-    function handleDragStop() {
-      if (isDragging) {
-        isDragging = false;
-      }
-    }
-
-    // Pointer Events
-    board.addEventListener('pointerdown', (e) => {
-      handleDragStart(e.clientX, e.clientY);
-    });
-
-    window.addEventListener('pointermove', (e) => {
-      if (isDragging) {
-        handleDragMove(e.clientX, e.clientY, e);
-      }
-    }, { passive: false });
-
-    window.addEventListener('pointerup', handleDragStop);
-    window.addEventListener('pointercancel', handleDragStop);
-
-    // Touch Events (Mobile Drag Support)
-    board.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches[0]) {
-        handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    }, { passive: false });
-
-    window.addEventListener('touchmove', (e) => {
-      if (isDragging && e.touches && e.touches[0]) {
-        handleDragMove(e.touches[0].clientX, e.touches[0].clientY, e);
-      }
-    }, { passive: false });
-
-    window.addEventListener('touchend', handleDragStop);
-    window.addEventListener('touchcancel', handleDragStop);
-
-    // Initialize initial state & wire modals
-    resetGame();
-    wireModalTriggers();
-  }
-
-  window.addEventListener('DOMContentLoaded', initBoardDrag);
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(initBoardDrag, 100);
-  }
-  setInterval(initBoardDrag, 1000);
-})();
-</script>
 
 </body>
 </html>
