@@ -5312,6 +5312,7 @@
             boardFrameEl.classList.add('fog-active');
           }
         } else {
+          // Disconnected start tap: soft shake
           triggerInvalidNodeFeedback(targetIndex);
         }
         return;
@@ -5320,7 +5321,7 @@
       const prevIndex = playerPath[playerPath.length - 1];
       if (prevIndex === targetIndex) return;
 
-      // 2. Undo / Backtracking Support: rewinds cleanly along existing path
+      // 2. Smooth Undo / Backtracking Support: rewinds cleanly along existing path
       if (playerPath.includes(targetIndex)) {
         const existingPos = playerPath.indexOf(targetIndex);
         if (existingPos >= 0 && existingPos < playerPath.length - 1) {
@@ -5365,7 +5366,7 @@
         const isMilestone = (touchedVal !== null && touchedVal !== undefined && !isNaN(touchedVal)) && (isReverse ? REVERSE_MILESTONES.includes(touchedVal) : MILESTONES.includes(touchedVal));
 
         if (!isMilestone) {
-          // Intermediate blank dot: connect smoothly, glow active, draw line
+          // Intermediate blank dot: connect smoothly, glow active, draw laser line
           if (playerPath.length >= TOTAL_CELLS) break;
           playerPath.push(stepIdx);
           visitedNodes = playerPath;
@@ -5390,8 +5391,7 @@
             break;
           }
         } else {
-          // Out-of-order milestone touched
-          triggerInvalidNodeFeedback(stepIdx);
+          // Out-of-order milestone or premature milestone touch: soft ignore (do not connect)
           break;
         }
       }
