@@ -5252,7 +5252,7 @@
         const nodeEl = nodes[targetIndex];
         const touchedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[targetIndex] !== undefined)
           ? activePuzzle.checkpoints[targetIndex]
-          : (nodeEl ? parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10) : null);
+          : (nodeEl && (nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint')) ? parseInt(nodeEl.dataset.checkpoint || nodeEl.getAttribute('data-checkpoint'), 10) : null);
 
         if (touchedVal === startVal || nodeEl?.getAttribute('data-checkpoint') === String(startVal)) {
           playerPath = [targetIndex];
@@ -5286,8 +5286,8 @@
             const removedEl = nodes[removedIdx];
             const removedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[removedIdx] !== undefined)
               ? activePuzzle.checkpoints[removedIdx]
-              : (removedEl ? parseInt(removedEl.dataset.checkpoint || removedEl.getAttribute('data-checkpoint'), 10) : null);
-            if (removedVal && MILESTONES.includes(removedVal) && targetMilestoneIndex > 1) {
+              : (removedEl && (removedEl.dataset.checkpoint || removedEl.getAttribute('data-checkpoint')) ? parseInt(removedEl.dataset.checkpoint || removedEl.getAttribute('data-checkpoint'), 10) : null);
+            if (removedVal && (isReverseProtocol(currentLevel) ? REVERSE_MILESTONES.includes(removedVal) : MILESTONES.includes(removedVal)) && targetMilestoneIndex > 1) {
               targetMilestoneIndex--;
             }
           }
@@ -5315,13 +5315,11 @@
         const stepNodeEl = nodes[stepIdx];
         const touchedVal = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[stepIdx] !== undefined)
           ? activePuzzle.checkpoints[stepIdx]
-          : (stepNodeEl ? parseInt(stepNodeEl.dataset.checkpoint || stepNodeEl.getAttribute('data-checkpoint'), 10) : null);
+          : (stepNodeEl && (stepNodeEl.dataset.checkpoint || stepNodeEl.getAttribute('data-checkpoint')) ? parseInt(stepNodeEl.dataset.checkpoint || stepNodeEl.getAttribute('data-checkpoint'), 10) : null);
 
         const isReverse = isReverseProtocol(currentLevel);
-        const expectedStep = isReverse ? (26 - touchedVal) : touchedVal;
         const nextExpectedMilestone = isReverse ? REVERSE_MILESTONES[targetMilestoneIndex] : MILESTONES[targetMilestoneIndex];
-        const isMilestone = touchedVal && (isReverse ? REVERSE_MILESTONES.includes(touchedVal) : MILESTONES.includes(touchedVal));
-        const nextCandidateStep = playerPath.length + 1;
+        const isMilestone = (touchedVal !== null && touchedVal !== undefined && !isNaN(touchedVal)) && (isReverse ? REVERSE_MILESTONES.includes(touchedVal) : MILESTONES.includes(touchedVal));
 
         if (!isMilestone) {
           // Intermediate blank dot: connect smoothly, glow active, draw line
@@ -5333,8 +5331,8 @@
           sound.playNodeConnect(playerPath.length - 1);
           if (navigator.vibrate) navigator.vibrate(8);
           updateActiveStates();
-        } else if (touchedVal === nextExpectedMilestone && nextCandidateStep === expectedStep) {
-          // Milestone reached in exact required sequential step count!
+        } else if (touchedVal === nextExpectedMilestone) {
+          // Expected sequential milestone reached!
           playerPath.push(stepIdx);
           visitedNodes = playerPath;
           connectedNodes = playerPath;
@@ -5349,7 +5347,7 @@
             break;
           }
         } else {
-          // Step count mismatch or out-of-order milestone
+          // Out-of-order milestone touched
           triggerInvalidNodeFeedback(stepIdx);
           break;
         }
