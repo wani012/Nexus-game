@@ -5039,9 +5039,6 @@
         timerRaf = requestAnimationFrame(updateTimerFrame);
       }
 
-      timerRaf = requestAnimationFrame(updateTimerFrame);
-    }
-
     function pauseGameTimer() {
       if ((timerTimer || timerRaf) && timerStart) {
         timerAccumulatedMs += (Date.now() - timerStart);
