@@ -7535,64 +7535,53 @@ ${shareData.url}`;
     100% { filter: brightness(1) contrast(1); }
   }
 </style>
-import React from 'react';
-
-export default function MaintenanceOverlay() {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#070b14]/95 p-4 select-none">
-      {/* Outer Cyan Border Card */}
-      <div className="w-full max-w-sm rounded-3xl border-2 border-[#00f2c3] bg-[#0c1424] p-6 text-center shadow-[0_0_30px_rgba(0,242,195,0.2)]">
-        
-        {/* Top Icons */}
-        <div className="flex justify-center items-center gap-2 text-3xl mb-4">
-          <span>🛠️</span>
-          <span>⚡</span>
-        </div>
-
-        {/* Main Headings */}
-        <h2 className="text-2xl font-black tracking-wide text-[#00f2c3] uppercase mb-1">
-          NEXUS UPDATE
-        </h2>
-        <h2 className="text-2xl font-black tracking-wide text-[#00f2c3] uppercase mb-4">
-          CHALU HAI!
-        </h2>
-
-        {/* Subtext */}
-        <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed px-2 mb-6">
-          IT WILL TAKE A LITTLE LONGER DUE TO A FEW REMAINING BUGS ! 🚀
-        </p>
-
-        {/* Inner Dashed Card */}
-        <div className="rounded-2xl border border-dashed border-[#00f2c3]/60 bg-[#080d19]/80 p-5 mb-6">
-          <p className="text-sm font-bold text-white flex items-center justify-center gap-1.5 mb-1.5">
-            <span>👑</span> TILL THEN , CHECK THIS GAME OUT !
-          </p>
-          
-          <p className="text-[11px] font-bold tracking-wider text-[#00b4d8] uppercase mb-4">
-            JOIN ARENA , AND BEAT FURKAN SCORE !
-          </p>
-
-          {/* Button */}
-          <a
-            href="https://furu-zero-kaata.vercel.app" // Aapki game ka link ya target URL
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-gradient-to-r from-[#00f2c3] to-[#0077ff] text-black font-extrabold text-xs sm:text-sm uppercase tracking-wide shadow-[0_0_20px_rgba(0,242,195,0.4)] hover:opacity-90 active:scale-95 transition-all"
-          >
-            <span>🔥</span>
-            <span>PLAY PUZ-Z-LE →</span>
-          </a>
-        </div>
-
-        {/* Bottom Small Icons */}
-        <div className="flex justify-center items-center gap-3 text-lg">
-          <span>🎮</span>
-          <span>🍕</span>
-          <span>☕</span>
-        </div>
-
-      </div>
+  
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#070b14]/95 p-4 select-none">
+  <!-- Outer Cyan Border Card -->
+  <div class="w-full max-w-sm rounded-3xl border-2 border-[#00f2c3] bg-[#0c1424] p-6 text-center shadow-[0_0_30px_rgba(0,242,195,0.2)]">
+    
+    <!-- Top Icons -->
+    <div class="flex justify-center items-center gap-2 text-3xl mb-4">
+      <span>⚙️</span>
+      <span>⚡</span>
     </div>
-  );
-}
+
+    <!-- Main Headings -->
+    <h2 class="text-2xl font-black tracking-wide text-[#00f2c3] uppercase mb-1">
+      NEXUS UPDATE
+    </h2>
+    <h2 class="text-2xl font-black tracking-wide text-[#00f2c3] uppercase mb-4">
+      CHALU HAI!
+    </h2>
+
+    <!-- Subtext -->
+    <p class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed px-2 mb-6">
+      IT WILL TAKE A LITTLE LONGER DUE TO A FEW REMAINING BUGS ! 🛠️
+    </p>
+
+    <!-- Inner Dashed Card -->
+    <div class="rounded-2xl border border-dashed border-[#00f2c3]/60 bg-[#080d19]/80 p-5 mb-6">
+      <p class="text-sm font-bold text-white flex items-center justify-center gap-1.5 mb-1.5">
+        <span>👾</span> TILL THEN, CHECK THIS GAME OUT !
+      </p>
+      <p class="text-[11px] font-bold tracking-wider text-[#80b4d8] uppercase mb-4">
+        JOIN ARENA, AND BEAT FURKAN'S SCORE !
+      </p>
+
+      <!-- Button -->
+      <a
+        href="https://furu-zero-kaata.vercel.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-gradient-to-r from-[#00f2c3] to-[#0077ff] text-black font-extrabold text-xs uppercase shadow-md hover:opacity-90 transition-opacity"
+      >
+        <span>🎮</span>
+        <span>PLAY PUZ-Z-LE</span>
+      </a>
+    </div>
+
+  </div>
+</div>
 
 </body>
 </html>
