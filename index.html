@@ -1405,60 +1405,90 @@
       display: flex !important;
     }
     /* ================= ELECTRIC THUNDER CLIMAX VFX AT NODE [25] ================= */
+    /* ================= HYPER-COOL ELECTRIC THUNDER CLIMAX VFX ================= */
     .node-thunder-pulse {
-      transform: scale(1.35) !important;
-      filter: drop-shadow(0 0 25px #00f3ff) drop-shadow(0 0 45px #38bdf8) !important;
+      transform: scale(1.42) !important;
+      filter: drop-shadow(0 0 25px #ffffff) drop-shadow(0 0 50px #00f3ff) drop-shadow(0 0 80px #a855f7) !important;
       z-index: 100 !important;
-      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease !important;
-      animation: thunderShockwavePulse 0.6s ease-out infinite alternate !important;
+      animation: thunderShockwavePulse 0.75s cubic-bezier(0.1, 0.9, 0.2, 1) infinite alternate !important;
     }
     @keyframes thunderShockwavePulse {
       0% {
-        transform: scale(1.25);
-        filter: drop-shadow(0 0 20px #00f3ff) drop-shadow(0 0 35px #38bdf8);
+        transform: scale(1.3);
+        filter: drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 40px #00f3ff) drop-shadow(0 0 60px #a855f7);
+      }
+      50% {
+        transform: scale(1.5) rotate(2deg);
+        filter: drop-shadow(0 0 35px #ffffff) drop-shadow(0 0 70px #00f3ff) drop-shadow(0 0 100px #e879f9);
       }
       100% {
-        transform: scale(1.38);
-        filter: drop-shadow(0 0 30px #00f3ff) drop-shadow(0 0 60px #38bdf8) drop-shadow(0 0 90px #ffffff);
+        transform: scale(1.38) rotate(-2deg);
+        filter: drop-shadow(0 0 25px #ffffff) drop-shadow(0 0 50px #00f3ff) drop-shadow(0 0 80px #a855f7);
       }
     }
     .board-thunder-flash {
-      animation: boardThunderStrobe 0.6s ease-out !important;
+      animation: boardThunderStrobe 0.75s ease-out !important;
     }
     @keyframes boardThunderStrobe {
-      0% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
-      15% { box-shadow: 0 0 50px rgba(0, 243, 255, 0.95), inset 0 0 30px rgba(0, 243, 255, 0.6); }
-      30% { box-shadow: 0 0 25px rgba(0, 243, 255, 0.5); }
-      50% { box-shadow: 0 0 70px rgba(56, 189, 248, 1), inset 0 0 45px rgba(56, 189, 248, 0.7); }
-      75% { box-shadow: 0 0 40px rgba(0, 243, 255, 0.7); }
-      100% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+      0% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
+      12% { box-shadow: 0 0 80px rgba(255, 255, 255, 1), 0 0 120px rgba(0, 243, 255, 0.95), inset 0 0 50px rgba(0, 243, 255, 0.7); }
+      25% { box-shadow: 0 0 35px rgba(168, 85, 247, 0.6); }
+      45% { box-shadow: 0 0 100px rgba(0, 243, 255, 1), 0 0 140px rgba(232, 121, 249, 0.8), inset 0 0 60px rgba(168, 85, 247, 0.6); }
+      70% { box-shadow: 0 0 50px rgba(0, 243, 255, 0.7); }
+      100% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
     }
     .lightning-strobe-flash {
-      animation: lightningStrobeAnim 0.6s linear infinite !important;
+      animation: lightningStrobeAnim 0.75s linear infinite !important;
     }
     @keyframes lightningStrobeAnim {
-      0% { opacity: 0.3; transform: scale(0.96); }
-      20% { opacity: 1; transform: scale(1.04); }
-      40% { opacity: 0.4; transform: scale(0.98); }
-      60% { opacity: 1; transform: scale(1.08); }
-      80% { opacity: 0.6; transform: scale(1.02); }
-      100% { opacity: 0.9; transform: scale(1.05); }
+      0% { opacity: 0.85; transform: scale(0.98); }
+      15% { opacity: 1; transform: scale(1.03); }
+      30% { opacity: 0.7; transform: scale(0.99); }
+      50% { opacity: 1; transform: scale(1.05); }
+      70% { opacity: 0.75; transform: scale(1.01); }
+      85% { opacity: 1; transform: scale(1.04); }
+      100% { opacity: 0.9; transform: scale(1.0); }
     }
     .thunder-shock-ring {
-      animation: thunderRingExpand 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) infinite !important;
+      animation: thunderRingExpand 0.7s cubic-bezier(0.1, 0.85, 0.25, 1) infinite !important;
       transform-origin: center;
     }
     @keyframes thunderRingExpand {
-      0% { transform: scale(0.6); opacity: 1; }
-      100% { transform: scale(1.9); opacity: 0; }
+      0% { transform: scale(0.4); opacity: 1; }
+      100% { transform: scale(2.4); opacity: 0; }
     }
     .thunder-shock-ring-outer {
-      animation: thunderRingExpandOuter 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) 0.1s infinite !important;
+      animation: thunderRingExpandOuter 0.75s cubic-bezier(0.1, 0.85, 0.25, 1) 0.08s infinite !important;
       transform-origin: center;
     }
     @keyframes thunderRingExpandOuter {
-      0% { transform: scale(0.7); opacity: 0.9; }
-      100% { transform: scale(2.2); opacity: 0; }
+      0% { transform: scale(0.5) rotate(0deg); opacity: 0.95; }
+      100% { transform: scale(2.8) rotate(60deg); opacity: 0; }
+    }
+    .thunder-shock-ring-ion {
+      animation: thunderRingExpandIon 0.75s cubic-bezier(0.1, 0.85, 0.25, 1) 0.16s infinite !important;
+      transform-origin: center;
+    }
+    @keyframes thunderRingExpandIon {
+      0% { transform: scale(0.6) rotate(0deg); opacity: 0.9; }
+      100% { transform: scale(3.2) rotate(-45deg); opacity: 0; }
+    }
+    .thunder-spark-particle {
+      animation: sparkFly 0.7s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards !important;
+      transform-origin: center;
+    }
+    @keyframes sparkFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(1.4); }
+      70% { opacity: 0.9; transform: translate(var(--tx, 20px), var(--ty, -20px)) scale(1.1); }
+      100% { opacity: 0; transform: translate(calc(var(--tx, 20px) * 1.3), calc(var(--ty, -20px) * 1.3)) scale(0.2); }
+    }
+    .node-cascade-pulse {
+      animation: nodeElectricFlash 0.45s ease-out forwards !important;
+    }
+    @keyframes nodeElectricFlash {
+      0% { transform: scale(1.35); filter: brightness(2) drop-shadow(0 0 18px #ffffff) drop-shadow(0 0 30px #00f3ff); }
+      50% { transform: scale(1.2); filter: drop-shadow(0 0 14px #00f3ff) drop-shadow(0 0 22px #a855f7); }
+      100% { transform: scale(1.05); filter: drop-shadow(0 0 8px #00f3ff); }
     }
 
 
@@ -5992,19 +6022,19 @@
       }, 760);
     }
 
-        // 8. Electric Thunder / Lightning Climax VFX at Node [25]
+    // 8. Hyper-Cool Multi-Branching Electric Thunder & Climax VFX at Node [25]
     function triggerElectricThunderClimax(finalNodeIndex) {
       // High-impact audio & haptic electric surge
       sound.playElectricThunder();
-      triggerHaptic([40, 60, 120, 80]);
+      triggerHaptic([50, 70, 110, 50, 140]);
 
-      // Wire surge pulse
+      // Wire surge pulse on SVG beams
       if (svgGlowBeam) svgGlowBeam.classList.add('wire-surge');
       if (svgCoreBeam) svgCoreBeam.classList.add('wire-surge');
 
       // Screen rumble vibration
       document.body.classList.add('screen-rumble');
-      setTimeout(() => document.body.classList.remove('screen-rumble'), 280);
+      setTimeout(() => document.body.classList.remove('screen-rumble'), 350);
 
       const board = document.getElementById('interactive-board');
       const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
@@ -6012,8 +6042,20 @@
 
       if (node25) {
         node25.classList.add('node-thunder-pulse');
-        node25.style.transform = 'scale(1.35)';
-        node25.style.filter = 'drop-shadow(0 0 25px #00f3ff) drop-shadow(0 0 45px #38bdf8)';
+      }
+
+      // Cascading reverse wave of electricity across all connected nodes in playerPath
+      if (typeof playerPath !== 'undefined' && Array.isArray(playerPath) && playerPath.length > 0 && nodes.length > 0) {
+        const revPath = [...playerPath].reverse();
+        revPath.forEach((cellIdx, i) => {
+          setTimeout(() => {
+            const nd = nodes[cellIdx];
+            if (nd) {
+              nd.classList.add('node-cascade-pulse');
+              setTimeout(() => nd.classList.remove('node-cascade-pulse'), 450);
+            }
+          }, i * 16);
+        });
       }
 
       if (board && node25) {
@@ -6031,33 +6073,111 @@
           board.appendChild(thunderLayer);
         }
 
-        // Rapid CSS/SVG lightning flash (strobe cyan/blue electric arcs radiating outwards)
-        let svgPaths = '';
-        const numArcs = 12;
+        // --- Procedural Fractal Multi-Branching Lightning & Plasma Sparks ---
+        let svgContent = '';
+
+        // 1. High-power filter & radial glow backdrop definitions
+        svgContent += `
+          <defs>
+            <radialGradient id="thunderCoreGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+              <stop offset="25%" stop-color="#00f3ff" stop-opacity="0.7" />
+              <stop offset="60%" stop-color="#c084fc" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+            </radialGradient>
+            <filter id="thunderGlowFilter" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="${cx}" cy="${cy}" r="150" fill="url(#thunderCoreGlow)" />
+        `;
+
+        // 2. Concentric Multi-Spectrum EMP Shockwaves
+        svgContent += `<circle cx="${cx}" cy="${cy}" r="32" stroke="#ffffff" stroke-width="4" fill="none" class="thunder-shock-ring" style="filter: drop-shadow(0 0 16px #ffffff);" />`;
+        svgContent += `<circle cx="${cx}" cy="${cy}" r="58" stroke="#00f3ff" stroke-width="3" stroke-dasharray="10 6" fill="none" class="thunder-shock-ring-outer" style="filter: drop-shadow(0 0 20px #00f3ff);" />`;
+        svgContent += `<circle cx="${cx}" cy="${cy}" r="88" stroke="#d946ef" stroke-width="2.5" stroke-dasharray="14 8" fill="none" class="thunder-shock-ring-ion" style="filter: drop-shadow(0 0 24px #d946ef);" />`;
+
+        // 3. Multi-Branching Fractal Lightning Bolts (16 Primary Bolts with Child Sub-Forks)
+        const numArcs = 16;
         for (let i = 0; i < numArcs; i++) {
-          const angle = (i * (2 * Math.PI / numArcs)) + ((Math.random() - 0.5) * 0.35);
-          const length = 60 + Math.random() * 85;
-          const segs = 4;
-          let d = `M ${cx} ${cy}`;
+          const baseAngle = (i * (2 * Math.PI / numArcs)) + ((Math.random() - 0.5) * 0.3);
+          const arcLength = 70 + Math.random() * 95;
+          const segs = 5;
+          let trunkD = `M ${cx.toFixed(1)} ${cy.toFixed(1)}`;
+
+          // Branch container
+          let branchPaths = '';
+
           for (let s = 1; s <= segs; s++) {
-            const dist = (length / segs) * s;
-            const perpOffset = (s < segs) ? (Math.random() - 0.5) * 24 : 0;
-            const px = cx + Math.cos(angle) * dist - Math.sin(angle) * perpOffset;
-            const py = cy + Math.sin(angle) * dist + Math.cos(angle) * perpOffset;
-            d += ` L ${px.toFixed(1)} ${py.toFixed(1)}`;
+            const dist = (arcLength / segs) * s;
+            const perp = (s < segs) ? (Math.random() - 0.5) * 26 : 0;
+            const px = cx + Math.cos(baseAngle) * dist - Math.sin(baseAngle) * perp;
+            const py = cy + Math.sin(baseAngle) * dist + Math.cos(baseAngle) * perp;
+            trunkD += ` L ${px.toFixed(1)} ${py.toFixed(1)}`;
+
+            // 60% chance to generate child fork streamer splitting off from intermediate segments
+            if (s >= 2 && s <= 4 && Math.random() < 0.65) {
+              const forkAngle = baseAngle + ((Math.random() > 0.5 ? 1 : -1) * (0.45 + Math.random() * 0.4));
+              const forkLen = 25 + Math.random() * 45;
+              const f1x = px + Math.cos(forkAngle) * (forkLen * 0.5) + (Math.random() - 0.5) * 12;
+              const f1y = py + Math.sin(forkAngle) * (forkLen * 0.5) + (Math.random() - 0.5) * 12;
+              const f2x = px + Math.cos(forkAngle) * forkLen;
+              const f2y = py + Math.sin(forkAngle) * forkLen;
+              const forkColor = i % 3 === 0 ? '#e879f9' : '#00f3ff';
+              branchPaths += `<path d="M ${px.toFixed(1)} ${py.toFixed(1)} L ${f1x.toFixed(1)} ${f1y.toFixed(1)} L ${f2x.toFixed(1)} ${f2y.toFixed(1)}" stroke="${forkColor}" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9" style="filter: drop-shadow(0 0 6px ${forkColor});" />`;
+            }
           }
-          const strokeColor = i % 2 === 0 ? '#00f3ff' : '#38bdf8';
-          const strokeWidth = i % 3 === 0 ? '3.5' : '2.2';
-          svgPaths += `<path d="${d}" stroke="${strokeColor}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 10px #00f3ff) drop-shadow(0 0 20px #38bdf8);" />`;
+
+          const arcColor = (i % 3 === 0) ? '#e879f9' : (i % 2 === 0 ? '#00f3ff' : '#38bdf8');
+          // Outer plasma sheath
+          svgContent += `<path d="${trunkD}" stroke="${arcColor}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" style="filter: drop-shadow(0 0 10px ${arcColor}) drop-shadow(0 0 20px ${arcColor});" />`;
+          // Inner high-voltage white core
+          svgContent += `<path d="${trunkD}" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="1" style="filter: drop-shadow(0 0 4px #ffffff);" />`;
+          svgContent += branchPaths;
         }
 
-        // Shockwave electric rings radiating outward
-        svgPaths += `<circle cx="${cx}" cy="${cy}" r="32" stroke="#ffffff" stroke-width="3" fill="none" class="thunder-shock-ring" style="filter: drop-shadow(0 0 15px #00f3ff);" />`;
-        svgPaths += `<circle cx="${cx}" cy="${cy}" r="55" stroke="#00f3ff" stroke-width="2" stroke-dasharray="6 4" fill="none" class="thunder-shock-ring-outer" style="filter: drop-shadow(0 0 20px #38bdf8);" />`;
+        // 4. Arc strikes into nearest neighbor grid nodes (Tesla coil arcing effect)
+        if (nodes && nodes.length > 0) {
+          let neighborCount = 0;
+          for (let n = 0; n < nodes.length; n++) {
+            if (n === finalNodeIndex) continue;
+            const otherR = nodes[n].getBoundingClientRect();
+            const ox = (otherR.left + otherR.width / 2) - bRect.left;
+            const oy = (otherR.top + otherR.height / 2) - bRect.top;
+            const d = Math.hypot(ox - cx, oy - cy);
+            if (d < 170 && neighborCount < 6) {
+              neighborCount++;
+              const mid1X = cx + (ox - cx) * 0.33 + (Math.random() - 0.5) * 22;
+              const mid1Y = cy + (oy - cy) * 0.33 + (Math.random() - 0.5) * 22;
+              const mid2X = cx + (ox - cx) * 0.66 + (Math.random() - 0.5) * 22;
+              const mid2Y = cy + (oy - cy) * 0.66 + (Math.random() - 0.5) * 22;
+              svgContent += `<path d="M ${cx.toFixed(1)} ${cy.toFixed(1)} L ${mid1X.toFixed(1)} ${mid1Y.toFixed(1)} L ${mid2X.toFixed(1)} ${mid2Y.toFixed(1)} L ${ox.toFixed(1)} ${oy.toFixed(1)}" stroke="#00f3ff" stroke-width="2.6" fill="none" stroke-linecap="round" style="filter: drop-shadow(0 0 10px #00f3ff) drop-shadow(0 0 18px #ffffff);" />`;
+              svgContent += `<path d="M ${cx.toFixed(1)} ${cy.toFixed(1)} L ${mid1X.toFixed(1)} ${mid1Y.toFixed(1)} L ${mid2X.toFixed(1)} ${mid2Y.toFixed(1)} L ${ox.toFixed(1)} ${oy.toFixed(1)}" stroke="#ffffff" stroke-width="1.2" fill="none" stroke-linecap="round" />`;
+            }
+          }
+        }
+
+        // 5. Kinetic Flying Electric Sparks & Embers (32 particles exploding outward)
+        const sparkCount = 32;
+        for (let sp = 0; sp < sparkCount; sp++) {
+          const spAngle = Math.random() * Math.PI * 2;
+          const spDist = 45 + Math.random() * 115;
+          const tx = Math.cos(spAngle) * spDist;
+          const ty = Math.sin(spAngle) * spDist;
+          const sparkR = (1.5 + Math.random() * 2.8).toFixed(1);
+          const sparkColors = ['#ffffff', '#00f3ff', '#38bdf8', '#e879f9', '#a855f7'];
+          const spColor = sparkColors[sp % sparkColors.length];
+          svgContent += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${sparkR}" fill="${spColor}" class="thunder-spark-particle" style="--tx:${tx.toFixed(1)}px; --ty:${ty.toFixed(1)}px; filter: drop-shadow(0 0 8px ${spColor});" />`;
+        }
 
         thunderLayer.innerHTML = `
           <svg viewBox="0 0 ${bRect.width || 380} ${bRect.height || 380}" class="w-full h-full lightning-strobe-flash overflow-visible">
-            ${svgPaths}
+            ${svgContent}
           </svg>
         `;
       }
@@ -6186,10 +6306,10 @@
       safeSetText('nav-streak', currentLevel);
       safeSetText('game-total-time', `${totalRunTime.toFixed(2)}s`);
 
-      // 1. High-impact 600ms electric surge/thunder effect around Node [25]
+      // 1. High-impact 750ms electric surge/thunder climax effect around Node [25]
       triggerElectricThunderClimax(finalNodeIndex);
 
-      // 2. Add 600ms setTimeout before showing the "CIRCUIT CLEARED!" modal so player clearly sees the electric thunder climax
+      // 2. Add 750ms setTimeout before showing the "CIRCUIT CLEARED!" modal so player clearly sees the electric thunder climax
       setTimeout(() => {
         // Cleanup thunder VFX from board
         const nodes = nodeGridEl ? nodeGridEl.querySelectorAll('.circuit-node, .grid-cell') : [];
@@ -6199,6 +6319,7 @@
           node25.style.transform = '';
           node25.style.filter = '';
         }
+        nodes.forEach(n => n.classList.remove('node-cascade-pulse'));
         const board = document.getElementById('interactive-board');
         if (board) board.classList.remove('board-thunder-flash');
         const thunderLayer = document.getElementById('thunder-vfx-layer');
