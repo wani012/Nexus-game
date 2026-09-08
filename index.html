@@ -1806,7 +1806,8 @@
       </div>
 
       <!-- Player Tag Form -->
-      <form id="landing-launch-form" onsubmit="handleSpaceshipLaunch(event)" class="w-full flex flex-col gap-3" style="position: relative; z-index: 10002; pointer-events: auto !important;">
+      <form id="landing-launch-form" onsubmit="handleSpaceshipLaunch(event)" class="w-full flex flex-col gap-3" style="position: relative; z-index: 10002;pointer-events: all !important; touch-action:auto !important;">
+       
         <div class="text-left" style="position: relative; z-index: 10002; pointer-events: auto !important;">
           <label for="landing-player-input" class="block text-[11px] font-mono font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
             Enter your player tag to launch challenge:
@@ -1825,7 +1826,8 @@
 
         <!-- Warp Launch Hyper Button -->
         <button id="landing-launch-btn" 
-                type="submit" 
+          onclick="handleSpaceshipLaunch(event)"
+                type="button" 
                 title="LAUNCH SHIP &amp; PLAY"
                 style="position: relative; z-index: 10002; pointer-events: auto !important; cursor: pointer; background: linear-gradient(135deg, #00f3ff 0%, #3b82f6 50%, #8b5cf6 100%) !important; color: #ffffff !important; font-size: 1rem !important; font-weight: 900 !important; letter-spacing: 2px !important; text-transform: uppercase; border: none !important; border-radius: 14px !important; padding: 14px 20px !important; box-shadow: 0 0 30px rgba(0, 243, 255, 0.45), 0 4px 15px rgba(0, 0, 0, 0.5) !important; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                 class="warp-launch-btn w-full mt-2 font-orbitron flex items-center justify-center gap-2">
