@@ -5340,7 +5340,18 @@
           break;
         }
 
+        const candidateStep = playerPath.length + 1;
         const cp = (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints[stepIndex] : undefined;
+
+        // In forward: milestones [1, 5, 10, 15, 20, 25] occur at steps [1, 5, 10, 15, 20, 25]
+        // In reverse: milestones [25, 20, 15, 10, 5, 1] occur at steps [1, 6, 11, 16, 21, 25]
+        const milestoneStepMap = isReverse
+          ? { 25: 1, 20: 6, 15: 11, 10: 16, 5: 21, 1: 25 }
+          : { 1: 1, 5: 5, 10: 10, 15: 15, 20: 20, 25: 25 };
+        const milestoneSteps = isReverse
+          ? [1, 6, 11, 16, 21, 25]
+          : [1, 5, 10, 15, 20, 25];
+
         if (cp !== undefined) {
           const visitedMilestones = playerPath
             .map(idx => activePuzzle.checkpoints ? activePuzzle.checkpoints[idx] : undefined)
@@ -5349,7 +5360,27 @@
           const nextExpectedMilestone = expectedMilestones[visitedMilestones.length];
 
           if (cp !== nextExpectedMilestone) {
-            // If touching non-expected milestone, soft ignore or stop
+            // Out of order milestone
+            break;
+          }
+
+          // Strict milestone step check:
+          // Final milestone (25 in forward, 1 in reverse) can ONLY connect at Step 25!
+          // Intermediate milestones can only connect at their exact designated step!
+          const expectedStep = milestoneStepMap[cp];
+          if (candidateStep !== expectedStep) {
+            // Milestone touched early or out of step!
+            break;
+          }
+        } else {
+          // Blank unnumbered circle:
+          // Can NEVER be connected at step 25 (the final 25th node MUST be the finish milestone)!
+          if (candidateStep >= TOTAL_CELLS) {
+            break;
+          }
+
+          // A blank circle cannot occupy a milestone step
+          if (milestoneSteps.includes(candidateStep)) {
             break;
           }
         }
@@ -5374,6 +5405,7 @@
     const attemptConnectNode = handlePointerOnIndex;
     window.attemptConnectNode = attemptConnectNode;
     window.handlePointerOnIndex = handlePointerOnIndex;
+    window.getPlayerPath = () => playerPath;
 
     function attachEventListeners() {
       lockNextLevelBtn();
@@ -5586,6 +5618,136 @@
         retryBtn.addEventListener('click', (e) => {
           e.preventDefault();
           resetCircuitAttempt();
+        });
+      }
+
+      // === CONTROLS DOCK BUTTONS ===
+      const dockResetBtn = document.getElementById('dock-reset-btn');
+      if (dockResetBtn) {
+        dockResetBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          resetCircuitAttempt();
+        });
+      }
+
+      const dockAudioBtn = document.getElementById('dock-audio-btn');
+      if (dockAudioBtn) {
+        dockAudioBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          sound.toggle();
+        });
+      }
+
+      const dockThemeBtn = document.getElementById('dock-theme-btn');
+      if (dockThemeBtn) {
+        dockThemeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSkinModal();
+        });
+      }
+
+      const dockNextBtn = document.getElementById('dock-next-btn');
+      if (dockNextBtn) {
+        dockNextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (!dockNextBtn.disabled && !dockNextBtn.classList.contains('locked')) {
+            startNextLevel(e);
+          }
+        });
+      }
+
+      const dockNextLvlAux = document.getElementById('dock-next-level-btn');
+      if (dockNextLvlAux) {
+        dockNextLvlAux.addEventListener('click', startNextLevel);
+      }
+
+      // === HEADER SOUND & THEME BUTTONS ===
+      const soundBtn = document.getElementById('sound-btn');
+      if (soundBtn) {
+        soundBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          sound.toggle();
+        });
+      }
+
+      const themeBrushBtn = document.getElementById('theme-brush-btn');
+      if (themeBrushBtn) {
+        themeBrushBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSkinModal();
+        });
+      }
+
+      const skinPickerBtn = document.getElementById('skin-picker-btn');
+      if (skinPickerBtn) {
+        skinPickerBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSkinModal();
+        });
+      }
+
+      const closeSkinBtn = document.getElementById('close-skin-btn');
+      if (closeSkinBtn) {
+        closeSkinBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeSkinModal();
+        });
+      }
+
+      // === CIRCUIT CRACKED / SUBMIT SCORE FORM ===
+      const crackedForm = document.getElementById('cracked-form');
+      if (crackedForm) {
+        crackedForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const input = document.getElementById('cracked-name-input');
+          const name = (input && input.value && input.value.trim()) || 'CADET';
+          saveScoreToLeaderboard(name, bankedLevel || currentLevel, bankedTotalTime || totalRunTime);
+          const modal = document.getElementById('circuit-cracked-modal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+          openLeaderboardModal();
+        });
+      }
+
+      const closeCrackedBtn = document.getElementById('close-cracked-btn');
+      if (closeCrackedBtn) {
+        closeCrackedBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const modal = document.getElementById('circuit-cracked-modal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+        });
+      }
+
+      const igStoryBtn = document.getElementById('ig-story-btn');
+      if (igStoryBtn) {
+        igStoryBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          generateInstagramStoryCard();
+        });
+      }
+
+      const igStoryVictoryBtn = document.getElementById('ig-story-victory-btn');
+      if (igStoryVictoryBtn) {
+        igStoryVictoryBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          generateInstagramStoryCard();
+        });
+      }
+
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const modal = document.getElementById('victory-modal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
         });
       }
 
