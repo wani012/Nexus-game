@@ -3105,12 +3105,39 @@
     // --- 4. Deterministic Hamiltonian Circuit Generator ---
     const GRID_SIZE = 5;
     const TOTAL_CELLS = 25;
-    // Dynamic Round Duration: Starts at 20s, tightens by 1s per level down to intense 12s blitz!
+    // Dynamic Round Duration: Smooth, gradual difficulty curve
+    // Level 1-2: 20s (Friendly warm-up, build confidence)
+    // Level 3-4: 19s (Mild speed bump & clean Reverse intro)
+    // Level 5-6: 18s (Fog of war & Reverse speedrun)
+    // Level 7-8: 17s (Fog blitz & Reverse + Fog combo)
+    // Level 9-10: 16s (Mastery speedrun & Apex combo)
+    // Level 11+: 15s down to 14s blitz
     function getLevelRoundDuration(level = (typeof currentLevel !== 'undefined' ? currentLevel : 1)) {
       const lvl = Math.max(1, Number(level) || 1);
-      return Math.max(12, 20 - (lvl - 1));
+      if (lvl <= 2) return 20;
+      if (lvl <= 4) return 19;
+      if (lvl <= 6) return 18;
+      if (lvl <= 8) return 17;
+      if (lvl <= 10) return 16;
+      return Math.max(14, 16 - Math.floor((lvl - 10) / 2));
     }
     window.getLevelRoundDuration = getLevelRoundDuration;
+
+    function isReverseProtocol(level = (typeof currentLevel !== 'undefined' ? currentLevel : 1)) {
+      const lvl = Math.max(1, Number(level) || 1);
+      // Starts smoothly: Levels 1, 2, 3 are pure Forward (1 ➔ 25)
+      // Reverse is introduced at Level 4, and alternates on even levels (4, 6, 8, 10, 12...)
+      return (lvl >= 4 && lvl % 2 === 0);
+    }
+    window.isReverseProtocol = isReverseProtocol;
+
+    function isFogOfWarLevel(level = (typeof currentLevel !== 'undefined' ? currentLevel : 1)) {
+      const lvl = Math.max(1, Number(level) || 1);
+      // Fog of War introduced gently at Level 5 (Forward + Fog),
+      // gives a breather on Level 6 (Reverse speedrun), then returns at Level 7+
+      return (lvl === 5 || lvl >= 7);
+    }
+    window.isFogOfWarLevel = isFogOfWarLevel;
     const ROUND_DURATION_SEC = 20; // Default baseline
     const MILESTONES_SEQUENCE = [1, 5, 10, 15, 20, 25];
 
@@ -3719,16 +3746,17 @@
 
       // 5. Update Protocol alert, difficulty mode, and instruction tip
       const isReverse = isReverseProtocol(level);
+      const isFog = isFogOfWarLevel(level);
       const protBanner = document.getElementById('protocol-warning-banner');
       const tipText = document.getElementById('instruction-tip-text');
       const roundDur = getLevelRoundDuration(level);
       
       if (protBanner) {
         protBanner.classList.remove('hidden');
-        if (level >= 3 && isReverse) {
+        if (isFog && isReverse) {
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-rose-950/80 to-purple-950/90 border border-rose-500/50 text-center text-xs font-bold text-rose-200 shadow-md flex items-center justify-between';
           protBanner.innerHTML = `<span>⚠️ LEVEL ${level}: REVERSE + FOG PROTOCOL</span><span class="font-mono text-[10px] bg-rose-500/20 px-2 py-0.5 rounded border border-rose-400/40 text-rose-300">⏱ ${roundDur}s LIMIT</span>`;
-        } else if (level >= 3) {
+        } else if (isFog) {
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 text-center text-xs font-bold text-amber-200 shadow-sm flex items-center justify-between';
           protBanner.innerHTML = `<span>⚡ LEVEL ${level}: FOG OF WAR PROTOCOL</span><span class="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/40 text-amber-300">⏱ ${roundDur}s LIMIT</span>`;
         } else if (isReverse) {
@@ -3740,8 +3768,12 @@
         }
       }
       if (tipText) {
-        if (isReverse) {
+        if (isReverse && isFog) {
+          tipText.innerHTML = `⚠️ Master Challenge: Trace <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in Fog of War!`;
+        } else if (isReverse) {
           tipText.innerHTML = `Protocol Inverted: Trace from <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in ${roundDur}s!`;
+        } else if (isFog) {
+          tipText.innerHTML = `Fog Active: Move cursor/finger to reveal nodes <strong class="text-[#8A2BE2] font-black font-orbitron">[1 ➔ 25]</strong>!`;
         } else {
           tipText.innerHTML = `Drag from <strong class="text-[#8A2BE2] font-black font-orbitron">[1]</strong>! (${roundDur}s timer starts on first touch)`;
         }
@@ -3891,26 +3923,15 @@
     let lastInvalidTime = 0;
 
     // --- Cyberpunk Arcade Adventure Engine Upgrades ---
-    // 1. Forward / Reverse Protocols
-    function isReverseProtocol(level) {
-      return (Number(level) % 2 === 0);
-    }
-
     // 1. Protocol Mode & Target Sequence Definitions
     function isLeapProtocol(level = currentLevel) {
-      // Restrict custom leap protocols (like multiples of 5) ONLY to special advanced levels (e.g. Level 3 or 5), NOT Circuit #1
-      const lvl = Number(level);
-      return (lvl === 3 || lvl === 5);
+      return false; // Keep 25-node continuous Hamiltonian paths for standard and reverse modes
     }
     window.isLeapProtocol = isLeapProtocol;
 
     let targetSequence = Array.from({ length: 25 }, (_, i) => i + 1);
     function getTargetSequence(level = currentLevel) {
-      const lvl = Number(level);
-      if (isLeapProtocol(lvl)) {
-        return isReverseProtocol(lvl) ? [25, 20, 15, 10, 5, 1] : [1, 5, 10, 15, 20, 25];
-      }
-      // Circuit #1 (Level 1) Standard Sequential Protocol: strictly [1, 2, 3, 4, ... 25]
+      const lvl = Math.max(1, Number(level) || 1);
       if (isReverseProtocol(lvl)) {
         return Array.from({ length: 25 }, (_, i) => 25 - i);
       }
@@ -4612,7 +4633,7 @@
 
     // 5. Fog of War / Dynamic Spotlight Tracker
     function updateFogOfWar(clientX, clientY) {
-      if (currentLevel < 3 || !boardFrameEl || !nodeGridEl) return;
+      if (!isFogOfWarLevel(currentLevel) || !boardFrameEl || !nodeGridEl) return;
       const rect = boardFrameEl.getBoundingClientRect();
       const x = clientX - rect.left;
       const y = clientY - rect.top;
@@ -4648,9 +4669,10 @@
     function syncUIHeader() {
       const roundDuration = getLevelRoundDuration(currentLevel);
       const isReverse = isReverseProtocol(currentLevel);
+      const isFog = isFogOfWarLevel(currentLevel);
       let modeText = `${roundDuration}s Speedrun`;
-      if (currentLevel >= 3 && isReverse) modeText = `${roundDuration}s Reverse + Fog Blitz`;
-      else if (currentLevel >= 3) modeText = `${roundDuration}s Fog Blitz`;
+      if (isFog && isReverse) modeText = `${roundDuration}s Reverse + Fog Blitz`;
+      else if (isFog) modeText = `${roundDuration}s Fog Blitz`;
       else if (isReverse) modeText = `${roundDuration}s Reverse Blitz`;
       
       safeSetText('hero-circuit-tag', `LEVEL ${currentLevel} / CIRCUIT #${currentLevel}`);
@@ -5354,7 +5376,7 @@
           sound.playNodeConnect(0);
           triggerHaptic(10);
           updateActiveStates();
-          if (currentLevel >= 3 && boardFrameEl) {
+          if (isFogOfWarLevel(currentLevel) && boardFrameEl) {
             boardFrameEl.classList.add('fog-active');
           }
         } else {
@@ -5485,7 +5507,7 @@
         if (idx !== null) {
           attemptConnectNode(idx);
         }
-        if (currentLevel >= 3) {
+        if (isFogOfWarLevel(currentLevel)) {
           updateFogOfWar(e.clientX, e.clientY);
         }
       };
@@ -5515,7 +5537,7 @@
           if (idx !== null) {
             attemptConnectNode(idx);
           }
-          if (currentLevel >= 3) {
+          if (isFogOfWarLevel(currentLevel)) {
             boardFrameEl.classList.add('fog-active');
             updateFogOfWar(e.clientX, e.clientY);
           }
@@ -5535,7 +5557,7 @@
             setMobileAnimationsPaused(true);
             const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
             if (idx !== null) attemptConnectNode(idx);
-            if (currentLevel >= 3) {
+            if (isFogOfWarLevel(currentLevel)) {
               boardFrameEl.classList.add('fog-active');
               updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
             }
@@ -5548,7 +5570,7 @@
             if (e.cancelable) e.preventDefault();
             const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
             if (idx !== null) attemptConnectNode(idx);
-            if (currentLevel >= 3) {
+            if (isFogOfWarLevel(currentLevel)) {
               updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
             }
           }
@@ -6292,13 +6314,16 @@
       const nextLvl = clearedLvl + 1;
       const nextDuration = getLevelRoundDuration(nextLvl);
       const isNextReverse = isReverseProtocol(nextLvl);
+      const isNextFog = isFogOfWarLevel(nextLvl);
       let challengeHint = `Level ${nextLvl}: ${nextDuration}s Limit`;
-      if (nextLvl >= 3 && isNextReverse) {
+      if (isNextFog && isNextReverse) {
         challengeHint += " • ⚠️ Fog of War + Inverted Protocol!";
-      } else if (nextLvl >= 3) {
+      } else if (isNextFog) {
         challengeHint += " • ⚡ Fog of War Spotlight Active!";
       } else if (isNextReverse) {
         challengeHint += " • 🔄 Reverse Protocol [25 ➔ 1]!";
+      } else {
+        challengeHint += " • ⚡ Standard Forward [1 ➔ 25]";
       }
       safeSetText('cleared-level-subtitle', `${challengeHint} Can you beat it?`);
 
