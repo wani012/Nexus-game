@@ -2706,6 +2706,7 @@
         }
         return this.enabled;
       }
+      toggle() { return this.toggleMute(); }
 
       // Short, crisp high-frequency sine pulse (520Hz ramping to 780Hz for 0.06s).
       // Pitch scales up slightly with each consecutive node (node 1 = base, node 25 = high chime).
@@ -2888,6 +2889,7 @@
       playVictory() { this.playSuccess(); }
       playGlitchFailure() { this.playGameOver(); }
       playCountdownTick() { this.playNodeConnect(0); }
+      playPhoenixBreakout() { this.playSuccess(); }
 
       // Secret Mystery Node discovery bell
       playMysteryNode() {
@@ -3016,7 +3018,7 @@
       }
 
       burst() {
-        if (!this.canvas || !this.ctx) return;
+        if (!this.canvas || !this.ctx || typeof this.ctx.save !== 'function') return;
         this.particles = [];
         const colors = ['#FFD700', '#00F0FF', '#FF2A6D', '#8A2BE2', '#FFFFFF'];
         const count = 100;
@@ -4611,8 +4613,9 @@
       safeSetText('hero-circuit-tag', `LEVEL ${currentLevel} / CIRCUIT #${currentLevel}`);
       safeSetText('game-level-badge', `LEVEL ${currentLevel}`);
       safeSetText('game-circuit-title', `CIRCUIT #${currentLevel}`);
-      safeSetText('challenge-date-label', activePuzzle.dateKey);
-      safeSetText('lb-circuit-subtitle', `PROGRESSIVE STREAK SPEEDRUNS (${activePuzzle.dateKey})`);
+      safeSetText('level-display', `LEVEL ${currentLevel}`);
+      if (activePuzzle) safeSetText('challenge-date-label', activePuzzle.dateKey);
+      if (activePuzzle) safeSetText('lb-circuit-subtitle', `PROGRESSIVE STREAK SPEEDRUNS (${activePuzzle.dateKey})`);
       safeSetText('nav-streak', currentLevel);
       safeSetText('game-total-time', `${totalRunTime.toFixed(2)}s`);
       syncApexBanner();
@@ -5406,6 +5409,8 @@
     window.attemptConnectNode = attemptConnectNode;
     window.handlePointerOnIndex = handlePointerOnIndex;
     window.getPlayerPath = () => playerPath;
+    window.getCurrentLevel = () => currentLevel;
+    window.getIsCompleted = () => isCompleted;
 
     function attachEventListeners() {
       lockNextLevelBtn();
@@ -6247,7 +6252,9 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
       }
-      if (input) setTimeout(() => input.focus(), 80);
+      if (input && typeof input.focus === 'function') {
+        setTimeout(() => { try { input.focus(); } catch (_) {} }, 80);
+      }
     }
 
     function showVictoryModal(level, totalTime) {
