@@ -2091,7 +2091,7 @@
       <div class="mt-3 flex items-center justify-between text-xs text-slate-500 px-1">
         <div class="flex items-center gap-1.5">
           <span>Mode:</span>
-          <span class="text-slate-300 font-medium">20s Speedrun</span>
+          <span id="game-mode-desc" class="text-slate-300 font-medium">20s Speedrun</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span>Global Solves Today:</span>
@@ -2890,6 +2890,25 @@
       playGlitchFailure() { this.playGameOver(); }
       playCountdownTick() { this.playNodeConnect(0); }
       playPhoenixBreakout() { this.playSuccess(); }
+      playUrgentTick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(440, now + 0.05);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.055);
+        } catch (_) {}
+      }
 
       // Secret Mystery Node discovery bell
       playMysteryNode() {
@@ -3086,7 +3105,13 @@
     // --- 4. Deterministic Hamiltonian Circuit Generator ---
     const GRID_SIZE = 5;
     const TOTAL_CELLS = 25;
-    const ROUND_DURATION_SEC = 20;
+    // Dynamic Round Duration: Starts at 20s, tightens by 1s per level down to intense 12s blitz!
+    function getLevelRoundDuration(level = (typeof currentLevel !== 'undefined' ? currentLevel : 1)) {
+      const lvl = Math.max(1, Number(level) || 1);
+      return Math.max(12, 20 - (lvl - 1));
+    }
+    window.getLevelRoundDuration = getLevelRoundDuration;
+    const ROUND_DURATION_SEC = 20; // Default baseline
     const MILESTONES_SEQUENCE = [1, 5, 10, 15, 20, 25];
 
     // On a 5x5 bipartite grid (13 even, 12 odd), a 25-node Hamiltonian path must start on an even node
@@ -3692,22 +3717,33 @@
       if (svgGlowBeam) svgGlowBeam.setAttribute('d', '');
       if (svgCoreBeam) svgCoreBeam.setAttribute('d', '');
 
-      // 5. Update Reverse Protocol alert and instruction tip
+      // 5. Update Protocol alert, difficulty mode, and instruction tip
       const isReverse = isReverseProtocol(level);
       const protBanner = document.getElementById('protocol-warning-banner');
       const tipText = document.getElementById('instruction-tip-text');
+      const roundDur = getLevelRoundDuration(level);
+      
       if (protBanner) {
-        if (isReverse) {
-          protBanner.classList.remove('hidden');
+        protBanner.classList.remove('hidden');
+        if (level >= 3 && isReverse) {
+          protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-rose-950/80 to-purple-950/90 border border-rose-500/50 text-center text-xs font-bold text-rose-200 shadow-md flex items-center justify-between';
+          protBanner.innerHTML = `<span>⚠️ LEVEL ${level}: REVERSE + FOG PROTOCOL</span><span class="font-mono text-[10px] bg-rose-500/20 px-2 py-0.5 rounded border border-rose-400/40 text-rose-300">⏱ ${roundDur}s LIMIT</span>`;
+        } else if (level >= 3) {
+          protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 text-center text-xs font-bold text-amber-200 shadow-sm flex items-center justify-between';
+          protBanner.innerHTML = `<span>⚡ LEVEL ${level}: FOG OF WAR PROTOCOL</span><span class="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/40 text-amber-300">⏱ ${roundDur}s LIMIT</span>`;
+        } else if (isReverse) {
+          protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-purple-950/80 border border-purple-500/50 text-center text-xs font-bold text-purple-200 shadow-sm flex items-center justify-between';
+          protBanner.innerHTML = `<span>🔄 LEVEL ${level}: REVERSE PROTOCOL (25 ➔ 1)</span><span class="font-mono text-[10px] bg-purple-500/20 px-2 py-0.5 rounded border border-purple-400/40 text-purple-300">⏱ ${roundDur}s LIMIT</span>`;
         } else {
-          protBanner.classList.add('hidden');
+          protBanner.className = 'mb-2.5 py-1.5 px-3 rounded-xl bg-blue-950/60 border border-blue-500/30 text-center text-xs font-medium text-blue-300 shadow-sm flex items-center justify-between';
+          protBanner.innerHTML = `<span>⚡ CIRCUIT #${level}: STANDARD FORWARD (1 ➔ 25)</span><span class="font-mono text-[10px] bg-blue-500/20 px-2 py-0.5 rounded border border-blue-400/40 text-blue-300">⏱ ${roundDur}s SPEEDRUN</span>`;
         }
       }
       if (tipText) {
         if (isReverse) {
-          tipText.innerHTML = `Protocol Inverted: Trace from <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong>!`;
+          tipText.innerHTML = `Protocol Inverted: Trace from <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in ${roundDur}s!`;
         } else {
-          tipText.innerHTML = `Drag from <strong class="text-[#8A2BE2] font-black font-orbitron">[1]</strong>! Drag backward to undo.`;
+          tipText.innerHTML = `Drag from <strong class="text-[#8A2BE2] font-black font-orbitron">[1]</strong>! (${roundDur}s timer starts on first touch)`;
         }
       }
 
@@ -4610,10 +4646,18 @@
     }
 
     function syncUIHeader() {
+      const roundDuration = getLevelRoundDuration(currentLevel);
+      const isReverse = isReverseProtocol(currentLevel);
+      let modeText = `${roundDuration}s Speedrun`;
+      if (currentLevel >= 3 && isReverse) modeText = `${roundDuration}s Reverse + Fog Blitz`;
+      else if (currentLevel >= 3) modeText = `${roundDuration}s Fog Blitz`;
+      else if (isReverse) modeText = `${roundDuration}s Reverse Blitz`;
+      
       safeSetText('hero-circuit-tag', `LEVEL ${currentLevel} / CIRCUIT #${currentLevel}`);
       safeSetText('game-level-badge', `LEVEL ${currentLevel}`);
       safeSetText('game-circuit-title', `CIRCUIT #${currentLevel}`);
       safeSetText('level-display', `LEVEL ${currentLevel}`);
+      safeSetText('game-mode-desc', modeText);
       if (activePuzzle) safeSetText('challenge-date-label', activePuzzle.dateKey);
       if (activePuzzle) safeSetText('lb-circuit-subtitle', `PROGRESSIVE STREAK SPEEDRUNS (${activePuzzle.dateKey})`);
       safeSetText('nav-streak', currentLevel);
@@ -4855,10 +4899,11 @@
       isTimerPaused = false;
       isTimeOver = false;
       isGameActive = false;
-      remainingTime = 20;
+      const roundDuration = getLevelRoundDuration(currentLevel);
+      remainingTime = roundDuration;
       lastTickSecond = -1;
       if (timerEl) {
-        timerEl.innerText = "00:20";
+        timerEl.innerText = `00:${String(roundDuration).padStart(2, '0')}`;
         timerEl.classList.remove('timer-critical');
       }
       if (timerBarEl) {
@@ -4873,6 +4918,7 @@
       timerStart = Date.now();
       isGameActive = true;
       setMobileAnimationsPaused(true);
+      const roundDuration = getLevelRoundDuration(currentLevel);
 
       function updateTimerFrame() {
         if (!isGameActive || !timerStart) {
@@ -4883,13 +4929,13 @@
         const currentSegmentMs = timerStart ? (Date.now() - timerStart) : 0;
         const totalElapsedMs = timerAccumulatedMs + currentSegmentMs;
         const elapsedSec = totalElapsedMs / 1000;
-        const remainingSec = Math.max(0, ROUND_DURATION_SEC - elapsedSec);
+        const remainingSec = Math.max(0, roundDuration - elapsedSec);
 
         const secsFormatted = Math.ceil(remainingSec).toString().padStart(2, '0');
         if (timerEl) timerEl.innerText = `00:${secsFormatted}`;
         safeSetText('game-total-time', `${(totalRunTime + elapsedSec).toFixed(2)}s`);
 
-        const pct = (remainingSec / ROUND_DURATION_SEC) * 100;
+        const pct = (remainingSec / roundDuration) * 100;
         if (timerBarEl) timerBarEl.style.width = `${pct}%`;
 
         // Urgency Alert (< 5s): DOES NOT break, return early, or clear interval
@@ -4995,8 +5041,9 @@
       if (overloadBar) overloadBar.style.width = `${pct}%`;
 
       // 3. Trigger the Game-Over modal ("CIRCUIT TIMEOUT / MISSION FAILED")
+      const timeoutLimit = getLevelRoundDuration(currentLevel);
       safeSetText('overload-title', "CIRCUIT TIMEOUT / MISSION FAILED");
-      safeSetText('overload-subtitle', "The 20-second timer reached 00:00. Linkage broken.");
+      safeSetText('overload-subtitle', `The ${timeoutLimit}-second timer reached 00:00. Linkage broken.`);
 
       const bankBox = document.getElementById('overload-bank-box');
       const bankBtn = document.getElementById('overload-bank-btn');
@@ -5488,6 +5535,10 @@
             setMobileAnimationsPaused(true);
             const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
             if (idx !== null) attemptConnectNode(idx);
+            if (currentLevel >= 3) {
+              boardFrameEl.classList.add('fog-active');
+              updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
+            }
           }
         }, { passive: false });
 
@@ -5497,6 +5548,9 @@
             if (e.cancelable) e.preventDefault();
             const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
             if (idx !== null) attemptConnectNode(idx);
+            if (currentLevel >= 3) {
+              updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
+            }
           }
         }, { passive: false });
 
@@ -5713,6 +5767,16 @@
             modal.classList.remove('flex');
           }
           openLeaderboardModal();
+        });
+      }
+
+      const crackedSubmitBtn = document.getElementById('cracked-submit-btn');
+      if (crackedSubmitBtn) {
+        crackedSubmitBtn.addEventListener('click', (e) => {
+          if (crackedForm && typeof crackedForm.requestSubmit === 'function') {
+            e.preventDefault();
+            crackedForm.requestSubmit();
+          }
         });
       }
 
@@ -6064,11 +6128,12 @@
         ? playerPath[playerPath.length - 1]
         : 24;
 
-      const elapsedMs = Math.min(ROUND_DURATION_SEC * 1000, timerAccumulatedMs + (timerStart ? (Date.now() - timerStart) : 0));
+      const roundDuration = getLevelRoundDuration(currentLevel);
+      const elapsedMs = Math.min(roundDuration * 1000, timerAccumulatedMs + (timerStart ? (Date.now() - timerStart) : 0));
       const levelTimeSec = elapsedMs / 1000;
-      const remainingSec = Math.max(0, ROUND_DURATION_SEC - levelTimeSec);
+      const remainingSec = Math.max(0, roundDuration - levelTimeSec);
       remainingTime = remainingSec;
-      const clearTime = (20 - remainingTime).toFixed(2);
+      const clearTime = levelTimeSec.toFixed(2);
 
       // Freeze displayed countdown immediately
       safeSetText('countdown-text', `${clearTime}s`);
@@ -6224,9 +6289,22 @@
         }
       }
 
+      const nextLvl = clearedLvl + 1;
+      const nextDuration = getLevelRoundDuration(nextLvl);
+      const isNextReverse = isReverseProtocol(nextLvl);
+      let challengeHint = `Level ${nextLvl}: ${nextDuration}s Limit`;
+      if (nextLvl >= 3 && isNextReverse) {
+        challengeHint += " • ⚠️ Fog of War + Inverted Protocol!";
+      } else if (nextLvl >= 3) {
+        challengeHint += " • ⚡ Fog of War Spotlight Active!";
+      } else if (isNextReverse) {
+        challengeHint += " • 🔄 Reverse Protocol [25 ➔ 1]!";
+      }
+      safeSetText('cleared-level-subtitle', `${challengeHint} Can you beat it?`);
+
       const nextBtn = document.getElementById('btn-next-level');
       if (nextBtn) {
-        nextBtn.innerHTML = `<span id="btn-next-level-text">NEXT CIRCUIT (LVL ${clearedLvl + 1}) &gt;&gt;</span><svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+        nextBtn.innerHTML = `<span id="btn-next-level-text">ENTER LEVEL ${nextLvl} (${nextDuration}s) &gt;&gt;</span><svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
       }
 
       const modal = document.getElementById('level-cleared-modal');
@@ -6288,11 +6366,27 @@ ${shareData.url}`;
 
       const copyBtn = document.getElementById('copy-share-btn');
       if (copyBtn) {
-        copyBtn.onclick = () => {
-          navigator.clipboard.writeText(shareText);
-          safeSetText('copy-btn-label', "Copied to Clipboard");
+        copyBtn.onclick = async () => {
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(shareText);
+            } else {
+              const ta = document.createElement('textarea');
+              ta.value = shareText;
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+            }
+            safeSetText('copy-btn-label', "Copied to Clipboard! ✓");
+            showChallengeToast("Viral score card copied to clipboard! 📋");
+            sound.playStep(12);
+            triggerHaptic([30, 40]);
+          } catch (_) {
+            safeSetText('copy-btn-label', "Card Selected - Press Ctrl+C");
+          }
           setTimeout(() => {
-            safeSetText('copy-btn-label', "COPY VIRAL SCORE CARD");
+            safeSetText('copy-btn-label', "Copy Share Card");
           }, 2500);
         };
       }
