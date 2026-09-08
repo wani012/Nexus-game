@@ -5497,6 +5497,61 @@
         });
       }
 
+      // === LEVEL CLEARED MODAL BUTTONS ===
+
+      // 1. NEXT CIRCUIT button
+      const btnNextLevel = document.getElementById('btn-next-level');
+      if (btnNextLevel) {
+        btnNextLevel.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          const modal = document.getElementById('level-cleared-modal');
+          if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); modal.style.display = 'none'; }
+          startNextLevel(e);
+        });
+      }
+
+      // 2. REPLAY CIRCUIT button
+      const btnReplay = document.getElementById('btn-replay-circuit');
+      if (btnReplay) {
+        btnReplay.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          const modal = document.getElementById('level-cleared-modal');
+          if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); modal.style.display = 'none'; }
+          resetCircuitAttempt();
+        });
+      }
+
+      // 3. SAVE SCORE button
+      const btnBankScore = document.getElementById('btn-bank-score');
+      if (btnBankScore) {
+        btnBankScore.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          const modal = document.getElementById('level-cleared-modal');
+          if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); modal.style.display = 'none'; }
+          showSubmitScoreModal(currentLevel, totalRunTime);
+        });
+      }
+
+      // 4. CHALLENGE A FRIEND button
+      const btnDuelShare = document.getElementById('btn-duel-share');
+      if (btnDuelShare) {
+        btnDuelShare.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          const modal = document.getElementById('level-cleared-modal');
+          if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); modal.style.display = 'none'; }
+          openSocialShareModal();
+        });
+      }
+
+      // 5. FUEL THE FURU button
+      const btnFuelFuru = document.getElementById('btn-fuel-furu');
+      if (btnFuelFuru) {
+        btnFuelFuru.addEventListener('click', (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          openSupportModal();
+        });
+      }
+
       const openLbBtn = document.getElementById('open-leaderboard-btn');
       if (openLbBtn) {
         openLbBtn.addEventListener('click', openLeaderboardModal);
