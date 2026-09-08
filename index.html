@@ -84,6 +84,19 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
   <style>
+    @media (max-width: 640px) {
+  body {
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  .benchmark-banner, [class*="debug"], [id*="debug"] {
+    display: none !important;
+  }
+  #game-arena, #interactive-board, #node-grid {
+    transform: scale(0.88);
+    transform-origin: center top;
+  }
+}
     /* Mobile Touch Isolation & Pointer Rules */
     #game-arena, #interactive-board, #node-grid, canvas {
       touch-action: none !important;
