@@ -101,7 +101,7 @@
 }
     /* Mobile Touch Isolation & Pointer Rules */
     #game-arena, #interactive-board, #node-grid, canvas {
-      touch-action: none !important;
+     
       user-select: none !important;
       overscroll-behavior: contain !important;
     }
@@ -122,7 +122,12 @@
       pointer-events: auto;
     }
     .leaderboard-modal.active, #leaderboard-modal.active { display: flex !important; }
-
+.modal, [id*="modal"], [class*="modal"], input, button {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    user-select: auto !important;
+    z-index: 999999 !important;
+}
     :root {
       --bg-canvas: #090D16;
       --bg-card: #111726;
