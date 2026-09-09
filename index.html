@@ -1614,6 +1614,27 @@
       .game-active-mobile .ambient-pulse {
         animation-play-state: paused !important;
       }
+
+      /* 5. Mobile Button & Touch Ergonomics */
+      button, .dock-btn, .btn-shimmer, a, [role="button"], .cursor-pointer {
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+      }
+      button:active, .dock-btn:active, .btn-shimmer:active {
+        transform: scale(0.97) !important;
+      }
+      html, body {
+        overscroll-behavior-y: contain;
+        overscroll-behavior-x: none;
+      }
+      #interactive-board, #node-grid, .circuit-node {
+        touch-action: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+        -webkit-touch-callout: none !important;
+      }
     }
 
   
@@ -5400,6 +5421,23 @@
           }
         }
       }
+      // Mobile proximity tolerance fallback (allows smooth dragging across cells even if fingertip slightly misses center)
+      if (nodeGridEl) {
+        const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
+        let closestIdx = null;
+        let minDist = 34; // 34px touch radius tolerance
+        for (let i = 0; i < nodes.length; i++) {
+          const rect = nodes[i].getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const d = Math.hypot(cx - x, cy - y);
+          if (d < minDist) {
+            minDist = d;
+            closestIdx = i;
+          }
+        }
+        if (closestIdx !== null) return closestIdx;
+      }
       return null;
     }
 
@@ -5634,6 +5672,20 @@
       }, { passive: false });
       window.addEventListener('pointerup', handlePointerEnd);
       window.addEventListener('pointercancel', handlePointerEnd);
+
+      // Window touch listeners for full mobile browser compatibility
+      window.addEventListener('touchmove', (e) => {
+        if (isDragging && e.touches && e.touches[0]) {
+          if (e.cancelable) e.preventDefault();
+          const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+          if (idx !== null) attemptConnectNode(idx);
+          if (isFogOfWarLevel(currentLevel)) {
+            updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }
+      }, { passive: false });
+      window.addEventListener('touchend', handlePointerEnd);
+      window.addEventListener('touchcancel', handlePointerEnd);
 
       // Wire Modal triggers & Buttons
       const nextBtn = document.getElementById('dock-next-btn') || document.getElementById('next-level-btn');
@@ -5888,6 +5940,46 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
           }
+        });
+      }
+
+      // Explicit click listeners for auxiliary, modal, and header buttons
+      const landingLaunchBtn = document.getElementById('landing-launch-btn');
+      if (landingLaunchBtn) {
+        landingLaunchBtn.addEventListener('click', (e) => {
+          handleSpaceshipLaunch(e);
+        });
+      }
+
+      const debugRerollBtn = document.getElementById('debug-reroll-btn');
+      if (debugRerollBtn) {
+        debugRerollBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          startNextLevel(e);
+        });
+      }
+
+      const duelHeaderBtn = document.getElementById('duel-header-btn');
+      if (duelHeaderBtn) {
+        duelHeaderBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSocialShareModal();
+        });
+      }
+
+      const arenaFuelBtn = document.getElementById('arena-fuel-btn');
+      if (arenaFuelBtn) {
+        arenaFuelBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSupportModal();
+        });
+      }
+
+      const btnSupportCreator = document.getElementById('btn-support-creator');
+      if (btnSupportCreator) {
+        btnSupportCreator.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSupportModal();
         });
       }
 
