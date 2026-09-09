@@ -84,21 +84,28 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
   <style>
+    /* Completely hide all debug and benchmark elements globally */
+    .benchmark-banner, [class*="debug"], [id*="debug"], #debug-reroll-btn {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
     @media (max-width: 640px) {
-  body {
-    min-height: 100dvh ;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling:touch;
-    padding-bottom:80px;
-  }
-  .benchmark-banner, [class*="debug"], [id*="debug"] {
-    display: none !important;
-  }
-  #game-arena, #interactive-board, #node-grid {
-    transform: scale(0.88);
-    transform-origin: center top;
-  }
-}
+      body {
+        min-height: 100dvh;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 80px;
+      }
+      #interactive-board {
+        max-width: 95vw !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        will-change: transform;
+        transform: translateZ(0);
+      }
+    }
     /* Mobile Touch Isolation & Pointer Rules */
     #game-arena, #interactive-board, #node-grid, canvas {
      
@@ -3674,22 +3681,21 @@
       const tipText = document.getElementById('instruction-tip-text');
       const roundDur = getLevelRoundDuration(level);
       
-      if (protBanner) {
-        protBanner.classList.remove('hidden');
         if (isFog && isReverse) {
+          protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-rose-950/80 to-purple-950/90 border border-rose-500/50 text-center text-xs font-bold text-rose-200 shadow-md flex items-center justify-between';
           protBanner.innerHTML = `<span>⚠️ LEVEL ${level}: REVERSE + FOG PROTOCOL</span><span class="font-mono text-[10px] bg-rose-500/20 px-2 py-0.5 rounded border border-rose-400/40 text-rose-300">⏱ ${roundDur}s LIMIT</span>`;
         } else if (isFog) {
+          protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 text-center text-xs font-bold text-amber-200 shadow-sm flex items-center justify-between';
           protBanner.innerHTML = `<span>⚡ LEVEL ${level}: FOG OF WAR PROTOCOL</span><span class="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/40 text-amber-300">⏱ ${roundDur}s LIMIT</span>`;
         } else if (isReverse) {
+          protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-purple-950/80 border border-purple-500/50 text-center text-xs font-bold text-purple-200 shadow-sm flex items-center justify-between';
           protBanner.innerHTML = `<span>🔄 LEVEL ${level}: REVERSE PROTOCOL (25 ➔ 1)</span><span class="font-mono text-[10px] bg-purple-500/20 px-2 py-0.5 rounded border border-purple-400/40 text-purple-300">⏱ ${roundDur}s LIMIT</span>`;
         } else {
-          protBanner.className = 'mb-2.5 py-1.5 px-3 rounded-xl bg-blue-950/60 border border-blue-500/30 text-center text-xs font-medium text-blue-300 shadow-sm flex items-center justify-between';
-          protBanner.innerHTML = `<span>⚡ CIRCUIT #${level}: STANDARD FORWARD (1 ➔ 25)</span><span class="font-mono text-[10px] bg-blue-500/20 px-2 py-0.5 rounded border border-blue-400/40 text-blue-300">⏱ ${roundDur}s SPEEDRUN</span>`;
+          protBanner.classList.add('hidden');
         }
-      }
       if (tipText) {
         if (isReverse && isFog) {
           tipText.innerHTML = `⚠️ Master Challenge: Trace <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in Fog of War!`;
@@ -4557,25 +4563,35 @@
     // 5. Fog of War / Dynamic Spotlight Tracker
     function updateFogOfWar(clientX, clientY) {
       if (!isFogOfWarLevel(currentLevel) || !boardFrameEl || !nodeGridEl) return;
-      const rect = boardFrameEl.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      if (!cachedGridRect && typeof nodeGridEl.getBoundingClientRect === 'function') {
+        cacheNodePositions();
+      }
+      const gridRect = cachedGridRect || (typeof nodeGridEl.getBoundingClientRect === 'function' ? nodeGridEl.getBoundingClientRect() : { left: 0, top: 0 });
+      const x = clientX - gridRect.left;
+      const y = clientY - gridRect.top;
 
       boardFrameEl.style.setProperty('--spotlight-x', `${x}px`);
       boardFrameEl.style.setProperty('--spotlight-y', `${y}px`);
 
       const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
-      nodes.forEach((node) => {
-        const nr = node.getBoundingClientRect();
-        const nx = nr.left + nr.width / 2 - rect.left;
-        const ny = nr.top + nr.height / 2 - rect.top;
-        const dist = Math.hypot(nx - x, ny - y);
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        let dist = 9999;
+        if (cachedNodePositions && cachedNodePositions[i]) {
+          const cp = cachedNodePositions[i];
+          dist = Math.hypot(cp.cx - x, cp.cy - y);
+        } else {
+          const nr = node.getBoundingClientRect();
+          const nx = nr.left + nr.width / 2 - gridRect.left;
+          const ny = nr.top + nr.height / 2 - gridRect.top;
+          dist = Math.hypot(nx - x, ny - y);
+        }
         if (dist <= 120) {
           node.classList.add('in-spotlight');
         } else {
           node.classList.remove('in-spotlight');
         }
-      });
+      }
     }
 
     let nodeGridEl, boardFrameEl, svgGlowBeam, svgCoreBeam, timerEl, timerBarEl;
@@ -4804,9 +4820,42 @@
         nodeGridEl.appendChild(node);
       }
       updateActiveStates();
+      cacheNodePositions();
     }
 
-        let timerRaf = null;
+    let cachedNodePositions = []; // relative to nodeGridEl { cx, cy }
+    let cachedNodeWorld = [];     // in viewport coords { cx, cy, index }
+    let cachedGridRect = null;
+
+    function cacheNodePositions() {
+      if (!nodeGridEl) return;
+      try {
+        if (typeof nodeGridEl.getBoundingClientRect === 'function') {
+          cachedGridRect = nodeGridEl.getBoundingClientRect();
+        }
+        const nodes = nodeGridEl.querySelectorAll('.grid-cell');
+        cachedNodePositions = [];
+        cachedNodeWorld = [];
+        for (let i = 0; i < nodes.length; i++) {
+          if (typeof nodes[i].getBoundingClientRect === 'function') {
+            const nr = nodes[i].getBoundingClientRect();
+            const cx = nr.left + nr.width / 2 - (cachedGridRect ? cachedGridRect.left : 0);
+            const cy = nr.top + nr.height / 2 - (cachedGridRect ? cachedGridRect.top : 0);
+            cachedNodePositions.push({ cx, cy });
+            cachedNodeWorld.push({ cx: nr.left + nr.width / 2, cy: nr.top + nr.height / 2, index: i });
+          } else {
+            const col = i % GRID_SIZE;
+            const row = Math.floor(i / GRID_SIZE);
+            cachedNodePositions.push({ cx: 20 + col * 68 + 30, cy: 20 + row * 68 + 30 });
+            cachedNodeWorld.push({ cx: 50 + col * 68 + 30, cy: 100 + row * 68 + 30, index: i });
+          }
+        }
+      } catch (_) {}
+    }
+    window.addEventListener('resize', cacheNodePositions);
+    window.addEventListener('orientationchange', cacheNodePositions);
+
+    let timerRaf = null;
 
     function setMobileAnimationsPaused(paused) {
       if (paused) {
@@ -5176,21 +5225,36 @@
         return;
       }
 
-      const gridRect = nodeGridEl.getBoundingClientRect();
-      const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
+      if (!cachedNodePositions || cachedNodePositions.length === 0) {
+        cacheNodePositions();
+      }
 
       let d = '';
-      for (let i = 0; i < playerPath.length; i++) {
-        const idx = playerPath[i];
-        if (!nodes[idx]) continue;
-        const nodeRect = nodes[idx].getBoundingClientRect();
-        const cx = nodeRect.left + nodeRect.width / 2 - gridRect.left;
-        const cy = nodeRect.top + nodeRect.height / 2 - gridRect.top;
-
-        if (i === 0) {
-          d += `M ${cx} ${cy}`;
-        } else {
-          d += ` L ${cx} ${cy}`;
+      if (cachedNodePositions && cachedNodePositions.length > 0) {
+        for (let i = 0; i < playerPath.length; i++) {
+          const idx = playerPath[i];
+          const pos = cachedNodePositions[idx];
+          if (!pos) continue;
+          if (i === 0) {
+            d += `M ${pos.cx} ${pos.cy}`;
+          } else {
+            d += ` L ${pos.cx} ${pos.cy}`;
+          }
+        }
+      } else {
+        const gridRect = nodeGridEl.getBoundingClientRect();
+        const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
+        for (let i = 0; i < playerPath.length; i++) {
+          const idx = playerPath[i];
+          if (!nodes[idx]) continue;
+          const nodeRect = nodes[idx].getBoundingClientRect();
+          const cx = nodeRect.left + nodeRect.width / 2 - gridRect.left;
+          const cy = nodeRect.top + nodeRect.height / 2 - gridRect.top;
+          if (i === 0) {
+            d += `M ${cx} ${cy}`;
+          } else {
+            d += ` L ${cx} ${cy}`;
+          }
         }
       }
 
@@ -5274,10 +5338,22 @@
         }
       }
       // Mobile proximity tolerance fallback (allows ultra-smooth dragging across cells even if fingertip slightly misses center)
-      if (nodeGridEl) {
+      if (cachedNodeWorld && cachedNodeWorld.length > 0) {
+        let closestIdx = null;
+        let minDist = 42; // 42px touch radius tolerance for smooth finger tracking
+        for (let i = 0; i < cachedNodeWorld.length; i++) {
+          const pt = cachedNodeWorld[i];
+          const d = Math.hypot(pt.cx - x, pt.cy - y);
+          if (d < minDist) {
+            minDist = d;
+            closestIdx = pt.index;
+          }
+        }
+        if (closestIdx !== null) return closestIdx;
+      } else if (nodeGridEl) {
         const nodes = nodeGridEl.querySelectorAll('.grid-cell');
         let closestIdx = null;
-        let minDist = 38; // 38px touch radius tolerance for smooth finger tracking
+        let minDist = 38;
         for (let i = 0; i < nodes.length; i++) {
           const rect = nodes[i].getBoundingClientRect();
           const cx = rect.left + rect.width / 2;
@@ -5471,6 +5547,7 @@
         boardFrameEl.addEventListener('pointerdown', (e) => {
           sound.init();
           if (isCompleted || isTimeOver) return;
+          cacheNodePositions();
           if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
           isDragging = true;
           setMobileAnimationsPaused(true);
@@ -5493,6 +5570,7 @@
         boardFrameEl.addEventListener('touchstart', (e) => {
           sound.init();
           if (isCompleted || isTimeOver) return;
+          cacheNodePositions();
           if (e.touches && e.touches[0]) {
             if (e.cancelable) e.preventDefault();
             isDragging = true;
@@ -5501,18 +5579,6 @@
             if (idx !== null) attemptConnectNode(idx);
             if (isFogOfWarLevel(currentLevel)) {
               boardFrameEl.classList.add('fog-active');
-              updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
-            }
-          }
-        }, { passive: false });
-
-        boardFrameEl.addEventListener('touchmove', (e) => {
-          if (!isDragging || isCompleted || isTimeOver) return;
-          if (e.touches && e.touches[0]) {
-            if (e.cancelable) e.preventDefault();
-            const idx = getNodeIndexFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-            if (idx !== null) attemptConnectNode(idx);
-            if (isFogOfWarLevel(currentLevel)) {
               updateFogOfWar(e.touches[0].clientX, e.touches[0].clientY);
             }
           }
