@@ -5423,11 +5423,11 @@
           }
         }
       }
-      // Mobile proximity tolerance fallback (allows smooth dragging across cells even if fingertip slightly misses center)
+      // Mobile proximity tolerance fallback (allows ultra-smooth dragging across cells even if fingertip slightly misses center)
       if (nodeGridEl) {
-        const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
+        const nodes = nodeGridEl.querySelectorAll('.grid-cell');
         let closestIdx = null;
-        let minDist = 34; // 34px touch radius tolerance
+        let minDist = 38; // 38px touch radius tolerance for smooth finger tracking
         for (let i = 0; i < nodes.length; i++) {
           const rect = nodes[i].getBoundingClientRect();
           const cx = rect.left + rect.width / 2;
@@ -5435,7 +5435,10 @@
           const d = Math.hypot(cx - x, cy - y);
           if (d < minDist) {
             minDist = d;
-            closestIdx = i;
+            const parsed = parseInt(nodes[i].getAttribute('data-index') || nodes[i].dataset.index || i, 10);
+            if (!isNaN(parsed) && parsed >= 0 && parsed < TOTAL_CELLS) {
+              closestIdx = parsed;
+            }
           }
         }
         if (closestIdx !== null) return closestIdx;
@@ -7629,55 +7632,6 @@ ${shareData.url}`;
     100% { filter: brightness(1) contrast(1); }
   }
 </style>
-  
-<!-- NEXUS MAINTENANCE OVERLAY (FORCE FULLSCREEN) -->
-<div style="position: fixed; inset: 0; z-index: 9999999; display: flex; align-items: center; justify-content: center; background: rgba(7, 11, 20, 0.96); padding: 16px; font-family: system-ui, -apple-system, sans-serif; user-select: none;">
-  
-  <!-- Outer Card -->
-  <div style="width: 100%; max-width: 400px; border-radius: 24px; border: 2px solid #00f2c3; background: #0c1424; padding: 24px; text-align: center; box-shadow: 0 0 35px rgba(0, 242, 195, 0.25);">
-    
-    <!-- Top Icons -->
-    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 28px; margin-bottom: 16px;">
-      <span>⚙️</span>
-      <span>⚡</span>
-    </div>
-
-    <!-- Main Headings -->
-    <h2 style="font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #00f2c3; text-transform: uppercase; margin: 0 0 4px 0;">
-      NEXUS UPDATE
-    </h2>
-    <h2 style="font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #00f2c3; text-transform: uppercase; margin: 0 0 16px 0;">
-      CHALU HAI!
-    </h2>
-
-    <!-- Subtext -->
-    <p style="font-size: 13px; color: #cbd5e1; font-weight: 500; line-height: 1.5; margin: 0 0 24px 0; padding: 0 8px;">
-      IT WILL TAKE A LITTLE LONGER DUE TO A FEW REMAINING BUGS ! 🛠️
-    </p>
-
-    <!-- Inner Dashed Card -->
-    <div style="border-radius: 16px; border: 1px dashed rgba(0, 242, 195, 0.6); background: rgba(8, 13, 25, 0.85); padding: 20px; margin-bottom: 8px;">
-      <p style="font-size: 14px; font-weight: 700; color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 6px 0;">
-        <span>👾</span> TILL THEN, CHECK THIS GAME OUT !
-      </p>
-      <p style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #80b4d8; text-transform: uppercase; margin: 0 0 16px 0;">
-        JOIN ARENA, AND BEAT FURKAN'S SCORE !
-      </p>
-
-      <!-- Button -->
-      <a
-        href=https://tictactoe-game-app-xi.vercel.app/
-        target="_blank"
-        rel="noopener noreferrer"
-        style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: 9999px; background: linear-gradient(90deg, #00f2c3, #0077ff); color: #000000; font-weight: 800; font-size: 12px; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 14px rgba(0, 119, 255, 0.35); cursor: pointer;"
-      >
-        <span>🎮</span>
-        <span>PLAY PUZ-Z-LE</span>
-      </a>
-    </div>
-
-  </div>
-</div>
 
 </body>
 </html>
