@@ -1667,7 +1667,7 @@
           FURKAN
         </div>
         <div id="landing-apex-stats" class="text-xs font-mono text-cyan-300 font-bold mt-1 tracking-wider">
-          LVL 1 • 08.42s • REIGNING APEX RECORD
+          LVL 110 • 511.15s • REIGNING APEX RECORD
         </div>
       </div>
 
@@ -3193,7 +3193,13 @@
     // Robust client-side sorting: Highest Level First (DESC), then Lowest Time (ASC)
     function sortRecords(records) {
       if (!Array.isArray(records)) return [];
-      return records.slice().sort((a, b) => {
+      const valid = records.filter(r => {
+        if (!r || !r.name) return false;
+        if (r.name === 'FURKAN W' && (r.levelReached >= 150 || r.level >= 150)) return false;
+        const timeVal = typeof r.time === 'number' ? r.time : (typeof r.totalTime === 'number' ? r.totalTime : parseFloat(r.time || r.totalTime || r.recordTime || 0));
+        return timeVal > 0;
+      });
+      return valid.sort((a, b) => {
         const lvlA = Number(a.level !== undefined ? a.level : (a.levelReached !== undefined ? a.levelReached : 1));
         const lvlB = Number(b.level !== undefined ? b.level : (b.levelReached !== undefined ? b.levelReached : 1));
         if (lvlB !== lvlA) {
@@ -3205,49 +3211,44 @@
       });
     }
 
-            // --- Persistent All-Time Reigning Apex Champion & Daily Leaderboards ---
+    // --- Persistent All-Time Reigning Apex Champion & Daily Leaderboards ---
     const DEFAULT_APEX_RECORD = {
       name: 'FURKAN',
-      recordTime: 8.42,
-      totalTime: 8.42,
-      levelReached: 1,
-      timestamp: 1741243567890
+      recordTime: 511.15,
+      totalTime: 511.15,
+      levelReached: 110,
+      timestamp: 1788668523959
     };
 
     function getActiveApexRecord() {
       const mgr = window.lbManager || (typeof lbManager !== 'undefined' ? lbManager : null);
       
-      // 1. If firestoreRecords or entries exist, the active #1 daily/all-time is records[0]
-      const entries = (firestoreRecords && firestoreRecords.length > 0) 
-        ? firestoreRecords 
-        : (mgr && mgr.getEntries ? mgr.getEntries() : []);
-      const topDaily = (entries && entries.length > 0) ? entries[0] : null;
-
-      // 2. Get persistent reigning apex
-      let reigning = (mgr && mgr.reigningApex) 
-        ? mgr.reigningApex 
-        : (mgr && mgr.loadPersistentApex ? mgr.loadPersistentApex() : null);
-
-      if (!reigning) {
-        try {
-          const saved = localStorage.getItem('nexus_apex_record');
-          if (saved) reigning = JSON.parse(saved);
-        } catch (_) {}
+      // 1. Authoritative ground truth: if firestoreRecords is loaded, records[0] is the true active #1
+      let activeLeader = null;
+      if (firestoreRecords && firestoreRecords.length > 0) {
+        activeLeader = firestoreRecords[0];
+      } else if (mgr && typeof mgr.getEntries === 'function') {
+        const localEntries = mgr.getEntries();
+        if (localEntries && localEntries.length > 0) {
+          activeLeader = localEntries[0];
+        }
       }
 
-      // 3. Select the true highest leader
-      let activeLeader = topDaily || reigning || { ...DEFAULT_APEX_RECORD };
-      if (topDaily && reigning) {
-        const topLvl = Number(topDaily.levelReached !== undefined ? topDaily.levelReached : (topDaily.level || 1));
-        const reignLvl = Number(reigning.levelReached !== undefined ? reigning.levelReached : (reigning.level || 1));
-        const topTime = typeof topDaily.recordTime === 'number' ? topDaily.recordTime : (typeof topDaily.totalTime === 'number' ? topDaily.totalTime : parseFloat(topDaily.recordTime || topDaily.totalTime || topDaily.time || 0));
-        const reignTime = typeof reigning.recordTime === 'number' ? reigning.recordTime : (typeof reigning.totalTime === 'number' ? reigning.totalTime : parseFloat(reigning.recordTime || reigning.totalTime || reigning.time || 9999));
-
-        if (topLvl > reignLvl || (topLvl === reignLvl && topTime <= reignTime)) {
-          activeLeader = topDaily;
-        } else {
-          activeLeader = reigning;
+      // 2. Fallback to reigning apex if no firestore/local entries yet
+      if (!activeLeader) {
+        let reigning = (mgr && mgr.reigningApex) ? mgr.reigningApex : null;
+        if (!reigning) {
+          try {
+            const saved = localStorage.getItem('nexus_apex_record');
+            if (saved) {
+              const p = JSON.parse(saved);
+              if (p && p.totalTime > 0 && (p.levelReached || p.level || 0) <= 120 && p.name !== 'FURKAN W') {
+                reigning = p;
+              }
+            }
+          } catch (_) {}
         }
+        activeLeader = reigning || { ...DEFAULT_APEX_RECORD };
       }
 
       const lvl = activeLeader.levelReached !== undefined ? Number(activeLeader.levelReached) : (activeLeader.level !== undefined ? Number(activeLeader.level) : 1);
@@ -3428,12 +3429,16 @@
           if (saved) {
             const parsed = JSON.parse(saved);
             if (parsed && parsed.name && (parsed.recordTime !== undefined || parsed.totalTime !== undefined || parsed.time !== undefined)) {
-              const rTime = typeof parsed.recordTime === 'number' ? parsed.recordTime : (typeof parsed.totalTime === 'number' ? parsed.totalTime : parseFloat(parsed.recordTime || parsed.totalTime || parsed.time || 8.42));
+              if (parsed.name === 'FURKAN W' && (parsed.levelReached >= 150 || parsed.level >= 150)) {
+                localStorage.removeItem(this.apexStorageKey);
+                return { ...DEFAULT_APEX_RECORD };
+              }
+              const rTime = typeof parsed.recordTime === 'number' ? parsed.recordTime : (typeof parsed.totalTime === 'number' ? parsed.totalTime : parseFloat(parsed.recordTime || parsed.totalTime || parsed.time || 511.15));
               return {
                 name: String(parsed.name).trim().toUpperCase().slice(0, 12),
                 recordTime: rTime,
                 totalTime: rTime,
-                levelReached: Number(parsed.levelReached || parsed.level || 1),
+                levelReached: Number(parsed.levelReached || parsed.level || 110),
                 timestamp: parsed.timestamp || Date.now()
               };
             }
