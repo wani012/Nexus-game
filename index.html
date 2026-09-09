@@ -9,6 +9,10 @@
   <meta name="author" content="Furkan Farooq">
   <link rel="canonical" href="https://nexusgame-website.vercel.app">
 
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <link rel="alternate icon" href="data:,">
+
   <!-- Mobile & PWA Web App Capable -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2598,6 +2602,16 @@
     }
 
         // --- 2. Standalone Lightweight Web Audio API Synthesizer (SoundFX) & Haptic Engine ---
+    let hasUserInteracted = false;
+    function markUserGesture() {
+      hasUserInteracted = true;
+      if (typeof sound !== 'undefined' && sound && !sound.ctx) {
+        sound.init();
+      }
+    }
+    window.hasUserInteracted = () => hasUserInteracted;
+    window.markUserGesture = markUserGesture;
+
     class SoundFX {
       constructor() {
         this.ctx = null;
@@ -2610,6 +2624,7 @@
       }
 
       init() {
+        if (!hasUserInteracted) return; // Strict compliance with modern browser autoplay policies
         if (!this.ctx) {
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
           if (AudioCtx) {
@@ -2622,6 +2637,7 @@
       }
 
       toggleMute() {
+        hasUserInteracted = true;
         this.enabled = !this.enabled;
         localStorage.setItem('nexus_audio_muted', (!this.enabled).toString());
         updateSoundBtnUI();
@@ -2865,6 +2881,7 @@
 
     // Automatically resume AudioContext on first user interaction/click
     const unlockAudioContext = () => {
+      hasUserInteracted = true;
       if (sound && sound.ctx && sound.ctx.state === 'suspended') {
         sound.ctx.resume().catch(() => {});
       } else if (sound) {
@@ -2932,6 +2949,7 @@
     window.handleUpiPaymentClick = handleUpiPaymentClick;
 
     const triggerHaptic = (pattern = 50) => {
+      if (!hasUserInteracted) return; // Never invoke vibration without prior user gesture
       try {
         if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
           navigator.vibrate(pattern);
@@ -3729,8 +3747,10 @@
         setTimeout(() => boardEl.classList.remove('circuit-transition-glitch'), 750);
       }
 
-      sound.playStep(5);
-      triggerHaptic([30, 40, 60]);
+      if (hasUserInteracted) {
+        sound.playStep(5);
+        triggerHaptic([30, 40, 60]);
+      }
 
       // 9. Broadcast to Firestore game_state/active_circuit if requested
       if (broadcastToFirestore && firestoreDb) {
@@ -5545,6 +5565,7 @@
 
       if (boardFrameEl) {
         boardFrameEl.addEventListener('pointerdown', (e) => {
+          markUserGesture();
           sound.init();
           if (isCompleted || isTimeOver) return;
           cacheNodePositions();
@@ -5568,6 +5589,7 @@
 
         // Touch event fallbacks for mobile browsers
         boardFrameEl.addEventListener('touchstart', (e) => {
+          markUserGesture();
           sound.init();
           if (isCompleted || isTimeOver) return;
           cacheNodePositions();
@@ -6194,6 +6216,7 @@
 
     
     function playElectricThunderSFX() {
+      if (!hasUserInteracted) return;
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!AudioCtx) return;
