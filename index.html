@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>NEXUS — Minimalist Daily Circuit Puzzle</title>
-  <meta name="description" content="A fast-paced daily logic puzzle. Connect 25 nodes in order before the 20-second timer expires. Real-time global leaderboard, progressive endless streak levels, and universal daily challenge seeds.">
-  <meta name="keywords" content="nexus, daily puzzle, logic puzzle, brain teaser, speedrun, hamiltonian path, web game, minimal puzzle">
+  <title>NEXUS — Minimalist Daily Circuit Puzzle & Speedrun Game</title>
+  <meta name="description" content="Play NEXUS: A fast-paced daily circuit logic puzzle. Connect 25 nodes in numerical order before the 20-second timer expires. Global real-time leaderboard, reverse protocol & fog of war levels, and daily streak tracking.">
+  <meta name="keywords" content="nexus, nexus game, daily puzzle, logic puzzle, brain teaser, speedrun, 25 nodes puzzle, hamiltonian path, web game, minimal puzzle, online brain training, daily circuit puzzle">
   <meta name="author" content="Furkan Farooq">
-  <link rel="canonical" href="https://nexusgame-website.vercel.app">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <link rel="canonical" href="https://wani012.github.io/Nexus-game/">
 
-  <!-- Favicon -->
+  <!-- Web App Manifest & Favicon -->
+  <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
   <link rel="alternate icon" href="data:,">
 
@@ -25,9 +29,9 @@
 
   <!-- Open Graph / WhatsApp / Social Previews -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://nexusgame-website.vercel.app">
-  <meta property="og:title" content="NEXUS — Minimalist Daily Circuit Puzzle">
-  <meta property="og:description" content="Connect 25 nodes before the 20-second clock expires. Daily global challenges, progressive levels, and real-time leaderboards.">
+  <meta property="og:url" content="https://wani012.github.io/Nexus-game/">
+  <meta property="og:title" content="NEXUS — Minimalist Daily Circuit Puzzle & Speedrun">
+  <meta property="og:description" content="Can you solve today's circuit? Connect 25 nodes before the 20-second timer expires. Real-time global leaderboards and progressive streak levels.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=80">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -36,9 +40,9 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://nexusgame-website.vercel.app">
-  <meta name="twitter:title" content="NEXUS — Minimalist Daily Circuit Puzzle">
-  <meta name="twitter:description" content="Connect 25 nodes before the 20-second clock expires. Daily global challenges, progressive levels, and real-time leaderboards.">
+  <meta name="twitter:url" content="https://wani012.github.io/Nexus-game/">
+  <meta name="twitter:title" content="NEXUS — Minimalist Daily Circuit Puzzle & Speedrun">
+  <meta name="twitter:description" content="Can you solve today's circuit? Connect 25 nodes before the 20-second timer expires. Real-time global leaderboards and progressive streak levels.">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=80">
 
   <!-- Structured Data (JSON-LD) -->
@@ -48,9 +52,9 @@
     "@graph": [
       {
         "@type": "WebApplication",
-        "@id": "https://nexusgame-website.vercel.app/#webapp",
+        "@id": "https://wani012.github.io/Nexus-game/#webapp",
         "name": "NEXUS",
-        "url": "https://nexusgame-website.vercel.app",
+        "url": "https://wani012.github.io/Nexus-game/",
         "description": "Minimalist competitive daily circuit puzzle. Connect 25 nodes before time runs out.",
         "applicationCategory": "GameApplication",
         "operatingSystem": "All",
@@ -58,14 +62,19 @@
         "author": {
           "@type": "Person",
           "name": "Furkan Farooq"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
         }
       },
       {
         "@type": "VideoGame",
-        "@id": "https://nexusgame-website.vercel.app/#game",
+        "@id": "https://wani012.github.io/Nexus-game/#game",
         "name": "NEXUS Circuit Puzzle",
-        "url": "https://nexusgame-website.vercel.app",
-        "genre": ["Puzzle", "Logic", "Speedrun"],
+        "url": "https://wani012.github.io/Nexus-game/",
+        "genre": ["Puzzle", "Logic", "Speedrun", "Brain Training"],
         "gamePlatform": ["Web Browser", "Mobile Browser"],
         "playMode": "SinglePlayer",
         "numberOfPlayers": {
@@ -2374,23 +2383,8 @@
     </div>
   </div>
 
-  <!-- ================= BENCHMARK MATCH OVERLAY ================= -->
-  <div id="benchmark-matched-overlay" class="fixed inset-0 bg-[#090D16]/95 backdrop-blur-md hidden items-center justify-center p-6 z-[60]">
-    <div class="relative max-w-md w-full p-7 rounded-3xl border border-blue-500/30 bg-[#111726] shadow-2xl text-center">
-      <div class="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center text-3xl mb-4">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
-      </div>
-      <h2 id="benchmark-match-title" class="text-xl sm:text-2xl font-extrabold text-white tracking-tight mb-2">
-        Benchmark Matched
-      </h2>
-      <p id="benchmark-match-detail" class="text-xs sm:text-sm text-slate-300 mb-5">
-        Target time reached. Generating new challenge circuit...
-      </p>
-      <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-white/5">
-        <div id="benchmark-loader-bar" class="h-full bg-blue-500 w-full animate-pulse"></div>
-      </div>
-    </div>
-  </div>
+  <!-- ================= BENCHMARK MATCH OVERLAY (HIDDEN) ================= -->
+  <div id="benchmark-matched-overlay" class="hidden pointer-events-none" style="display: none !important; visibility: hidden !important;"></div>
 
   <!-- ================= GAME OVER (TIMEOUT) MODAL ================= -->
   <div id="gameover-modal" class="fixed inset-0 bg-[#090D16]/90 backdrop-blur-md hidden items-center justify-center p-4 z-50">
@@ -3432,6 +3426,11 @@
       syncApexBanner();
       syncLandingApexWinner();
 
+      try {
+        sessionStorage.removeItem('nexus_session_level');
+        sessionStorage.removeItem('nexus_session_total_time');
+      } catch (_) {}
+
       return { record, dethroned: isDethrone };
     }
     window.saveScoreToLeaderboard = saveScoreToLeaderboard;
@@ -3653,10 +3652,38 @@
     }
 
 
+    // Dynamic High-Visibility Toast for Protocol Changes & Mobile Feedback
+    let protocolToastTimeout = null;
+    function showProtocolHintToast(htmlContent, duration = 3200) {
+      let toastEl = document.getElementById('protocol-hint-toast');
+      if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.id = 'protocol-hint-toast';
+        toastEl.className = 'fixed top-14 sm:top-16 left-1/2 -translate-x-1/2 z-[75] px-4 py-2.5 rounded-2xl bg-[#111726]/95 border border-purple-500/60 text-purple-200 text-xs font-bold font-orbitron shadow-2xl shadow-purple-950/80 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-2 text-center max-w-[92vw] backdrop-blur-md';
+        document.body.appendChild(toastEl);
+      }
+      toastEl.innerHTML = htmlContent;
+      toastEl.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none');
+      toastEl.classList.add('opacity-100', 'translate-y-0');
+
+      if (protocolToastTimeout) clearTimeout(protocolToastTimeout);
+      protocolToastTimeout = setTimeout(() => {
+        if (toastEl) {
+          toastEl.classList.remove('opacity-100', 'translate-y-0');
+          toastEl.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
+        }
+      }, duration);
+    }
+    window.showProtocolHintToast = showProtocolHintToast;
+
     // --- 5B. Procedural Circuit Generator for Every Level & Real-Time Sync ---
     function loadNewCircuit(level = 1, customSeed = null, broadcastToFirestore = false, triggeredBy = 'OPERATOR') {
       currentLevel = level;
-            targetSequence = getTargetSequence(level);
+      try {
+        sessionStorage.setItem('nexus_session_level', String(level));
+        sessionStorage.setItem('nexus_session_total_time', String(totalRunTime || 0));
+      } catch (_) {}
+      targetSequence = getTargetSequence(level);
       window.targetSequence = targetSequence;
       window.activeLevelSequence = targetSequence;
       currentMaxLevel = Math.max(currentMaxLevel, level);
@@ -3703,14 +3730,17 @@
           protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-rose-950/80 to-purple-950/90 border border-rose-500/50 text-center text-xs font-bold text-rose-200 shadow-md flex items-center justify-between';
           protBanner.innerHTML = `<span>⚠️ LEVEL ${level}: REVERSE + FOG PROTOCOL</span><span class="font-mono text-[10px] bg-rose-500/20 px-2 py-0.5 rounded border border-rose-400/40 text-rose-300">⏱ ${roundDur}s LIMIT</span>`;
+          showProtocolHintToast(`⚠️ <strong>LEVEL ${level}: REVERSE + FOG PROTOCOL!</strong><br><span class="text-[11px] font-normal text-slate-300">Start from Node [25] in the dark! (${roundDur}s limit)</span>`, 3500);
         } else if (isFog) {
           protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 text-center text-xs font-bold text-amber-200 shadow-sm flex items-center justify-between';
           protBanner.innerHTML = `<span>⚡ LEVEL ${level}: FOG OF WAR PROTOCOL</span><span class="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/40 text-amber-300">⏱ ${roundDur}s LIMIT</span>`;
+          showProtocolHintToast(`⚡ <strong>LEVEL ${level}: FOG OF WAR PROTOCOL!</strong><br><span class="text-[11px] font-normal text-slate-300">Drag finger to illuminate nodes [1 ➔ 25]</span>`, 3500);
         } else if (isReverse) {
           protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-purple-950/80 border border-purple-500/50 text-center text-xs font-bold text-purple-200 shadow-sm flex items-center justify-between';
           protBanner.innerHTML = `<span>🔄 LEVEL ${level}: REVERSE PROTOCOL (25 ➔ 1)</span><span class="font-mono text-[10px] bg-purple-500/20 px-2 py-0.5 rounded border border-purple-400/40 text-purple-300">⏱ ${roundDur}s LIMIT</span>`;
+          showProtocolHintToast(`🔄 <strong>LEVEL ${level}: REVERSE PROTOCOL ACTIVE!</strong><br><span class="text-[11px] font-normal text-slate-300">Start from Node [25] ➔ Drag down to [1] (${roundDur}s limit)</span>`, 3500);
         } else {
           protBanner.classList.add('hidden');
         }
@@ -3798,7 +3828,7 @@
               const toastText = document.getElementById('circuit-sync-toast-text');
               if (toastEl && toastText) {
                 const runner = data.triggeredBy || 'AN OPERATOR';
-                toastText.innerText = `Benchmark set by ${runner}! New puzzle generated.`;
+                toastText.innerText = `New record set by ${runner}! Fresh circuit loaded.`;
                 toastEl.classList.remove('hidden');
                 setTimeout(() => toastEl.classList.add('hidden'), 5000);
               }
@@ -5087,7 +5117,7 @@
       }
 
       // 4. Display a functional "RETRY LEVEL" button that resets current circuit state and re-enables interaction
-      if (retryBtnText) retryBtnText.innerText = 'RETRY LEVEL';
+      if (retryBtnText) retryBtnText.innerText = 'RETRY LEVEL ' + currentLevel;
       const retryBtn = document.getElementById('retry-btn');
       if (retryBtn) {
         retryBtn.onclick = (e) => {
@@ -5419,6 +5449,15 @@
           }
         } else {
           triggerInvalidNodeFeedback(cellIndex);
+          if (isReverse && cp === 1) {
+            showProtocolHintToast('🔄 <strong>REVERSE PROTOCOL ACTIVE!</strong><br><span class="text-[11px] font-normal text-slate-300">Start at Node [25]! Drag down to [1]</span>', 2500);
+          } else if (!isReverse && cp === 25) {
+            showProtocolHintToast('⚡ <strong>STANDARD PROTOCOL ACTIVE!</strong><br><span class="text-[11px] font-normal text-slate-300">Start at Node [1]! Drag up to [25]</span>', 2500);
+          } else if (isReverse) {
+            showProtocolHintToast('🔄 <strong>REVERSE PROTOCOL: Start at Node [25]!</strong>', 1800);
+          } else {
+            showProtocolHintToast('⚡ <strong>STANDARD PROTOCOL: Start at Node [1]!</strong>', 1800);
+          }
         }
         return;
       }
@@ -6921,8 +6960,8 @@ ${shareData.url}`;
         // URL Pill
         roundRect(180, 1650, 720, 68, 34, 'rgba(0, 240, 255, 0.12)', 'rgba(0, 240, 255, 0.65)', 2);
         ctx.fillStyle = '#00F0FF';
-        ctx.font = "bold 26px 'Orbitron', monospace";
-        ctx.fillText('nexusgame-website.vercel.app', 540, 1694);
+        ctx.font = "bold 24px 'Orbitron', monospace";
+        ctx.fillText('wani012.github.io/Nexus-game', 540, 1694);
 
         // Bottom Watermark
         ctx.fillStyle = '#64748B';
@@ -7452,8 +7491,18 @@ ${shareData.url}`;
     // --- 10. Guaranteed Initialization Lifecycle ---
     function initGame() {
       cacheDOMElements();
-      currentLevel = 1;
-      totalRunTime = 0;
+      let startingLevel = 1;
+      let startingTotalTime = 0;
+      try {
+        const savedSessionLvl = parseInt(sessionStorage.getItem('nexus_session_level') || '1', 10);
+        const savedSessionTime = parseFloat(sessionStorage.getItem('nexus_session_total_time') || '0');
+        if (savedSessionLvl > 1) {
+          startingLevel = savedSessionLvl;
+          startingTotalTime = isNaN(savedSessionTime) ? 0 : savedSessionTime;
+        }
+      } catch (_) {}
+      currentLevel = startingLevel;
+      totalRunTime = startingTotalTime;
       checkDuelUrlParams();
       checkReferralUrlParams();
       initUserTokensSync();
@@ -7462,7 +7511,7 @@ ${shareData.url}`;
       if (isDuelActive && activeDuelSeed) {
         loadNewCircuit(1, activeDuelSeed);
       } else {
-        loadNewCircuit(1);
+        loadNewCircuit(currentLevel);
       }
 
       applySkin(activeSkinId);
