@@ -2437,6 +2437,65 @@
     </div>
   </div>
 
+  <!-- ================= AUTOMATIC SYSTEM MAINTENANCE & AUTO-RECOVERY POSTER ================= -->
+  <div id="maintenance-poster-modal" class="fixed inset-0 z-[999999] bg-[#070B14]/96 backdrop-blur-2xl hidden items-center justify-center p-4 text-center transition-all duration-300">
+    <div class="bg-[#111726] border border-amber-500/40 w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(245,158,11,0.2)] relative text-center">
+      
+      <!-- Pulsating Maintenance Emblem -->
+      <div class="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center text-3xl mb-4 shadow-[0_0_25px_rgba(245,158,11,0.3)] animate-pulse">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+
+      <!-- Header Pills & Badges -->
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase mb-2 shadow-sm">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+        <span>AUTOMATED MAINTENANCE PROTOCOL</span>
+      </div>
+
+      <h3 class="text-xl sm:text-2xl font-black text-white font-orbitron tracking-tight mb-2 uppercase">
+        CIRCUIT ANOMALY DETECTED
+      </h3>
+
+      <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+        Our automated neural watchdog detected an unexpected browser disruption. To safeguard your streak and progress, NEXUS has entered <strong>Safe Recovery Mode</strong>.
+      </p>
+
+      <!-- Diagnostic Status Box -->
+      <div class="bg-[#161F33] p-4 rounded-2xl border border-white/5 mb-5 text-left text-xs font-mono">
+        <div class="flex justify-between items-center pb-2 border-b border-white/5">
+          <span class="text-slate-400 text-[11px]">Preserved Progress:</span>
+          <span id="maintenance-preserved-level" class="text-emerald-400 font-bold">LEVEL 1 • STREAK PROTECTED</span>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-slate-400 text-[11px]">Anomaly Code:</span>
+          <span id="maintenance-error-code" class="text-amber-400 font-bold">#NEXUS-RECOVERY-OK</span>
+        </div>
+        <div class="pt-2 flex justify-between items-center text-[10px] text-slate-500">
+          <span>Auto-Recovery Engine:</span>
+          <span class="text-cyan-400">ACTIVE &bull; READY</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-2.5">
+        <button id="btn-maintenance-recover" onclick="recoverAndResumeCircuit()" class="btn-shimmer w-full py-3.5 bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500 hover:opacity-95 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
+          <svg class="w-4 h-4 fill-none stroke-currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span>RECOVER &amp; RESUME CIRCUIT</span>
+        </button>
+
+        <button onclick="dismissMaintenancePoster()" class="w-full py-2.5 bg-[#161F33] hover:bg-[#1E2A45] text-slate-300 hover:text-white font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+          <span>Dismiss Poster &amp; Continue</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ================= RULES & HOW TO PLAY ================= -->
   <section id="rules" class="py-12 px-4 max-w-4xl mx-auto w-full border-t border-white/5">
     <div class="text-center mb-8">
@@ -2571,7 +2630,92 @@
   </footer>
 
   <script>
+    // --- 0. Automated Neural Error Watchdog & Maintenance Poster Engine ---
+    let hasMaintenancePosterTriggered = false;
 
+    function showMaintenancePoster(errorMsg = 'Unexpected browser exception', errorDetails = '') {
+      if (hasMaintenancePosterTriggered) return;
+      hasMaintenancePosterTriggered = true;
+
+      try {
+        if (typeof stopTimerLoop === 'function') stopTimerLoop();
+      } catch (_) {}
+
+      // Safeguard active level & streak
+      try {
+        const activeLvl = (typeof currentLevel !== 'undefined' && currentLevel > 1) 
+          ? currentLevel 
+          : parseInt(localStorage.getItem('nexus_active_level') || '1', 10);
+        localStorage.setItem('nexus_active_level', String(activeLvl));
+        
+        const activeStreak = (typeof currentLevel !== 'undefined' && currentLevel > 1)
+          ? currentLevel
+          : parseInt(localStorage.getItem('nexus_streak') || '1', 10);
+        localStorage.setItem('nexus_streak', String(activeStreak));
+
+        const presLvlEl = document.getElementById('maintenance-preserved-level');
+        if (presLvlEl) {
+          presLvlEl.innerText = `LEVEL ${activeLvl} • STREAK ${activeStreak} PROTECTED`;
+        }
+      } catch (_) {}
+
+      const errHash = Math.random().toString(36).substring(2, 7).toUpperCase();
+      const codeEl = document.getElementById('maintenance-error-code');
+      if (codeEl) {
+        codeEl.innerText = `#NEXUS-RECOVERY-${errHash}`;
+      }
+
+      const modal = document.getElementById('maintenance-poster-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.display = 'flex';
+      }
+    }
+    window.showMaintenancePoster = showMaintenancePoster;
+    window.triggerMaintenancePoster = showMaintenancePoster;
+
+    function recoverAndResumeCircuit() {
+      try {
+        sessionStorage.clear();
+      } catch (_) {}
+      // Reloads cleanly — localStorage will restore the exact level and streak!
+      window.location.reload();
+    }
+    window.recoverAndResumeCircuit = recoverAndResumeCircuit;
+
+    function dismissMaintenancePoster() {
+      const modal = document.getElementById('maintenance-poster-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.style.display = 'none';
+      }
+    }
+    window.dismissMaintenancePoster = dismissMaintenancePoster;
+
+    // Global Uncaught Exception Listeners
+    window.addEventListener('error', (event) => {
+      if (!event) return;
+      const msg = (event.message || '').toLowerCase();
+      // Filter out benign browser noise or extension scripts
+      if (msg.includes('resizeobserver') || msg.includes('script error') || msg.includes('extension') || msg.includes('eval')) {
+        return;
+      }
+      console.warn("Watchdog intercepted error:", event.message);
+      if (event.filename && (event.filename.includes('index.html') || event.filename === window.location.href || !event.filename.includes('http'))) {
+        showMaintenancePoster(event.message, event.filename + ':' + event.lineno);
+      }
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      if (!event || !event.reason) return;
+      const reason = String(event.reason.message || event.reason).toLowerCase();
+      if (reason.includes('user gesture') || reason.includes('aborterror') || reason.includes('network') || reason.includes('failed to fetch')) {
+        return;
+      }
+      console.warn("Watchdog intercepted unhandled rejection:", event.reason);
+    });
 
     // Safe DOM helper to prevent any null reference from stopping the script
     function safeSetText(id, text) {
