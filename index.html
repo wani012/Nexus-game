@@ -3860,6 +3860,8 @@
     // Compatibility alias
     const generateRandomCircuit = (seed, broadcast, triggeredBy) => loadNewCircuit(currentLevel, seed, broadcast, triggeredBy);
 
+    let isInitialActiveCircuitSync = true;
+
     function initActiveCircuitSync() {
       if (!firestoreDb) return;
       try {
@@ -3869,7 +3871,14 @@
             const data = doc.data();
             if (!data || !data.seed) return;
 
-            // Guard: Do not reload circuit if player is actively playing or viewing level-cleared / score modal
+            // Guard 1: On initial game open, sync seed silently without showing any toast or resetting the circuit
+            if (isInitialActiveCircuitSync) {
+              isInitialActiveCircuitSync = false;
+              currentCircuitSeed = data.seed;
+              return;
+            }
+
+            // Guard 2: Do not reload circuit if player is actively playing or viewing level-cleared / score modal
             const levelClearedModal = document.getElementById('level-cleared-modal');
             const isLevelModalOpen = levelClearedModal && !levelClearedModal.classList.contains('hidden');
             const crackedModal = document.getElementById('circuit-cracked-modal');
@@ -3879,9 +3888,7 @@
               return;
             }
 
-            if (currentCircuitSeed === null) {
-              currentCircuitSeed = data.seed;
-            } else if (currentCircuitSeed !== data.seed && currentLevel === 1) {
+            if (currentCircuitSeed !== data.seed && currentLevel === 1) {
               currentCircuitSeed = data.seed;
               loadNewCircuit(1, data.seed, false, data.triggeredBy || 'OPERATOR');
 
