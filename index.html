@@ -4876,26 +4876,23 @@
           fogSpotlightEl = document.getElementById('fog-spotlight-layer');
         }
         if (fogSpotlightEl) {
-          fogSpotlightEl.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, transparent 0%, rgba(9, 13, 22, 0.45) 75px, rgba(9, 13, 22, 0.96) 120px)`;
+          fogSpotlightEl.style.setProperty('--spotlight-x', `${x}px`);
+          fogSpotlightEl.style.setProperty('--spotlight-y', `${y}px`);
         }
 
-        if (!cachedGridNodes || cachedGridNodes.length !== TOTAL_CELLS) {
-          cachedGridNodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
-        }
-        const nodes = cachedGridNodes;
+        const nodes = cachedGridNodes || nodeGridEl.querySelectorAll('.circuit-node');
+        const rSq = 125 * 125;
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
-          let dist = 9999;
+          let isNear = false;
           if (cachedNodePositions && cachedNodePositions[i]) {
             const cp = cachedNodePositions[i];
-            dist = Math.hypot(cp.cx - x, cp.cy - y);
-          } else if (typeof node.getBoundingClientRect === 'function') {
-            const nr = node.getBoundingClientRect();
-            const nx = nr.left + nr.width / 2 - gridRect.left;
-            const ny = nr.top + nr.height / 2 - gridRect.top;
-            dist = Math.hypot(nx - x, ny - y);
+            const dx = cp.cx - x;
+            const dy = cp.cy - y;
+            isNear = (dx * dx + dy * dy <= rSq);
+          } else {
+            isNear = true;
           }
-          const isNear = dist <= 120;
           const hasClass = node.classList.contains('in-spotlight');
           if (isNear && !hasClass) {
             node.classList.add('in-spotlight');
@@ -5146,7 +5143,8 @@
         if (typeof nodeGridEl.getBoundingClientRect === 'function') {
           cachedGridRect = nodeGridEl.getBoundingClientRect();
         }
-        const nodes = nodeGridEl.querySelectorAll('.grid-cell');
+        const nodes = nodeGridEl.querySelectorAll('.circuit-node');
+        cachedGridNodes = nodes;
         cachedNodePositions = [];
         cachedNodeWorld = [];
         for (let i = 0; i < nodes.length; i++) {
@@ -5165,8 +5163,11 @@
         }
       } catch (_) {}
     }
+    window.cacheNodePositions = cacheNodePositions;
+    window.getCachedNodeWorld = () => cachedNodeWorld;
     window.addEventListener('resize', cacheNodePositions);
     window.addEventListener('orientationchange', cacheNodePositions);
+    window.addEventListener('scroll', cacheNodePositions, { passive: true });
 
     let timerRaf = null;
 
@@ -5514,26 +5515,29 @@
 
     function updateActiveStates() {
       if (!nodeGridEl) return;
-      const nodes = nodeGridEl.querySelectorAll('.circuit-node, .grid-cell');
+      const nodes = cachedGridNodes || nodeGridEl.querySelectorAll('.circuit-node');
       if (playerPath.length === 0) {
         const isReverse = isReverseProtocol(currentLevel);
         const startVal = isReverse ? 25 : 1;
-        nodes.forEach((node, idx) => {
+        for (let idx = 0; idx < nodes.length; idx++) {
+          const node = nodes[idx];
           const cp = (activePuzzle && activePuzzle.checkpoints && activePuzzle.checkpoints[idx]) || (node.dataset.checkpoint ? parseInt(node.dataset.checkpoint, 10) : null);
           if (cp === startVal) {
             node.classList.add('active-node-glow');
           } else {
             node.classList.remove('active', 'completed', 'active-node-glow');
           }
-        });
+        }
       } else {
-        nodes.forEach((node, idx) => {
-          if (playerPath.includes(idx)) {
+        const pathSet = new Set(playerPath);
+        for (let idx = 0; idx < nodes.length; idx++) {
+          const node = nodes[idx];
+          if (pathSet.has(idx)) {
             node.classList.add('active', 'completed', 'active-node-glow');
           } else {
             node.classList.remove('active', 'completed', 'active-node-glow');
           }
-        });
+        }
       }
       const count = Math.max(1, playerPath.length);
       safeSetText('connected-counter', `Connected: ${count}/25`);
@@ -5651,9 +5655,49 @@
 
     function getNodeIndexFromPoint(x, y) {
       if (typeof x !== 'number' || typeof y !== 'number') return null;
-      const elements = (document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)]);
-      for (const elem of elements) {
-        if (!elem) continue;
+
+      // 1. Mobile Fast-Path: Direct Euclidean distance check against pre-cached node centers (0.001ms, 60-120fps)
+      if (cachedNodeWorld && cachedNodeWorld.length === TOTAL_CELLS) {
+        let closestIdx = null;
+        let minDistSq = 48 * 48; // 48px touch radius tolerance for effortless finger tracking on mobile screens
+        for (let i = 0; i < cachedNodeWorld.length; i++) {
+          const pt = cachedNodeWorld[i];
+          const dx = pt.cx - x;
+          const dy = pt.cy - y;
+          const dSq = dx * dx + dy * dy;
+          if (dSq < minDistSq) {
+            minDistSq = dSq;
+            closestIdx = pt.index;
+          }
+        }
+        if (closestIdx !== null) return closestIdx;
+      }
+
+      // 2. Proximity check against grid cells if world cache not yet populated
+      if (nodeGridEl) {
+        const nodes = cachedGridNodes || nodeGridEl.querySelectorAll('.circuit-node');
+        if (nodes && nodes.length === TOTAL_CELLS) {
+          let closestIdx = null;
+          let minDistSq = 48 * 48;
+          for (let i = 0; i < nodes.length; i++) {
+            const rect = nodes[i].getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = cx - x;
+            const dy = cy - y;
+            const dSq = dx * dx + dy * dy;
+            if (dSq < minDistSq) {
+              minDistSq = dSq;
+              closestIdx = i;
+            }
+          }
+          if (closestIdx !== null) return closestIdx;
+        }
+      }
+
+      // 3. Fallback: document.elementFromPoint
+      const elem = document.elementFromPoint(x, y);
+      if (elem) {
         const node = elem.closest('.circuit-node, .node-circle, [data-node-index], [data-index], .grid-cell');
         if (node) {
           const idxAttr = node.getAttribute('data-node-index') || node.getAttribute('data-index') || node.dataset.nodeIndex || node.dataset.index;
@@ -5662,38 +5706,6 @@
             if (!isNaN(parsed) && parsed >= 0 && parsed < TOTAL_CELLS) return parsed;
           }
         }
-      }
-      // Mobile proximity tolerance fallback (allows ultra-smooth dragging across cells even if fingertip slightly misses center)
-      if (cachedNodeWorld && cachedNodeWorld.length > 0) {
-        let closestIdx = null;
-        let minDist = 42; // 42px touch radius tolerance for smooth finger tracking
-        for (let i = 0; i < cachedNodeWorld.length; i++) {
-          const pt = cachedNodeWorld[i];
-          const d = Math.hypot(pt.cx - x, pt.cy - y);
-          if (d < minDist) {
-            minDist = d;
-            closestIdx = pt.index;
-          }
-        }
-        if (closestIdx !== null) return closestIdx;
-      } else if (nodeGridEl) {
-        const nodes = nodeGridEl.querySelectorAll('.grid-cell');
-        let closestIdx = null;
-        let minDist = 38;
-        for (let i = 0; i < nodes.length; i++) {
-          const rect = nodes[i].getBoundingClientRect();
-          const cx = rect.left + rect.width / 2;
-          const cy = rect.top + rect.height / 2;
-          const d = Math.hypot(cx - x, cy - y);
-          if (d < minDist) {
-            minDist = d;
-            const parsed = parseInt(nodes[i].getAttribute('data-index') || nodes[i].dataset.index || i, 10);
-            if (!isNaN(parsed) && parsed >= 0 && parsed < TOTAL_CELLS) {
-              closestIdx = parsed;
-            }
-          }
-        }
-        if (closestIdx !== null) return closestIdx;
       }
       return null;
     }
@@ -5768,44 +5780,31 @@
         const candidateStep = playerPath.length + 1;
         const cp = (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints[stepIndex] : undefined;
 
-        // In forward: milestones [1, 5, 10, 15, 20, 25] occur at steps [1, 5, 10, 15, 20, 25]
-        // In reverse: milestones [25, 20, 15, 10, 5, 1] occur at steps [1, 6, 11, 16, 21, 25]
-        const milestoneStepMap = isReverse
-          ? { 25: 1, 20: 6, 15: 11, 10: 16, 5: 21, 1: 25 }
-          : { 1: 1, 5: 5, 10: 10, 15: 15, 20: 20, 25: 25 };
-        const milestoneSteps = isReverse
-          ? [1, 6, 11, 16, 21, 25]
-          : [1, 5, 10, 15, 20, 25];
 
         if (cp !== undefined) {
           const visitedMilestones = playerPath
-            .map(idx => activePuzzle.checkpoints ? activePuzzle.checkpoints[idx] : undefined)
+            .map(idx => (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints[idx] : undefined)
             .filter(v => v !== undefined);
 
           const nextExpectedMilestone = expectedMilestones[visitedMilestones.length];
 
           if (cp !== nextExpectedMilestone) {
-            // Out of order milestone
+            // Out of order milestone (e.g. attempting to jump to a future checkpoint)
             break;
           }
 
-          // Strict milestone step check:
-          // Final milestone (25 in forward, 1 in reverse) can ONLY connect at Step 25!
-          // Intermediate milestones can only connect at their exact designated step!
-          const expectedStep = milestoneStepMap[cp];
-          if (candidateStep !== expectedStep) {
-            // Milestone touched early or out of step!
-            break;
+          // Strict finish check:
+          // The final milestone (25 in forward, 1 in reverse) can ONLY be connected as the 25th node!
+          if (visitedMilestones.length === expectedMilestones.length - 1) {
+            if (candidateStep < TOTAL_CELLS) {
+              // Cannot connect finish milestone before all 24 prior sockets are connected!
+              break;
+            }
           }
         } else {
           // Blank unnumbered circle:
-          // Can NEVER be connected at step 25 (the final 25th node MUST be the finish milestone)!
+          // Can NEVER be connected as the 25th node (the final node MUST be the finish milestone)!
           if (candidateStep >= TOTAL_CELLS) {
-            break;
-          }
-
-          // A blank circle cannot occupy a milestone step
-          if (milestoneSteps.includes(candidateStep)) {
             break;
           }
         }
@@ -5830,9 +5829,11 @@
     const attemptConnectNode = handlePointerOnIndex;
     window.attemptConnectNode = attemptConnectNode;
     window.handlePointerOnIndex = handlePointerOnIndex;
+    window.getNodeIndexFromPoint = getNodeIndexFromPoint;
     window.getPlayerPath = () => playerPath;
     window.getCurrentLevel = () => currentLevel;
     window.getIsCompleted = () => isCompleted;
+    window.getIsDragging = () => isDragging;
 
     function attachEventListeners() {
       lockNextLevelBtn();
@@ -5853,12 +5854,9 @@
         }
       });
 
-      let lastMoveEventTime = 0;
       const handlePointerMove = (e) => {
         if (!isDragging || isCompleted || isTimeOver) return;
-        if (e && e.timeStamp && Math.abs(e.timeStamp - lastMoveEventTime) < 1) return;
-        if (e && e.timeStamp) lastMoveEventTime = e.timeStamp;
-        if (e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
+        if (e && e.cancelable && typeof e.preventDefault === 'function') e.preventDefault();
         const idx = getNodeIndexFromPoint(e.clientX, e.clientY);
         if (idx !== null) {
           attemptConnectNode(idx);
