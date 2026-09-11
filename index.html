@@ -2694,16 +2694,29 @@
     }
     window.dismissMaintenancePoster = dismissMaintenancePoster;
 
-    // Global Uncaught Exception Listeners
+    // Global Uncaught Exception Listeners - Hardened to prevent false-positive maintenance poster triggers
     window.addEventListener('error', (event) => {
       if (!event) return;
       const msg = (event.message || '').toLowerCase();
-      // Filter out benign browser noise or extension scripts
-      if (msg.includes('resizeobserver') || msg.includes('script error') || msg.includes('extension') || msg.includes('eval')) {
+      // Filter out benign browser noise, extensions, audio policies, network, resize, or non-critical events
+      if (
+        msg.includes('resizeobserver') ||
+        msg.includes('script error') ||
+        msg.includes('extension') ||
+        msg.includes('eval') ||
+        msg.includes('audio') ||
+        msg.includes('media') ||
+        msg.includes('vibrate') ||
+        msg.includes('fullscreen') ||
+        msg.includes('service worker') ||
+        msg.includes('sw.js') ||
+        msg.includes('favicon')
+      ) {
         return;
       }
       console.warn("Watchdog intercepted error:", event.message);
-      if (event.filename && (event.filename.includes('index.html') || event.filename === window.location.href || !event.filename.includes('http'))) {
+      // Only trigger maintenance poster if error originates strictly from the main game script and is fatal
+      if (event.filename && (event.filename.includes('index.html') || event.filename === window.location.href) && event.lineno > 0) {
         showMaintenancePoster(event.message, event.filename + ':' + event.lineno);
       }
     });
@@ -2711,7 +2724,14 @@
     window.addEventListener('unhandledrejection', (event) => {
       if (!event || !event.reason) return;
       const reason = String(event.reason.message || event.reason).toLowerCase();
-      if (reason.includes('user gesture') || reason.includes('aborterror') || reason.includes('network') || reason.includes('failed to fetch')) {
+      if (
+        reason.includes('user gesture') ||
+        reason.includes('aborterror') ||
+        reason.includes('network') ||
+        reason.includes('failed to fetch') ||
+        reason.includes('audiocontext') ||
+        reason.includes('play')
+      ) {
         return;
       }
       console.warn("Watchdog intercepted unhandled rejection:", event.reason);
@@ -3901,7 +3921,8 @@
       didLiftFinger = false;
       earnedNeuralHacker = false;
       if (newPuzzle && newPuzzle.path && newPuzzle.path.length >= 20) {
-        mysteryNodeIndex = newPuzzle.path[6 + ((level * 7) % 13)];
+        const pt = newPuzzle.path[6 + ((level * 7) % 13)];
+        mysteryNodeIndex = (typeof pt === 'object' && pt) ? (pt.y * GRID_SIZE + pt.x) : (Number(pt) || 12);
       } else {
         mysteryNodeIndex = 12;
       }
@@ -3924,6 +3945,7 @@
       const tipText = document.getElementById('instruction-tip-text');
       const roundDur = getLevelRoundDuration(level);
       
+      if (protBanner) {
         if (isFog && isReverse) {
           protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-rose-950/80 to-purple-950/90 border border-rose-500/50 text-center text-xs font-bold text-rose-200 shadow-md flex items-center justify-between';
@@ -3942,6 +3964,7 @@
         } else {
           protBanner.classList.add('hidden');
         }
+      }
       if (tipText) {
         if (isReverse && isFog) {
           tipText.innerHTML = `⚠️ Master Challenge: Trace <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in Fog of War!`;
@@ -5078,7 +5101,7 @@
       const startMilestone = isReverse ? 25 : 1;
 
       for (let i = 0; i < TOTAL_CELLS; i++) {
-        const cp = activePuzzle.checkpoints[i];
+        const cp = (activePuzzle && activePuzzle.checkpoints) ? activePuzzle.checkpoints[i] : undefined;
         const isMystery = (i === mysteryNodeIndex);
         const node = document.createElement('div');
         node.dataset.index = i;
@@ -6602,6 +6625,12 @@
       localStorage.setItem('nexus_streak', streak);
       currentMaxLevel = Math.max(currentMaxLevel, currentLevel + 1);
       localStorage.setItem('nexus_max_level', currentMaxLevel);
+      try {
+        localStorage.setItem('nexus_active_level', String(currentLevel));
+        sessionStorage.setItem('nexus_session_level', String(currentLevel));
+        localStorage.setItem('nexus_session_total_time', String(totalRunTime));
+        sessionStorage.setItem('nexus_session_total_time', String(totalRunTime));
+      } catch (_) {}
 
       safeSetText('nav-streak', currentLevel);
       safeSetText('game-total-time', `${totalRunTime.toFixed(2)}s`);
@@ -6648,11 +6677,17 @@
       }, 600);
     }
 
+    let lastNextLevelClickTime = 0;
+
     function startNextLevel(e) {
       if (e) {
         if (typeof e.preventDefault === 'function') e.preventDefault();
         if (typeof e.stopPropagation === 'function') e.stopPropagation();
       }
+
+      const now = Date.now();
+      if (now - lastNextLevelClickTime < 300) return;
+      lastNextLevelClickTime = now;
 
       // Cancel any pending victory VFX timeouts from previous level
       if (victoryClimaxTimeout) {
@@ -6666,6 +6701,12 @@
 
       // Increments currentLevel += 1;
       currentLevel += 1;
+
+      // Persist active level across session and storage
+      try {
+        localStorage.setItem('nexus_active_level', String(currentLevel));
+        sessionStorage.setItem('nexus_session_level', String(currentLevel));
+      } catch (_) {}
 
       // Updates #level-display to show "LEVEL " + currentLevel
       const levelDisplay = document.getElementById('level-display');
@@ -6686,7 +6727,7 @@
       const thunderLayer = document.getElementById('thunder-vfx-layer');
       if (thunderLayer) thunderLayer.innerHTML = '';
 
-      // Resets timer to 20.00s and starts counting only when node [1] is touched
+      // Resets timer to round duration and starts counting only when start node is touched
       resetTimerDisplay();
 
       // Hides cleared modal
@@ -6701,6 +6742,10 @@
       triggerHaptic(20);
     }
     window.startNextLevel = startNextLevel;
+    window.nextLevel = startNextLevel;
+    function nextLevel(e) { return startNextLevel(e); }
+    window.levelComplete = triggerVictory;
+    function levelComplete() { return triggerVictory(); }
 
     function openLeaderboardModal(e) {
       if (e) {
