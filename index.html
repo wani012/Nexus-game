@@ -3271,9 +3271,19 @@
       if (lvl <= 6) return 18;
       if (lvl <= 8) return 17;
       if (lvl <= 10) return 16;
-      return Math.max(14, 16 - Math.floor((lvl - 10) / 2));
+      
+      // Sudden Death scaling for extreme levels (Idea #1)
+      if (lvl <= 20) return Math.max(12, 16 - Math.floor((lvl - 10) / 2)); // Drops to 12s by Level 20
+      if (lvl <= 50) return Math.max(10, 12 - Math.floor((lvl - 20) / 15)); // Drops to 10s by Level 50
+      return Math.max(8, 10 - Math.floor((lvl - 50) / 15)); // Drops to brutal 8s by Level 80+
     }
     window.getLevelRoundDuration = getLevelRoundDuration;
+
+    function isStrictProtocol(level = (typeof currentLevel !== 'undefined' ? currentLevel : 1)) {
+      const lvl = Math.max(1, Number(level) || 1);
+      return lvl >= 30; // 1 Mistake = Game Over kicks in at Level 30
+    }
+    window.isStrictProtocol = isStrictProtocol;
 
     function isReverseProtocol(level = (typeof currentLevel !== 'undefined' ? currentLevel : 1)) {
       const lvl = Math.max(1, Number(level) || 1);
@@ -3942,12 +3952,18 @@
       // 5. Update Protocol alert, difficulty mode, and instruction tip
       const isReverse = isReverseProtocol(level);
       const isFog = isFogOfWarLevel(level);
+      const isStrict = isStrictProtocol(level);
       const protBanner = document.getElementById('protocol-warning-banner');
       const tipText = document.getElementById('instruction-tip-text');
       const roundDur = getLevelRoundDuration(level);
       
       if (protBanner) {
-        if (isFog && isReverse) {
+        if (isStrict) {
+          protBanner.classList.remove('hidden');
+          protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-red-950/90 via-rose-900 to-red-950/90 border border-red-500/80 text-center text-xs font-bold text-red-200 shadow-md shadow-red-900/50 flex items-center justify-between';
+          protBanner.innerHTML = `<span>💀 LEVEL ${level}: STRICT PROTOCOL (1 MISTAKE = DEAD)</span><span class="font-mono text-[10px] bg-red-500/20 px-2 py-0.5 rounded border border-red-400/40 text-red-300">⏱ ${roundDur}s LIMIT</span>`;
+          showProtocolHintToast(`💀 <strong>LEVEL ${level}: STRICT PROTOCOL ACTIVE!</strong><br><span class="text-[11px] font-normal text-red-300">1 Mistake = Instant Game Over!</span>`, 4000);
+        } else if (isFog && isReverse) {
           protBanner.classList.remove('hidden');
           protBanner.className = 'mb-2.5 py-2 px-3.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-rose-950/80 to-purple-950/90 border border-rose-500/50 text-center text-xs font-bold text-rose-200 shadow-md flex items-center justify-between';
           protBanner.innerHTML = `<span>⚠️ LEVEL ${level}: REVERSE + FOG PROTOCOL</span><span class="font-mono text-[10px] bg-rose-500/20 px-2 py-0.5 rounded border border-rose-400/40 text-rose-300">⏱ ${roundDur}s LIMIT</span>`;
@@ -3967,7 +3983,9 @@
         }
       }
       if (tipText) {
-        if (isReverse && isFog) {
+        if (isStrict) {
+          tipText.innerHTML = `💀 <strong class="text-red-500">STRICT PROTOCOL</strong>: Trace carefully. One wrong node = Game Over!`;
+        } else if (isReverse && isFog) {
           tipText.innerHTML = `⚠️ Master Challenge: Trace <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in Fog of War!`;
         } else if (isReverse) {
           tipText.innerHTML = `Protocol Inverted: Trace from <strong class="text-[#FF2A6D] font-black font-orbitron">[25]</strong> to <strong class="text-[#00F0FF] font-black font-orbitron">[1]</strong> in ${roundDur}s!`;
@@ -5304,7 +5322,7 @@
     }
     window.handleGameOver = handleGameOver;
 
-    function triggerTimeoutOverload() {
+    function triggerTimeoutOverload(reason = 'timeout') {
       // 1. Clear all active countdown timers/intervals immediately
       stopTimerLoop();
       if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
@@ -5349,8 +5367,13 @@
 
       // 3. Trigger the Game-Over modal ("CIRCUIT TIMEOUT / MISSION FAILED")
       const timeoutLimit = getLevelRoundDuration(currentLevel);
-      safeSetText('overload-title', "CIRCUIT TIMEOUT / MISSION FAILED");
-      safeSetText('overload-subtitle', `The ${timeoutLimit}-second timer reached 00:00. Linkage broken.`);
+      if (reason === 'strict') {
+        safeSetText('overload-title', "STRICT PROTOCOL VIOLATED");
+        safeSetText('overload-subtitle', "1 Mistake = Game Over! Circuit sequence broken.");
+      } else {
+        safeSetText('overload-title', "CIRCUIT TIMEOUT / MISSION FAILED");
+        safeSetText('overload-subtitle', `The ${timeoutLimit}-second timer reached 00:00. Linkage broken.`);
+      }
 
       const bankBox = document.getElementById('overload-bank-box');
       const bankBtn = document.getElementById('overload-bank-btn');
@@ -5612,6 +5635,11 @@
       }
       sound.playErrorBuzz();
       triggerHaptic([30, 40, 30]);
+
+      // Strict Protocol: Instant game over on invalid touch if path has started
+      if (isStrictProtocol(currentLevel) && playerPath.length > 0 && !isCompleted && !isTimeOver) {
+        triggerTimeoutOverload('strict');
+      }
     }
 
         // --- 7. Full Unified Circuit Puzzle Engine (Adjacency, Blank Node Fill & Milestone Checking) ---

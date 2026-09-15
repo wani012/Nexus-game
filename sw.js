@@ -1,5 +1,5 @@
 // NEXUS Offline Service Worker
-const CACHE_NAME = 'nexus-cache-v3';
+const CACHE_NAME = 'nexus-cache-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
